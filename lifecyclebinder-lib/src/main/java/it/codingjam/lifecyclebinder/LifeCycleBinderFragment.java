@@ -10,7 +10,7 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LifeCycleBinderFragment<T> extends Fragment {
+public class LifeCycleBinderFragment<T> extends Fragment implements ViewLifeCycleAwareContainer<T> {
 
     public static final String LIFE_CYCLE_BINDER_FRAGMENT = "_LIFE_CYCLE_BINDER_FRAGMENT_";
 
@@ -97,8 +97,12 @@ public class LifeCycleBinderFragment<T> extends Fragment {
         super.onDestroy();
     }
 
-    public void initListeners(T viewParam, List<ViewLifeCycleAware<T>> listeners) {
+    public void init(T viewParam) {
         this.viewParam = viewParam;
-        this.listeners.addAll(listeners);
+    }
+
+    @Override
+    public void addListener(ViewLifeCycleAware<T> listener) {
+        this.listeners.add(listener);
     }
 }

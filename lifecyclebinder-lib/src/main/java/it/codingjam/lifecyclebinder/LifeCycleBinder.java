@@ -4,6 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -18,7 +20,7 @@ public class LifeCycleBinder {
     }
 
     private static <T> void bind(T obj, FragmentManager fragmentManager, FragmentManager activityFragmentManager) {
-        List<ViewLifeCycleAware<T>> listeners = ReflectionUtils.loadListeners(obj);
+        List<ViewLifeCycleAware<T>> listeners = new ArrayList<>();
 
         Map<String, Callable<ViewLifeCycleAware<T>>> map = ReflectionUtils.loadRetainedListeners(obj);
         if (!map.isEmpty()) {
@@ -38,9 +40,18 @@ public class LifeCycleBinder {
             }
         }
 
-        if (!listeners.isEmpty()) {
-            LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
-            fragment.initListeners(obj, listeners);
+        LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
+        fragment.init(obj);
+        for (ViewLifeCycleAware<T> listener : listeners) {
+            fragment.addListener(listener);
+        }
+        try {
+            Class<?> c = Class.forName(obj.getClass().getName() + "$LifeCycleBinder");
+            Method method = c.getMethod("bind", obj.getClass(), ViewLifeCycleAwareContainer.class, FragmentManager.class);
+            method.invoke(null, obj, fragment, activityFragmentManager);
+        } catch (ClassNotFoundException ignored) {
+        } catch (Exception e) {
+            throw new RuntimeException("Error invoking binding", e);
         }
     }
 }
