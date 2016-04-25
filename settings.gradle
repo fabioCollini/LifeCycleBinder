@@ -1,1 +1,1 @@
-include ':app', ':lib', ':mvp'
+include ':lifecyclebinder-demo-fragments', ':lifecyclebinder-lib', ':lifecyclebinder-demo-mvp'
