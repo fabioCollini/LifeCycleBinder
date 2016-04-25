@@ -5,35 +5,35 @@ import android.view.MenuItem;
 
 public class DefaultViewLifeCycleAware<T> implements ViewLifeCycleAware<T> {
     @Override
-    public void onCreate(T activity, Bundle bundle) {
+    public void onCreate(T view, Bundle bundle) {
     }
 
     @Override
-    public void onStart(T activity) {
+    public void onStart(T view) {
     }
 
     @Override
-    public void onResume(T activity) {
+    public void onResume(T view) {
     }
 
     @Override
-    public boolean onOptionsItemSelected(T activity, MenuItem item) {
+    public boolean onOptionsItemSelected(T view, MenuItem item) {
         return false;
     }
 
     @Override
-    public void onPause(T activity) {
+    public void onPause(T view) {
     }
 
     @Override
-    public void onStop(T activity) {
+    public void onStop(T view) {
     }
 
     @Override
-    public void onSaveInstanceState(T activity, Bundle bundle) {
+    public void onSaveInstanceState(T view, Bundle bundle) {
     }
 
     @Override
-    public void onDestroy(T activity) {
+    public void onDestroy(T view) {
     }
 }
