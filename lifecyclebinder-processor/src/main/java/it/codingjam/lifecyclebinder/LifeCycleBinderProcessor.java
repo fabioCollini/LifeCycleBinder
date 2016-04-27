@@ -1,10 +1,10 @@
 package it.codingjam.lifecyclebinder;
 
-import android.support.v4.app.FragmentManager;
-
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -63,7 +64,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             return true;
         }
 
-        Map<Element, List<Element>> elementsByClass = new HashMap<>();
+        Map<Element, ListenersInfo> elementsByClass = new HashMap<>();
 
         for (Element element : elements) {
             if (element.getKind() != ElementKind.FIELD) {
@@ -75,27 +76,33 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
             LifeCycleAware annotation = variable.getAnnotation(LifeCycleAware.class);
 
+            Element enclosingElement = variable.getEnclosingElement();
+
+            ListenersInfo info = elementsByClass.get(enclosingElement);
+            if (info == null) {
+                info = new ListenersInfo();
+                elementsByClass.put(enclosingElement, info);
+            }
             if (!annotation.retained()) {
-                Element enclosingElement = variable.getEnclosingElement();
-
-                message(Diagnostic.Kind.NOTE, "variable " + variable + " - " + enclosingElement);
-
-                List<Element> list = elementsByClass.get(enclosingElement);
-                if (list == null) {
-                    list = new ArrayList<>();
-                    elementsByClass.put(enclosingElement, list);
-                }
-                list.add(variable);
+                info.elements.add(variable);
+            } else {
+                info.retainedObjects.put(annotation.name(), variable);
             }
         }
 
-        for (Map.Entry<Element, List<Element>> entry : elementsByClass.entrySet()) {
+        for (Map.Entry<Element, ListenersInfo> entry : elementsByClass.entrySet()) {
             generateBinder(entry.getValue(), entry.getKey());
         }
         return false;
     }
 
-    private void generateBinder(List<? extends Element> elements, Element hostElement) {
+    private static class ListenersInfo {
+        public final List<Element> elements = new ArrayList<>();
+
+        public final TreeMap<String, Element> retainedObjects = new TreeMap<>();
+    }
+
+    private void generateBinder(ListenersInfo listenersInfo, Element hostElement) {
         PackageElement packageElement = processingEnv.getElementUtils().getPackageOf(hostElement);
         final String simpleClassName = hostElement.getSimpleName().toString() + "$LifeCycleBinder";
         final String qualifiedClassName = packageElement.getQualifiedName() + "." + simpleClassName;
@@ -103,20 +110,28 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         try {
             message(Diagnostic.Kind.NOTE, "writing class " + qualifiedClassName);
             JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(
-                    qualifiedClassName, elements.toArray(new Element[elements.size()]));
+                    qualifiedClassName, listenersInfo.elements.toArray(new Element[listenersInfo.elements.size()]));
 
             MethodSpec bindMethod = MethodSpec.methodBuilder("bind")
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .addModifiers(Modifier.PUBLIC)
                     .returns(void.class)
                     .addParameter(TypeName.get(hostElement.asType()), "view")
                     .addParameter(ViewLifeCycleAwareContainer.class, "container")
-                    .addParameter(FragmentManager.class, "activityFragmentManager")
-                    .addCode(generateBindMethod(hostElement, elements))
+                    .addParameter(ParameterizedTypeName.get(Map.class, String.class, Object.class), "retainedObjects")
+                    .addCode(generateBindMethod(hostElement, listenersInfo))
+                    .build();
+
+            MethodSpec containsMethod = MethodSpec.methodBuilder("containsRetainedObjects")
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(Boolean.TYPE)
+                    .addStatement("return $L", !listenersInfo.retainedObjects.isEmpty())
                     .build();
 
             TypeSpec classType = TypeSpec.classBuilder(simpleClassName)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addMethod(bindMethod)
+                    .addMethod(containsMethod)
+                    .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), TypeName.get(hostElement.asType())))
                     .build();
 
             final Writer writer = sourceFile.openWriter();
@@ -129,10 +144,29 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
     }
 
-    private CodeBlock generateBindMethod(Element hostElement, List<? extends Element> elements) {
+    private CodeBlock generateBindMethod(Element hostElement, ListenersInfo listenersInfo) {
         CodeBlock.Builder builder = CodeBlock.builder();
-        for (Element element : elements) {
-            builder.add("container.addListener(view.$L);\n", element);
+        for (Element element : listenersInfo.elements) {
+            builder.addStatement("container.addListener(view.$L)", element);
+        }
+        if (!listenersInfo.retainedObjects.isEmpty()) {
+            builder.addStatement("Object listener");
+            Set<Map.Entry<String, Element>> entries = listenersInfo.retainedObjects.entrySet();
+            for (Map.Entry<String, Element> entry : entries) {
+                builder
+                        .addStatement("listener = retainedObjects.get($S)", entry.getKey())
+                        .beginControlFlow("if (listener == null)")
+                        .beginControlFlow("try")
+                        .addStatement("listener = view.$L.call()", entry.getValue())
+                        .addStatement("retainedObjects.put($S, listener)", entry.getKey())
+                        .endControlFlow()
+                        .beginControlFlow("catch(Exception e)")
+                        .addStatement("throw new RuntimeException(e)")
+                        .endControlFlow()
+                        .endControlFlow()
+                        .addStatement("container.addListener((it.codingjam.lifecyclebinder.ViewLifeCycleAware) listener)");
+            }
+//            builder.add("LifeCycleRetainedFragment lifeCycleRetainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager);\n");
         }
         return builder.build();
     }

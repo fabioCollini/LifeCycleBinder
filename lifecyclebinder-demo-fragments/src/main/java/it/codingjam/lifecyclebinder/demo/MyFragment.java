@@ -15,7 +15,7 @@ import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
 
 public class MyFragment extends Fragment {
-    @LifeCycleAware(retained = true) Callable<FragmentLogger> fragmentLogger = new Callable<FragmentLogger>() {
+    @LifeCycleAware(retained = true, name = "myName") Callable<FragmentLogger> fragmentLogger = new Callable<FragmentLogger>() {
         @Override
         public FragmentLogger call() throws Exception {
             return new FragmentLogger("MyFragment");

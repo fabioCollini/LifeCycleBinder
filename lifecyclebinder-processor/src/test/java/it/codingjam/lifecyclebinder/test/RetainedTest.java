@@ -10,15 +10,21 @@ import javax.tools.JavaFileObject;
 
 import it.codingjam.lifecyclebinder.LifeCycleBinderProcessor;
 
-public class MyActivityTest {
+public class RetainedTest {
 
     public static final String SOURCE =
             "package com.test;\n" +
                     "import android.support.v4.app.FragmentActivity;\n" +
                     "import it.codingjam.lifecyclebinder.LifeCycleAware;\n" +
+                    "import java.util.concurrent.Callable;\n" +
                     "public class MyActivity extends FragmentActivity {\n" +
-                    "    @LifeCycleAware\n" +
-                    "    MyObject myObject;\n" +
+                    "    @LifeCycleAware(retained = true, name = \"myName\")\n" +
+                    "    Callable<MyObject> myObject = new Callable<MyObject>() {\n" +
+                    "        @Override\n" +
+                    "        public MyObject call() throws Exception {\n" +
+                    "            return new MyObject();\n" +
+                    "        }\n" +
+                    "    };\n" +
                     "}";
 
     public static final String RESULT =
@@ -32,11 +38,22 @@ public class MyActivityTest {
                     "\n" +
                     "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity> {\n" +
                     "  public void bind(MyActivity view, ViewLifeCycleAwareContainer container, Map<String, Object> retainedObjects) {\n" +
-                    "    container.addListener(view.myObject);\n" +
+                    "    Object listener;\n" +
+                    "    listener = retainedObjects.get(\"myName\");\n" +
+                    "    if (listener == null) {\n" +
+                    "      try {\n" +
+                    "        listener = view.myObject.call();\n" +
+                    "        retainedObjects.put(\"myName\", listener);\n" +
+                    "      }\n" +
+                    "      catch(Exception e) {\n" +
+                    "        throw new RuntimeException(e);\n" +
+                    "      }\n" +
+                    "    }\n" +
+                    "    container.addListener((it.codingjam.lifecyclebinder.ViewLifeCycleAware) listener);\n" +
                     "  }\n" +
                     "\n" +
                     "  public boolean containsRetainedObjects() {\n" +
-                    "    return false;\n" +
+                    "    return true;\n" +
                     "  }\n" +
                     "}";
 
@@ -50,5 +67,7 @@ public class MyActivityTest {
                 .compilesWithoutError()
                 .and()
                 .generatesSources(expectedSource);
+
+
     }
 }
