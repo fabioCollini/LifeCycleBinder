@@ -16,31 +16,8 @@ public class LifeCycleBinder {
     }
 
     private static <T> void bind(T obj, FragmentManager fragmentManager, FragmentManager activityFragmentManager) {
-//        List<ViewLifeCycleAware<T>> listeners = new ArrayList<>();
-//
-//        Map<String, Callable<ViewLifeCycleAware<T>>> map = ReflectionUtils.loadRetainedListeners(obj);
-//        if (!map.isEmpty()) {
-//            LifeCycleRetainedFragment lifeCycleRetainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager);
-//            for (Map.Entry<String, Callable<ViewLifeCycleAware<T>>> entry : map.entrySet()) {
-//                String name = entry.getKey();
-//                ViewLifeCycleAware<T> listener = (ViewLifeCycleAware<T>) lifeCycleRetainedFragment.map.get(name);
-//                if (listener == null) {
-//                    try {
-//                        listener = entry.getValue().call();
-//                    } catch (Exception e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                    lifeCycleRetainedFragment.map.put(name, listener);
-//                }
-//                listeners.add(listener);
-//            }
-//        }
-
         LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
         fragment.init(obj);
-//        for (ViewLifeCycleAware<T> listener : listeners) {
-//            fragment.addListener(listener);
-//        }
         try {
             Class<?> c = Class.forName(obj.getClass().getName() + "$LifeCycleBinder");
             ObjectBinder<T> objectBinder = (ObjectBinder<T>) c.newInstance();
