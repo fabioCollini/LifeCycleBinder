@@ -10,7 +10,7 @@ import javax.tools.JavaFileObject;
 
 import it.codingjam.lifecyclebinder.LifeCycleBinderProcessor;
 
-public class RetainedTest {
+public class Retained2Test {
 
     public static final String SOURCE =
             "package com.test;\n" +
@@ -20,6 +20,13 @@ public class RetainedTest {
                     "public class MyActivity extends FragmentActivity {\n" +
                     "    @LifeCycleAware(retained = true, name = \"myName\")\n" +
                     "    Callable<MyObject> myObject = new Callable<MyObject>() {\n" +
+                    "        @Override\n" +
+                    "        public MyObject call() throws Exception {\n" +
+                    "            return new MyObject();\n" +
+                    "        }\n" +
+                    "    };\n" +
+                    "    @LifeCycleAware(retained = true, name = \"myName2\")\n" +
+                    "    Callable<MyObject> myObject2 = new Callable<MyObject>() {\n" +
                     "        @Override\n" +
                     "        public MyObject call() throws Exception {\n" +
                     "            return new MyObject();\n" +
@@ -44,6 +51,17 @@ public class RetainedTest {
                     "      try {\n" +
                     "        listener = view.myObject.call();\n" +
                     "        retainedObjects.put(\"myName\", listener);\n" +
+                    "      }\n" +
+                    "      catch(Exception e) {\n" +
+                    "        throw new RuntimeException(e);\n" +
+                    "      }\n" +
+                    "    }\n" +
+                    "    container.addListener(listener);\n" +
+                    "    listener = retainedObjects.get(\"myName2\");\n" +
+                    "    if (listener == null) {\n" +
+                    "      try {\n" +
+                    "        listener = view.myObject2.call();\n" +
+                    "        retainedObjects.put(\"myName2\", listener);\n" +
                     "      }\n" +
                     "      catch(Exception e) {\n" +
                     "        throw new RuntimeException(e);\n" +

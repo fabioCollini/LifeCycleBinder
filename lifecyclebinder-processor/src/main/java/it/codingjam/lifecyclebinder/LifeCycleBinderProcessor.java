@@ -117,7 +117,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                     .returns(void.class)
                     .addParameter(TypeName.get(hostElement.asType()), "view")
                     .addParameter(ViewLifeCycleAwareContainer.class, "container")
-                    .addParameter(ParameterizedTypeName.get(Map.class, String.class, Object.class), "retainedObjects")
+                    .addParameter(ParameterizedTypeName.get(Map.class, String.class, ViewLifeCycleAware.class), "retainedObjects")
                     .addCode(generateBindMethod(hostElement, listenersInfo))
                     .build();
 
@@ -150,7 +150,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             builder.addStatement("container.addListener(view.$L)", element);
         }
         if (!listenersInfo.retainedObjects.isEmpty()) {
-            builder.addStatement("Object listener");
+            builder.addStatement("ViewLifeCycleAware listener");
             Set<Map.Entry<String, Element>> entries = listenersInfo.retainedObjects.entrySet();
             for (Map.Entry<String, Element> entry : entries) {
                 builder
@@ -164,9 +164,8 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                         .addStatement("throw new RuntimeException(e)")
                         .endControlFlow()
                         .endControlFlow()
-                        .addStatement("container.addListener((it.codingjam.lifecyclebinder.ViewLifeCycleAware) listener)");
+                        .addStatement("container.addListener(listener)");
             }
-//            builder.add("LifeCycleRetainedFragment lifeCycleRetainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager);\n");
         }
         return builder.build();
     }

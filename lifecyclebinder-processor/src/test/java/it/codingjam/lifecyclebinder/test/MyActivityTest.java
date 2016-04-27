@@ -25,13 +25,13 @@ public class MyActivityTest {
             "package com.test;\n" +
                     "\n" +
                     "import it.codingjam.lifecyclebinder.ObjectBinder;\n" +
+                    "import it.codingjam.lifecyclebinder.ViewLifeCycleAware;\n" +
                     "import it.codingjam.lifecyclebinder.ViewLifeCycleAwareContainer;\n" +
-                    "import java.lang.Object;\n" +
                     "import java.lang.String;\n" +
                     "import java.util.Map;\n" +
                     "\n" +
                     "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity> {\n" +
-                    "  public void bind(MyActivity view, ViewLifeCycleAwareContainer container, Map<String, Object> retainedObjects) {\n" +
+                    "  public void bind(MyActivity view, ViewLifeCycleAwareContainer container, Map<String, ViewLifeCycleAware> retainedObjects) {\n" +
                     "    container.addListener(view.myObject);\n" +
                     "  }\n" +
                     "\n" +

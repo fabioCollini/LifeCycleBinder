@@ -18,15 +18,21 @@ public class LifeCycleBinder {
     private static <T> void bind(T obj, FragmentManager fragmentManager, FragmentManager activityFragmentManager) {
         LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
         fragment.init(obj);
+        String className = obj.getClass().getName() + "$LifeCycleBinder";
         try {
-            Class<?> c = Class.forName(obj.getClass().getName() + "$LifeCycleBinder");
+            Class<?> c = Class.forName(className);
             ObjectBinder<T> objectBinder = (ObjectBinder<T>) c.newInstance();
-            Map<String, Object> retainedObjects = null;
+            Map<String, ViewLifeCycleAware> retainedObjects = null;
             if (objectBinder.containsRetainedObjects()) {
                 retainedObjects = (Map) LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager).map;
             }
             objectBinder.bind(obj, fragment, retainedObjects);
-        } catch (ClassNotFoundException ignored) {
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Error searching class " + className, e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException("Error instantiating class " + className, e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Error instantiating class " + className, e);
         } catch (Exception e) {
             throw new RuntimeException("Error invoking binding", e);
         }

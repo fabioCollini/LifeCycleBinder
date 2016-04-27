@@ -1,4 +1,15 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    }
+}
+
 apply plugin: 'com.android.application'
+
+apply plugin: 'android-apt'
 
 android {
     compileSdkVersion 23
@@ -23,6 +34,8 @@ android {
 }
 
 dependencies {
+    apt project(":lifecyclebinder-processor")
+
     compile project(':lifecyclebinder-lib')
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'io.reactivex:rxjava:1.1.3'
