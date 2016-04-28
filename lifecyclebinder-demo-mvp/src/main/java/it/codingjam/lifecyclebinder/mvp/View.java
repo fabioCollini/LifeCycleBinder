@@ -20,4 +20,6 @@ public interface View {
     void update(Model model);
 
     void showLoading();
+
+    void share(String message, int requestCode);
 }

@@ -16,7 +16,10 @@
 
 package it.codingjam.lifecyclebinder;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 public interface ViewLifeCycleAware<T> {
@@ -25,6 +28,10 @@ public interface ViewLifeCycleAware<T> {
     void onStart(T view);
 
     void onResume(T view);
+
+    boolean hasOptionsMenu();
+
+    void onCreateOptionsMenu(Menu menu, MenuInflater inflater);
 
     boolean onOptionsItemSelected(T view, MenuItem item);
 
@@ -35,4 +42,6 @@ public interface ViewLifeCycleAware<T> {
     void onSaveInstanceState(T view, Bundle bundle);
 
     void onDestroy(T view);
+
+    void onActivityResult(int requestCode, int resultCode, Intent data);
 }

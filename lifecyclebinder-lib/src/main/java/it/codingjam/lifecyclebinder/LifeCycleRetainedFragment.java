@@ -37,8 +37,10 @@ public class LifeCycleRetainedFragment extends Fragment {
         LifeCycleRetainedFragment fragment = (LifeCycleRetainedFragment) fragmentManager.findFragmentByTag(RETAINED_FRAGMENT);
 
         if (fragment == null) {
+            System.out.println("ACTIVITY_LOG creating retained fragment");
             fragment = new LifeCycleRetainedFragment();
             fragmentManager.beginTransaction().add(fragment, RETAINED_FRAGMENT).commit();
+            fragmentManager.executePendingTransactions();
         }
         return fragment;
     }

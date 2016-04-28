@@ -16,6 +16,7 @@
 
 package it.codingjam.lifecyclebinder.mvp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ProgressBar;
@@ -35,6 +36,9 @@ public class MainActivity extends AppCompatActivity implements View {
     private TextView title;
     private TextView description;
 
+    @LifeCycleAware
+    Logger logger = new Logger();
+
     @LifeCycleAware(retained = true, name = "NotePresenter")
     Callable<Presenter> presenterFactory = new Callable<Presenter>() {
         @Override
@@ -42,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements View {
             return new Presenter();
         }
     };
+
+    Presenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +58,14 @@ public class MainActivity extends AppCompatActivity implements View {
         description = (TextView) findViewById(R.id.description);
 
         LifeCycleBinder.bind(this);
+        presenter = LifeCycleBinder.getRetainedObject(this, "NotePresenter");
+
+        findViewById(R.id.share).setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(android.view.View v) {
+                presenter.share();
+            }
+        });
     }
 
     @Override
@@ -64,5 +78,14 @@ public class MainActivity extends AppCompatActivity implements View {
     @Override
     public void showLoading() {
         progress.setVisibility(VISIBLE);
+    }
+
+    @Override
+    public void share(String message, int requestCode) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, message);
+        sendIntent.setType("text/plain");
+        LifeCycleBinder.startActivityForResult(this, Intent.createChooser(sendIntent, getResources().getText(R.string.share)), requestCode);
     }
 }

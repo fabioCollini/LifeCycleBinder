@@ -16,6 +16,7 @@
 
 package it.codingjam.lifecyclebinder;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -32,15 +33,14 @@ public class LifeCycleBinder {
     }
 
     private static <T> void bind(T obj, FragmentManager fragmentManager, FragmentManager activityFragmentManager) {
+        Map<String, ViewLifeCycleAware> retainedObjects = (Map) LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager).map;
         LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
         fragment.init(obj);
         String className = obj.getClass().getName() + "$LifeCycleBinder";
         try {
             Class<?> c = Class.forName(className);
             ObjectBinder<T> objectBinder = (ObjectBinder<T>) c.newInstance();
-            Map<String, ViewLifeCycleAware> retainedObjects = null;
             if (objectBinder.containsRetainedObjects()) {
-                retainedObjects = (Map) LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager).map;
             }
             objectBinder.bind(obj, fragment, retainedObjects);
         } catch (ClassNotFoundException e) {
@@ -52,5 +52,21 @@ public class LifeCycleBinder {
         } catch (Exception e) {
             throw new RuntimeException("Error invoking binding", e);
         }
+    }
+
+    public static <T> T getRetainedObject(FragmentActivity activity, String name) {
+        return getRetainedObject(activity.getSupportFragmentManager(), name);
+    }
+
+    public static <T> T getRetainedObject(Fragment fragment, String name) {
+        return getRetainedObject(fragment.getFragmentManager(), name);
+    }
+
+    private static <T> T getRetainedObject(FragmentManager fragmentManager, String name) {
+        return (T) LifeCycleRetainedFragment.getOrCreateRetainedFragment(fragmentManager).map.get(name);
+    }
+
+    public static void startActivityForResult(FragmentActivity activity, Intent intent, int requestCode) {
+        LifeCycleBinderFragment.getOrCreate(activity.getSupportFragmentManager()).startActivityForResult(intent, requestCode);
     }
 }

@@ -16,7 +16,11 @@
 
 package it.codingjam.lifecyclebinder.mvp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +32,7 @@ import rx.functions.Action1;
 public class Presenter extends DefaultViewLifeCycleAware<View> {
 
     public static final String MODEL = "MODEL";
+    public static final int SHARE_REQUEST_CODE = 123;
 
     private View view;
 
@@ -86,5 +91,35 @@ public class Presenter extends DefaultViewLifeCycleAware<View> {
                         }
                     }
                 });
+    }
+
+    public void share() {
+        view.share(model.getNote().getTitle(), SHARE_REQUEST_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == SHARE_REQUEST_CODE) {
+            //...
+        }
+    }
+
+    @Override
+    public boolean hasOptionsMenu() {
+        return true;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.share_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(View view, MenuItem item) {
+        if (item.getItemId() == R.id.share_item) {
+            share();
+            return true;
+        }
+        return super.onOptionsItemSelected(view, item);
     }
 }

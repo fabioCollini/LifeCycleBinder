@@ -25,11 +25,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.concurrent.Callable;
+
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
 
 public class MyFragment3 extends Fragment {
-    @LifeCycleAware FragmentLogger fragmentLogger = new FragmentLogger("MyFragment3");
+    @LifeCycleAware(retained = true, name = "myName3") Callable<FragmentLogger> fragmentLogger = new Callable<FragmentLogger>() {
+        @Override
+        public FragmentLogger call() throws Exception {
+            return new FragmentLogger("MyFragment3");
+        }
+    };
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

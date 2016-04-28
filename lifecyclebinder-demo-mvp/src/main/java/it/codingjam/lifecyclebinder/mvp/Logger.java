@@ -14,47 +14,46 @@
  *  limitations under the License.
  */
 
-package it.codingjam.lifecyclebinder.demo;
+package it.codingjam.lifecyclebinder.mvp;
 
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import it.codingjam.lifecyclebinder.DefaultViewLifeCycleAware;
 
 
-public class ActivityLogger extends DefaultViewLifeCycleAware<AppCompatActivity> {
+public class Logger extends DefaultViewLifeCycleAware<Object> {
 
     private static final String TAG = "ACTIVITY_LOG";
 
     @Override
-    public void onCreate(AppCompatActivity activity, Bundle bundle) {
-        Log.i(TAG, "Creating activity:" + activity);
+    public void onCreate(Object activity, Bundle bundle) {
+        Log.i(TAG, "Creating:" + activity);
     }
 
     @Override
-    public void onStart(AppCompatActivity activity) {
-        Log.i(TAG, "Starting activity:" + activity);
+    public void onStart(Object activity) {
+        Log.i(TAG, "Starting:" + activity);
     }
 
     @Override
-    public void onResume(AppCompatActivity activity) {
-        Log.i(TAG, "Resuming activity:" + activity);
+    public void onResume(Object activity) {
+        Log.i(TAG, "Resuming:" + activity);
     }
 
     @Override
-    public void onPause(AppCompatActivity activity) {
-        Log.i(TAG, "Pausing activity:" + activity);
+    public void onPause(Object activity) {
+        Log.i(TAG, "Pausing:" + activity);
     }
 
     @Override
-    public void onStop(AppCompatActivity activity) {
-        Log.i(TAG, "Stopping activity:" + activity);
+    public void onStop(Object activity) {
+        Log.i(TAG, "Stopping:" + activity);
     }
 
     @Override
-    public void onDestroy(AppCompatActivity activity) {
-        Log.i(TAG, "Destroying activity:" + activity);
+    public void onDestroy(Object activity) {
+        Log.i(TAG, "Destroying:" + activity);
     }
 }
