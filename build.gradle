@@ -32,6 +32,9 @@ allprojects {
     repositories {
         jcenter()
     }
+    configurations.all {
+        resolutionStrategy.force 'com.android.support:support-annotations:23.3.0'
+    }
 }
 
 task clean(type: Delete) {

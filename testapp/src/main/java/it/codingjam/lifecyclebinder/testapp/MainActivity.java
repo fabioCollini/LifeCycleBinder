@@ -14,4 +14,24 @@
  *  limitations under the License.
  */
 
-include ':lifecyclebinder-demo-fragments', ':lifecyclebinder-lib', ':lifecyclebinder-demo-mvp', ':lifecyclebinder-processor', ':lifecyclebinder-api', ':testapp'
+package it.codingjam.lifecyclebinder.testapp;
+
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+
+import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.LifeCycleBinder;
+
+public class MainActivity extends AppCompatActivity {
+
+    @LifeCycleAware
+    public Logger logger = new Logger("MainActivity");
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        LifeCycleBinder.bind(this);
+    }
+}
