@@ -21,16 +21,20 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-public class MainActivityTest {
+public class MainActivityWithFragmentTest {
     @Rule public MyRule<MainActivity> rule = new MyRule<>(MainActivity.class);
 
     @Test
     public void testCreate() throws Exception {
-        rule.launchActivity(MainActivity.LAYOUT, R.layout.activity_main);
+        rule.launchActivity(MainActivity.LAYOUT, R.layout.activity_with_fragment);
 
         assertThat(Logger.ALL_LOGS).containsExactly(
                 "MainActivity1: onCreate",
+                "MyFragment2: onCreate",
+                "MyFragment2: onStart",
                 "MainActivity1: onStart",
+                "MyFragment2: onResume",
+                "MyFragment2: hasOptionsMenu",
                 "MainActivity1: onResume",
                 "MainActivity1: hasOptionsMenu"
         );
@@ -38,23 +42,35 @@ public class MainActivityTest {
 
     @Test
     public void testOrientationChange() throws Exception {
-        rule.launchActivity(MainActivity.LAYOUT, R.layout.activity_main);
+        rule.launchActivity(MainActivity.LAYOUT, R.layout.activity_with_fragment);
 
         rule.rotateScreen();
 
         assertThat(Logger.ALL_LOGS).containsExactly(
                 "MainActivity1: onCreate",
+                "MyFragment2: onCreate",
+                "MyFragment2: onStart",
                 "MainActivity1: onStart",
+                "MyFragment2: onResume",
+                "MyFragment2: hasOptionsMenu",
                 "MainActivity1: onResume",
                 "MainActivity1: hasOptionsMenu",
+                "MyFragment2: onPause",
                 "MainActivity1: onPause",
+                "MyFragment2: onSaveInstanceState",
                 "MainActivity1: onSaveInstanceState",
+                "MyFragment2: onStop",
                 "MainActivity1: onStop",
+                "MyFragment2: onDestroy",
                 "MainActivity1: onDestroy",
-                "MainActivity2: onCreate",
-                "MainActivity2: onStart",
-                "MainActivity2: onResume",
-                "MainActivity2: hasOptionsMenu"
+                "MainActivity3: onCreate",
+                "MyFragment4: onCreate",
+                "MyFragment4: onStart",
+                "MainActivity3: onStart",
+                "MyFragment4: onResume",
+                "MyFragment4: hasOptionsMenu",
+                "MainActivity3: onResume",
+                "MainActivity3: hasOptionsMenu"
         );
     }
 }

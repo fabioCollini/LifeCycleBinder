@@ -21,16 +21,20 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-public class MainActivityTest {
+public class MainActivityWithRetainedFragmentTest {
     @Rule public MyRule<MainActivity> rule = new MyRule<>(MainActivity.class);
 
     @Test
     public void testCreate() throws Exception {
-        rule.launchActivity(MainActivity.LAYOUT, R.layout.activity_main);
+        rule.launchActivity(MainActivity.LAYOUT, R.layout.activity_with_retained_fragment);
 
         assertThat(Logger.ALL_LOGS).containsExactly(
                 "MainActivity1: onCreate",
+                "MyRetainedFragment2: onCreate",
+                "MyRetainedFragment2: onStart",
                 "MainActivity1: onStart",
+                "MyRetainedFragment2: onResume",
+                "MyRetainedFragment2: hasOptionsMenu",
                 "MainActivity1: onResume",
                 "MainActivity1: hasOptionsMenu"
         );
@@ -38,23 +42,35 @@ public class MainActivityTest {
 
     @Test
     public void testOrientationChange() throws Exception {
-        rule.launchActivity(MainActivity.LAYOUT, R.layout.activity_main);
+        rule.launchActivity(MainActivity.LAYOUT, R.layout.activity_with_retained_fragment);
 
         rule.rotateScreen();
 
         assertThat(Logger.ALL_LOGS).containsExactly(
                 "MainActivity1: onCreate",
+                "MyRetainedFragment2: onCreate",
+                "MyRetainedFragment2: onStart",
                 "MainActivity1: onStart",
+                "MyRetainedFragment2: onResume",
+                "MyRetainedFragment2: hasOptionsMenu",
                 "MainActivity1: onResume",
                 "MainActivity1: hasOptionsMenu",
+                "MyRetainedFragment2: onPause",
                 "MainActivity1: onPause",
+                "MyRetainedFragment2: onSaveInstanceState",
                 "MainActivity1: onSaveInstanceState",
+                "MyRetainedFragment2: onStop",
                 "MainActivity1: onStop",
+                "MyRetainedFragment2: onDestroy",
                 "MainActivity1: onDestroy",
-                "MainActivity2: onCreate",
-                "MainActivity2: onStart",
-                "MainActivity2: onResume",
-                "MainActivity2: hasOptionsMenu"
+                "MainActivity3: onCreate",
+                "MyRetainedFragment2: onCreate",
+                "MyRetainedFragment2: onStart",
+                "MainActivity3: onStart",
+                "MyRetainedFragment2: onResume",
+                "MyRetainedFragment2: hasOptionsMenu",
+                "MainActivity3: onResume",
+                "MainActivity3: hasOptionsMenu"
         );
     }
 }

@@ -18,6 +18,7 @@ package it.codingjam.lifecyclebinder.testapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.support.test.InstrumentationRegistry;
@@ -40,6 +41,10 @@ public class MyRule<T extends Activity> extends ActivityTestRule<T> {
 
     public T launchActivity() {
         return super.launchActivity(null);
+    }
+
+    public T launchActivity(String key, int value) {
+        return super.launchActivity(new Intent().putExtra(key, value));
     }
 
     public void rotateScreen() {

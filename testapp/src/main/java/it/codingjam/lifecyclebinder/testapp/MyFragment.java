@@ -17,23 +17,32 @@
 package it.codingjam.lifecyclebinder.testapp;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
 
-public class MainActivity extends AppCompatActivity {
-
-    public static final String LAYOUT = "layout";
+public class MyFragment extends Fragment {
 
     @LifeCycleAware
-    public Logger logger = new Logger("MainActivity");
+    public Logger logger = new Logger("MyFragment");
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(getIntent().getIntExtra(LAYOUT, 0));
-
         LifeCycleBinder.bind(this);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        TextView textView = new TextView(getActivity());
+        textView.setText("MyFragment");
+        return textView;
     }
 }
