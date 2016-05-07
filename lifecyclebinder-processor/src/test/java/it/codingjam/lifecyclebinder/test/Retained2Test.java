@@ -33,7 +33,7 @@ public class Retained2Test {
                     "import android.support.v4.app.FragmentActivity;\n" +
                     "import it.codingjam.lifecyclebinder.LifeCycleAware;\n" +
                     "import java.util.concurrent.Callable;\n" +
-                    "public class MyActivity extends FragmentActivity {\n" +
+                    "public class MyActivity extends FragmentActivity implements MyView {\n" +
                     "    @LifeCycleAware(retained = true, name = \"myName\")\n" +
                     "    Callable<MyObject> myObject = new Callable<MyObject>() {\n" +
                     "        @Override\n" +
@@ -54,40 +54,11 @@ public class Retained2Test {
             "package com.test;\n" +
                     "\n" +
                     "import it.codingjam.lifecyclebinder.ObjectBinder;\n" +
-                    "import it.codingjam.lifecyclebinder.ViewLifeCycleAware;\n" +
-                    "import it.codingjam.lifecyclebinder.ViewLifeCycleAwareContainer;\n" +
-                    "import java.lang.String;\n" +
-                    "import java.util.Map;\n" +
                     "\n" +
                     "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity> {\n" +
-                    "  public void bind(MyActivity view, ViewLifeCycleAwareContainer container, Map<String, ViewLifeCycleAware> retainedObjects) {\n" +
-                    "    ViewLifeCycleAware listener;\n" +
-                    "    listener = retainedObjects.get(\"myName\");\n" +
-                    "    if (listener == null) {\n" +
-                    "      try {\n" +
-                    "        listener = view.myObject.call();\n" +
-                    "        retainedObjects.put(\"myName\", listener);\n" +
-                    "      }\n" +
-                    "      catch(Exception e) {\n" +
-                    "        throw new RuntimeException(e);\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "    container.addListener(listener);\n" +
-                    "    listener = retainedObjects.get(\"myName2\");\n" +
-                    "    if (listener == null) {\n" +
-                    "      try {\n" +
-                    "        listener = view.myObject2.call();\n" +
-                    "        retainedObjects.put(\"myName2\", listener);\n" +
-                    "      }\n" +
-                    "      catch(Exception e) {\n" +
-                    "        throw new RuntimeException(e);\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "    container.addListener(listener);\n" +
-                    "  }\n" +
-                    "\n" +
-                    "  public boolean containsRetainedObjects() {\n" +
-                    "    return true;\n" +
+                    "  public void bind(MyActivity view) {\n" +
+                    "    retainedObjectCallables.put(\"myName\", view.myObject);\n" +
+                    "    retainedObjectCallables.put(\"myName2\", view.myObject2);\n" +
                     "  }\n" +
                     "}";
 

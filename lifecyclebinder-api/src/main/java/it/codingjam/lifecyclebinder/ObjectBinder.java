@@ -16,10 +16,29 @@
 
 package it.codingjam.lifecyclebinder;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 public abstract class ObjectBinder<T> {
-    public abstract void bind(T view, ViewLifeCycleAwareContainer container, Map<String, ViewLifeCycleAware> retainedObjects);
 
-    public abstract boolean containsRetainedObjects();
+    protected List<ViewLifeCycleAware<? super T>> listeners = new ArrayList<>();
+
+    protected Map<String, Callable<? extends ViewLifeCycleAware<? super T>>> retainedObjectCallables = new HashMap<>();
+
+    public abstract void bind(T view);
+
+    public List<ViewLifeCycleAware<? super T>> getListeners() {
+        return listeners;
+    }
+
+    public boolean addListener(ViewLifeCycleAware<? super T> listener) {
+        return listeners.add(listener);
+    }
+
+    public Map<String, Callable<? extends ViewLifeCycleAware<? super T>>> getRetainedObjectCallables() {
+        return retainedObjectCallables;
+    }
 }

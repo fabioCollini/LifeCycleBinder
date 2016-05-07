@@ -42,6 +42,8 @@ public class MainActivityTest {
 
         rule.rotateScreen();
 
+        rule.rotateScreen();
+
         assertThat(Logger.ALL_LOGS).containsExactly(
                 "MainActivity1: onCreate",
                 "MainActivity1: onStart",
@@ -54,7 +56,15 @@ public class MainActivityTest {
                 "MainActivity2: onCreate",
                 "MainActivity2: onStart",
                 "MainActivity2: onResume",
-                "MainActivity2: hasOptionsMenu"
+                "MainActivity2: hasOptionsMenu",
+                "MainActivity2: onPause",
+                "MainActivity2: onSaveInstanceState",
+                "MainActivity2: onStop",
+                "MainActivity2: onDestroy",
+                "MainActivity3: onCreate",
+                "MainActivity3: onStart",
+                "MainActivity3: onResume",
+                "MainActivity3: hasOptionsMenu"
         );
     }
 }

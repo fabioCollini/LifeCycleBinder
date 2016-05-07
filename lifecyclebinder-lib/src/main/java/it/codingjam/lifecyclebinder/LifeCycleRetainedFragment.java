@@ -22,6 +22,7 @@ import android.support.v4.app.FragmentManager;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 public class LifeCycleRetainedFragment extends Fragment {
     private static final String RETAINED_FRAGMENT = "_LIFE_CYCLE_RETAINED_FRAGMENT_";
@@ -37,11 +38,27 @@ public class LifeCycleRetainedFragment extends Fragment {
         LifeCycleRetainedFragment fragment = (LifeCycleRetainedFragment) fragmentManager.findFragmentByTag(RETAINED_FRAGMENT);
 
         if (fragment == null) {
-            System.out.println("ACTIVITY_LOG creating retained fragment");
             fragment = new LifeCycleRetainedFragment();
             fragmentManager.beginTransaction().add(fragment, RETAINED_FRAGMENT).commit();
             fragmentManager.executePendingTransactions();
         }
         return fragment;
+    }
+
+    public <T> void init(ObjectBinder<T> objectBinder) {
+        Map<String, Callable<? extends ViewLifeCycleAware<? super T>>> retainedObjectCallables = objectBinder.getRetainedObjectCallables();
+        for (Map.Entry<String, Callable<? extends ViewLifeCycleAware<? super T>>> entry : retainedObjectCallables.entrySet()) {
+            ViewLifeCycleAware<? super T> listener = (ViewLifeCycleAware<? super T>) map.get(entry.getKey());
+            if (listener == null) {
+                try {
+                    listener = entry.getValue().call();
+                    map.put(entry.getKey(), listener);
+                }
+                catch(Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            objectBinder.addListener(listener);
+        }
     }
 }

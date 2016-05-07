@@ -32,7 +32,7 @@ public class MyActivityTest {
             "package com.test;\n" +
                     "import android.support.v4.app.FragmentActivity;\n" +
                     "import it.codingjam.lifecyclebinder.LifeCycleAware;\n" +
-                    "public class MyActivity extends FragmentActivity {\n" +
+                    "public class MyActivity extends FragmentActivity implements MyView  {\n" +
                     "    @LifeCycleAware\n" +
                     "    MyObject myObject;\n" +
                     "}";
@@ -41,18 +41,10 @@ public class MyActivityTest {
             "package com.test;\n" +
                     "\n" +
                     "import it.codingjam.lifecyclebinder.ObjectBinder;\n" +
-                    "import it.codingjam.lifecyclebinder.ViewLifeCycleAware;\n" +
-                    "import it.codingjam.lifecyclebinder.ViewLifeCycleAwareContainer;\n" +
-                    "import java.lang.String;\n" +
-                    "import java.util.Map;\n" +
                     "\n" +
                     "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity> {\n" +
-                    "  public void bind(MyActivity view, ViewLifeCycleAwareContainer container, Map<String, ViewLifeCycleAware> retainedObjects) {\n" +
-                    "    container.addListener(view.myObject);\n" +
-                    "  }\n" +
-                    "\n" +
-                    "  public boolean containsRetainedObjects() {\n" +
-                    "    return false;\n" +
+                    "  public void bind(MyActivity view) {\n" +
+                    "    listeners.add(view.myObject);\n" +
                     "  }\n" +
                     "}";
 

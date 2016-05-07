@@ -132,21 +132,12 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                     .addModifiers(Modifier.PUBLIC)
                     .returns(void.class)
                     .addParameter(TypeName.get(hostElement.asType()), "view")
-                    .addParameter(ViewLifeCycleAwareContainer.class, "container")
-                    .addParameter(ParameterizedTypeName.get(Map.class, String.class, ViewLifeCycleAware.class), "retainedObjects")
                     .addCode(generateBindMethod(hostElement, listenersInfo))
-                    .build();
-
-            MethodSpec containsMethod = MethodSpec.methodBuilder("containsRetainedObjects")
-                    .addModifiers(Modifier.PUBLIC)
-                    .returns(Boolean.TYPE)
-                    .addStatement("return $L", !listenersInfo.retainedObjects.isEmpty())
                     .build();
 
             TypeSpec classType = TypeSpec.classBuilder(simpleClassName)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addMethod(bindMethod)
-                    .addMethod(containsMethod)
                     .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), TypeName.get(hostElement.asType())))
                     .build();
 
@@ -163,24 +154,12 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     private CodeBlock generateBindMethod(Element hostElement, ListenersInfo listenersInfo) {
         CodeBlock.Builder builder = CodeBlock.builder();
         for (Element element : listenersInfo.elements) {
-            builder.addStatement("container.addListener(view.$L)", element);
+            builder.addStatement("listeners.add(view.$L)", element);
         }
         if (!listenersInfo.retainedObjects.isEmpty()) {
-            builder.addStatement("ViewLifeCycleAware listener");
             Set<Map.Entry<String, Element>> entries = listenersInfo.retainedObjects.entrySet();
             for (Map.Entry<String, Element> entry : entries) {
-                builder
-                        .addStatement("listener = retainedObjects.get($S)", entry.getKey())
-                        .beginControlFlow("if (listener == null)")
-                        .beginControlFlow("try")
-                        .addStatement("listener = view.$L.call()", entry.getValue())
-                        .addStatement("retainedObjects.put($S, listener)", entry.getKey())
-                        .endControlFlow()
-                        .beginControlFlow("catch(Exception e)")
-                        .addStatement("throw new RuntimeException(e)")
-                        .endControlFlow()
-                        .endControlFlow()
-                        .addStatement("container.addListener(listener)");
+                builder.addStatement("retainedObjectCallables.put($S, view.$L)", entry.getKey(), entry.getValue());
             }
         }
         return builder.build();

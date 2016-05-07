@@ -26,15 +26,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class LifeCycleBinderFragment<T> extends Fragment implements ViewLifeCycleAwareContainer<T> {
+public class LifeCycleBinderFragment<T> extends Fragment {
 
     public static final String LIFE_CYCLE_BINDER_FRAGMENT = "_LIFE_CYCLE_BINDER_FRAGMENT_";
 
-    private List<ViewLifeCycleAware<T>> listeners = new ArrayList<>();
     private T viewParam;
+
+    private ObjectBinder<T> objectBinder;
 
     private boolean valid;
 
@@ -58,8 +56,8 @@ public class LifeCycleBinderFragment<T> extends Fragment implements ViewLifeCycl
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (listeners != null) {
-            for (ViewLifeCycleAware<T> listener : listeners) {
+        if (objectBinder != null) {
+            for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
                 listener.onCreate(viewParam, savedInstanceState);
             }
         }
@@ -68,35 +66,39 @@ public class LifeCycleBinderFragment<T> extends Fragment implements ViewLifeCycl
     @Override
     public void onStart() {
         super.onStart();
-        for (ViewLifeCycleAware<T> listener : listeners) {
-            listener.onStart(viewParam);
+        if (objectBinder != null) {
+            for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+                listener.onStart(viewParam);
+            }
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        boolean hasMenu = false;
-        for (ViewLifeCycleAware<T> listener : listeners) {
-            listener.onResume(viewParam);
-            hasMenu = hasMenu || listener.hasOptionsMenu();
-        }
-        if (hasMenu) {
-            setHasOptionsMenu(true);
+        if (objectBinder != null) {
+            boolean hasMenu = false;
+            for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+                listener.onResume(viewParam);
+                hasMenu = hasMenu || listener.hasOptionsMenu();
+            }
+            if (hasMenu) {
+                setHasOptionsMenu(true);
+            }
         }
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        for (ViewLifeCycleAware<T> listener : listeners) {
+        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
             listener.onCreateOptionsMenu(menu, inflater);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        for (ViewLifeCycleAware<T> listener : listeners) {
+        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
             boolean ret = listener.onOptionsItemSelected(viewParam, item);
             if (ret) {
                 return ret;
@@ -108,31 +110,37 @@ public class LifeCycleBinderFragment<T> extends Fragment implements ViewLifeCycl
     @Override
     public void onPause() {
         super.onPause();
-        for (ViewLifeCycleAware<T> listener : listeners) {
-            listener.onPause(viewParam);
+        if (objectBinder != null) {
+            for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+                listener.onPause(viewParam);
+            }
         }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        for (ViewLifeCycleAware<T> listener : listeners) {
-            listener.onStop(viewParam);
+        if (objectBinder != null) {
+            for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+                listener.onStop(viewParam);
+            }
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        for (ViewLifeCycleAware<T> listener : listeners) {
+        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
             listener.onSaveInstanceState(viewParam, outState);
         }
     }
 
     @Override
     public void onDestroy() {
-        for (ViewLifeCycleAware<T> listener : listeners) {
-            listener.onDestroy(viewParam);
+        if (objectBinder != null) {
+            for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+                listener.onDestroy(viewParam);
+            }
         }
         super.onDestroy();
     }
@@ -140,17 +148,13 @@ public class LifeCycleBinderFragment<T> extends Fragment implements ViewLifeCycl
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        for (ViewLifeCycleAware<T> listener : listeners) {
+        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
             listener.onActivityResult(requestCode, resultCode, data);
         }
     }
 
-    public void init(T viewParam) {
+    public void init(T viewParam, ObjectBinder<T> objectBinder) {
         this.viewParam = viewParam;
-    }
-
-    @Override
-    public void addListener(ViewLifeCycleAware<T> listener) {
-        this.listeners.add(listener);
+        this.objectBinder = objectBinder;
     }
 }

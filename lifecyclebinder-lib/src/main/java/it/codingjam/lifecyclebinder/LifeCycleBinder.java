@@ -21,8 +21,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
-import java.util.Map;
-
 public class LifeCycleBinder {
     public static void bind(Fragment fragment) {
         bind(fragment, fragment.getChildFragmentManager(), fragment.getActivity().getSupportFragmentManager());
@@ -33,16 +31,15 @@ public class LifeCycleBinder {
     }
 
     private static <T> void bind(T obj, FragmentManager fragmentManager, FragmentManager activityFragmentManager) {
-        Map<String, ViewLifeCycleAware> retainedObjects = (Map) LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager).map;
+        LifeCycleRetainedFragment retainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager);
         LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
-        fragment.init(obj);
         String className = obj.getClass().getName() + "$LifeCycleBinder";
         try {
             Class<?> c = Class.forName(className);
             ObjectBinder<T> objectBinder = (ObjectBinder<T>) c.newInstance();
-            if (objectBinder.containsRetainedObjects()) {
-            }
-            objectBinder.bind(obj, fragment, retainedObjects);
+            objectBinder.bind(obj);
+            retainedFragment.init(objectBinder);
+            fragment.init(obj, objectBinder);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Error searching class " + className, e);
         } catch (InstantiationException e) {

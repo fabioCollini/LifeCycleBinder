@@ -16,7 +16,10 @@
 
 package com.test;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
@@ -34,6 +37,16 @@ public class MyObject implements ViewLifeCycleAware<MyView> {
 
     @Override
     public void onResume(MyView view) {
+
+    }
+
+    @Override
+    public boolean hasOptionsMenu() {
+        return false;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
     }
 
@@ -59,6 +72,11 @@ public class MyObject implements ViewLifeCycleAware<MyView> {
 
     @Override
     public void onDestroy(MyView view) {
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
     }
 }
