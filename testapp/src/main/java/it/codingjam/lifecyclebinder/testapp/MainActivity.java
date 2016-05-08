@@ -19,6 +19,7 @@ package it.codingjam.lifecyclebinder.testapp;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import it.codingjam.lifecyclebinder.InstanceState;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
 
@@ -29,11 +30,20 @@ public class MainActivity extends AppCompatActivity {
     @LifeCycleAware
     public Logger logger = new Logger("MainActivity");
 
+    @InstanceState
+    MyParcelable myParcelable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getIntent().getIntExtra(LAYOUT, 0));
 
-        LifeCycleBinder.bind(this);
+        if (savedInstanceState == null) {
+            LifeCycleBinder.bind(this);
+        }
+
+        if (myParcelable == null) {
+            myParcelable = new MyParcelable();
+        }
     }
 }

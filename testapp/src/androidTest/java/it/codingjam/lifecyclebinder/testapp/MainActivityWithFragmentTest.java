@@ -29,8 +29,8 @@ public class MainActivityWithFragmentTest {
         rule.launchActivity(MainActivity.LAYOUT, R.layout.activity_with_fragment);
 
         assertThat(Logger.ALL_LOGS).containsExactly(
-                "MainActivity1: onCreate",
                 "MyFragment2: onCreate",
+                "MainActivity1: onCreate",
                 "MyFragment2: onStart",
                 "MainActivity1: onStart",
                 "MyFragment2: onResume",
@@ -47,8 +47,8 @@ public class MainActivityWithFragmentTest {
         rule.rotateScreen();
 
         assertThat(Logger.ALL_LOGS).containsExactly(
-                "MainActivity1: onCreate",
                 "MyFragment2: onCreate",
+                "MainActivity1: onCreate",
                 "MyFragment2: onStart",
                 "MainActivity1: onStart",
                 "MyFragment2: onResume",

@@ -42,7 +42,9 @@ public class MyRetainedFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LifeCycleBinder.bind(this);
+        if (savedInstanceState == null) {
+            LifeCycleBinder.bind(this);
+        }
     }
 
     @Nullable

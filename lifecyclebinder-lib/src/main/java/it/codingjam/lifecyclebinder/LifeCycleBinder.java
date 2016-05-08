@@ -17,6 +17,7 @@
 package it.codingjam.lifecyclebinder;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -33,21 +34,18 @@ public class LifeCycleBinder {
     private static <T> void bind(T obj, FragmentManager fragmentManager, FragmentManager activityFragmentManager) {
         LifeCycleRetainedFragment retainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager);
         LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
+        Class<ObjectBinder<T>> c = getObjectBinderClass(obj);
+        fragment.init(c);
+        fragmentManager.executePendingTransactions();
+    }
+
+    @NonNull
+    private static <T> Class<ObjectBinder<T>> getObjectBinderClass(T obj) {
         String className = obj.getClass().getName() + "$LifeCycleBinder";
         try {
-            Class<?> c = Class.forName(className);
-            ObjectBinder<T> objectBinder = (ObjectBinder<T>) c.newInstance();
-            objectBinder.bind(obj);
-            retainedFragment.init(objectBinder);
-            fragment.init(obj, objectBinder);
+            return (Class<ObjectBinder<T>>) Class.forName(className);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Error searching class " + className, e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException("Error instantiating class " + className, e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Error instantiating class " + className, e);
-        } catch (Exception e) {
-            throw new RuntimeException("Error invoking binding", e);
         }
     }
 

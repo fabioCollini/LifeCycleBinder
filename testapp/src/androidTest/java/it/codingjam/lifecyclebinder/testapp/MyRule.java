@@ -58,6 +58,10 @@ public class MyRule<T extends Activity> extends ActivityTestRule<T> {
                         ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE :
                         ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {
+        }
         onView(isRoot()).check(matches(isDisplayed()));
     }
 }

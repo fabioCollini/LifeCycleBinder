@@ -29,25 +29,21 @@ import android.view.MenuItem;
 public class LifeCycleBinderFragment<T> extends Fragment {
 
     public static final String LIFE_CYCLE_BINDER_FRAGMENT = "_LIFE_CYCLE_BINDER_FRAGMENT_";
+    public static final String OBJECT_BINDER_CLASS = "objectBinderClass";
 
     private T viewParam;
 
     private ObjectBinder<T> objectBinder;
 
-    private boolean valid;
+    private Class<ObjectBinder<T>> objectBinderClass;
 
     @NonNull
     static <T> LifeCycleBinderFragment<T> getOrCreate(FragmentManager fragmentManager) {
         LifeCycleBinderFragment<T> fragment = (LifeCycleBinderFragment<T>) fragmentManager.findFragmentByTag(LIFE_CYCLE_BINDER_FRAGMENT);
 
-        if (fragment != null && !fragment.valid) {
-            fragmentManager.beginTransaction().remove(fragment).commit();
-            fragment = null;
-        }
-
         if (fragment == null) {
+            System.out.println("Logger: recreating LifeCycleBinderFragment");
             fragment = new LifeCycleBinderFragment<>();
-            fragment.valid = true;
             fragmentManager.beginTransaction().add(fragment, LIFE_CYCLE_BINDER_FRAGMENT).commit();
         }
         return fragment;
@@ -56,35 +52,59 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (objectBinder != null) {
-            for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
-                listener.onCreate(viewParam, savedInstanceState);
-            }
+        if (savedInstanceState != null) {
+            objectBinderClass = (Class<ObjectBinder<T>>) savedInstanceState.getSerializable(OBJECT_BINDER_CLASS);
+        }
+        viewParam = (T) getParentFragment();
+        if (viewParam == null) {
+            viewParam = (T) getActivity();
+        }
+
+        try {
+            LifeCycleRetainedFragment retainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(getActivity().getSupportFragmentManager());
+            objectBinder = createObjectBinder();
+            objectBinder.bind(viewParam);
+            retainedFragment.init(objectBinder);
+        } catch (Exception e) {
+            throw new RuntimeException("Error invoking binding", e);
+        }
+
+        if (savedInstanceState != null) {
+            objectBinder.restoreInstanceState(viewParam, savedInstanceState);
+        }
+        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+            listener.onCreate(viewParam, savedInstanceState);
+        }
+    }
+
+    private ObjectBinder<T> createObjectBinder() {
+        try {
+            return objectBinderClass.newInstance();
+        } catch (java.lang.InstantiationException e) {
+            throw new RuntimeException("Error instantiating class " + objectBinderClass.getName(), e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Illegal access exception instantiating class " + objectBinderClass.getName(), e);
         }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if (objectBinder != null) {
-            for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
-                listener.onStart(viewParam);
-            }
+        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+            listener.onStart(viewParam);
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (objectBinder != null) {
-            boolean hasMenu = false;
-            for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
-                listener.onResume(viewParam);
-                hasMenu = hasMenu || listener.hasOptionsMenu();
-            }
-            if (hasMenu) {
-                setHasOptionsMenu(true);
-            }
+        boolean hasMenu = false;
+        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+            listener.onResume(viewParam);
+            hasMenu = hasMenu || listener.hasOptionsMenu();
+        }
+        if (hasMenu) {
+            setHasOptionsMenu(true);
         }
     }
 
@@ -110,26 +130,24 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (objectBinder != null) {
-            for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
-                listener.onPause(viewParam);
-            }
+        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+            listener.onPause(viewParam);
         }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (objectBinder != null) {
-            for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
-                listener.onStop(viewParam);
-            }
+        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+            listener.onStop(viewParam);
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putSerializable(OBJECT_BINDER_CLASS, objectBinderClass);
+        objectBinder.saveInstanceState(viewParam, outState);
         for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
             listener.onSaveInstanceState(viewParam, outState);
         }
@@ -137,10 +155,8 @@ public class LifeCycleBinderFragment<T> extends Fragment {
 
     @Override
     public void onDestroy() {
-        if (objectBinder != null) {
-            for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
-                listener.onDestroy(viewParam);
-            }
+        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+            listener.onDestroy(viewParam);
         }
         super.onDestroy();
     }
@@ -153,8 +169,7 @@ public class LifeCycleBinderFragment<T> extends Fragment {
         }
     }
 
-    public void init(T viewParam, ObjectBinder<T> objectBinder) {
-        this.viewParam = viewParam;
-        this.objectBinder = objectBinder;
+    public void init(Class<ObjectBinder<T>> objectBinderClass) {
+        this.objectBinderClass = objectBinderClass;
     }
 }

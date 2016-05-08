@@ -42,6 +42,28 @@ public class MainActivityTest {
 
         rule.rotateScreen();
 
+        assertThat(Logger.ALL_LOGS).containsExactly(
+                "MainActivity1: onCreate",
+                "MainActivity1: onStart",
+                "MainActivity1: onResume",
+                "MainActivity1: hasOptionsMenu",
+                "MainActivity1: onPause",
+                "MainActivity1: onSaveInstanceState",
+                "MainActivity1: onStop",
+                "MainActivity1: onDestroy",
+                "MainActivity2: onCreate",
+                "MainActivity2: onStart",
+                "MainActivity2: onResume",
+                "MainActivity2: hasOptionsMenu"
+        );
+    }
+
+    @Test
+    public void testOrientationChangeTwice() throws Exception {
+        rule.launchActivity(MainActivity.LAYOUT, R.layout.activity_main);
+
+        rule.rotateScreen();
+
         rule.rotateScreen();
 
         assertThat(Logger.ALL_LOGS).containsExactly(

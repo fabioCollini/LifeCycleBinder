@@ -53,8 +53,7 @@ public class LifeCycleRetainedFragment extends Fragment {
                 try {
                     listener = entry.getValue().call();
                     map.put(entry.getKey(), listener);
-                }
-                catch(Exception e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }

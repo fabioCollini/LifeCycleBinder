@@ -19,6 +19,7 @@ package it.codingjam.lifecyclebinder.testapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -51,58 +52,63 @@ public class Logger implements ViewLifeCycleAware<Object> {
 
     @Override
     public void onCreate(Object view, Bundle bundle) {
-        logs.add(name + ": " + "onCreate");
+        log(name + ": " + "onCreate");
+    }
+
+    private void log(String object) {
+        Log.d("Logger", object);
+        logs.add(object);
     }
 
     @Override
     public void onStart(Object view) {
-        logs.add(name + ": " + "onStart");
+        log(name + ": " + "onStart");
     }
 
     @Override
     public void onResume(Object view) {
-        logs.add(name + ": " + "onResume");
+        log(name + ": " + "onResume");
     }
 
     @Override
     public boolean hasOptionsMenu() {
-        logs.add(name + ": " + "hasOptionsMenu");
+        log(name + ": " + "hasOptionsMenu");
         return false;
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        logs.add(name + ": " + "onCreateOptionsMenu");
+        log(name + ": " + "onCreateOptionsMenu");
     }
 
     @Override
     public boolean onOptionsItemSelected(Object view, MenuItem item) {
-        logs.add(name + ": " + "onOptionsItemSelected");
+        log(name + ": " + "onOptionsItemSelected");
         return false;
     }
 
     @Override
     public void onPause(Object view) {
-        logs.add(name + ": " + "onPause");
+        log(name + ": " + "onPause");
     }
 
     @Override
     public void onStop(Object view) {
-        logs.add(name + ": " + "onStop");
+        log(name + ": " + "onStop");
     }
 
     @Override
     public void onSaveInstanceState(Object view, Bundle bundle) {
-        logs.add(name + ": " + "onSaveInstanceState");
+        log(name + ": " + "onSaveInstanceState");
     }
 
     @Override
     public void onDestroy(Object view) {
-        logs.add(name + ": " + "onDestroy");
+        log(name + ": " + "onDestroy");
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        logs.add(name + ": " + "onActivityResult");
+        log(name + ": " + "onActivityResult");
     }
 }

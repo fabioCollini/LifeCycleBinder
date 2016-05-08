@@ -16,6 +16,8 @@
 
 package it.codingjam.lifecyclebinder;
 
+import android.os.Bundle;
+
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
@@ -52,7 +54,10 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
-@SupportedAnnotationTypes("it.codingjam.lifecyclebinder.LifeCycleAware")
+@SupportedAnnotationTypes({
+        "it.codingjam.lifecyclebinder.LifeCycleAware",
+        "it.codingjam.lifecyclebinder.InstanceState"
+})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class LifeCycleBinderProcessor extends AbstractProcessor {
 
@@ -72,20 +77,27 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(LifeCycleAware.class);
+        Map<Element, LifeCycleAwareInfo> elementsByClass = createLifeCycleAwareElementsMap(
+                roundEnv.getElementsAnnotatedWith(LifeCycleAware.class),
+                roundEnv.getElementsAnnotatedWith(InstanceState.class)
+        );
 
-        message(Diagnostic.Kind.NOTE, "processing " + elements.size() + " fields");
-
-        if (elements.isEmpty()) {
+        if (elementsByClass == null) {
             return true;
         }
+        for (Map.Entry<Element, LifeCycleAwareInfo> entry : elementsByClass.entrySet()) {
+            generateBinder(entry.getValue(), entry.getKey());
+        }
+        return false;
+    }
 
-        Map<Element, ListenersInfo> elementsByClass = new HashMap<>();
+    private Map<Element, LifeCycleAwareInfo> createLifeCycleAwareElementsMap(Set<? extends Element> lifeCycleAwareElements, Set<? extends Element> instanceStateElements) {
+        Map<Element, LifeCycleAwareInfo> elementsByClass = new HashMap<>();
 
-        for (Element element : elements) {
+        for (Element element : lifeCycleAwareElements) {
             if (element.getKind() != ElementKind.FIELD) {
                 error(element, "Only fields can be annotated with @%s", LifeCycleAware.class);
-                return true;
+                return null;
             }
 
             VariableElement variable = (VariableElement) element;
@@ -94,31 +106,40 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
             Element enclosingElement = variable.getEnclosingElement();
 
-            ListenersInfo info = elementsByClass.get(enclosingElement);
-            if (info == null) {
-                info = new ListenersInfo();
-                elementsByClass.put(enclosingElement, info);
-            }
+            LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, enclosingElement);
             if (!annotation.retained()) {
-                info.elements.add(variable);
+                info.lifeCycleAwareElements.add(variable);
             } else {
                 info.retainedObjects.put(annotation.name(), variable);
             }
         }
-
-        for (Map.Entry<Element, ListenersInfo> entry : elementsByClass.entrySet()) {
-            generateBinder(entry.getValue(), entry.getKey());
+        for (Element element : instanceStateElements) {
+            VariableElement variable = (VariableElement) element;
+            Element enclosingElement = variable.getEnclosingElement();
+            LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, enclosingElement);
+            info.instanceStateElements.add(element);
         }
-        return false;
+        return elementsByClass;
     }
 
-    private static class ListenersInfo {
-        public final List<Element> elements = new ArrayList<>();
+    private LifeCycleAwareInfo getLifeCycleAwareInfo(Map<Element, LifeCycleAwareInfo> elementsByClass, Element enclosingElement) {
+        LifeCycleAwareInfo info = elementsByClass.get(enclosingElement);
+        if (info == null) {
+            info = new LifeCycleAwareInfo();
+            elementsByClass.put(enclosingElement, info);
+        }
+        return info;
+    }
+
+    private static class LifeCycleAwareInfo {
+        public final List<Element> lifeCycleAwareElements = new ArrayList<>();
+
+        public final List<Element> instanceStateElements = new ArrayList<>();
 
         public final TreeMap<String, Element> retainedObjects = new TreeMap<>();
     }
 
-    private void generateBinder(ListenersInfo listenersInfo, Element hostElement) {
+    private void generateBinder(LifeCycleAwareInfo lifeCycleAwareInfo, Element hostElement) {
         PackageElement packageElement = processingEnv.getElementUtils().getPackageOf(hostElement);
         final String simpleClassName = hostElement.getSimpleName().toString() + "$LifeCycleBinder";
         final String qualifiedClassName = packageElement.getQualifiedName() + "." + simpleClassName;
@@ -126,20 +147,27 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         try {
             message(Diagnostic.Kind.NOTE, "writing class " + qualifiedClassName);
             JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(
-                    qualifiedClassName, listenersInfo.elements.toArray(new Element[listenersInfo.elements.size()]));
+                    qualifiedClassName, lifeCycleAwareInfo.lifeCycleAwareElements.toArray(new Element[lifeCycleAwareInfo.lifeCycleAwareElements.size()]));
 
             MethodSpec bindMethod = MethodSpec.methodBuilder("bind")
                     .addModifiers(Modifier.PUBLIC)
                     .returns(void.class)
                     .addParameter(TypeName.get(hostElement.asType()), "view")
-                    .addCode(generateBindMethod(hostElement, listenersInfo))
+                    .addCode(generateBindMethod(lifeCycleAwareInfo))
                     .build();
 
-            TypeSpec classType = TypeSpec.classBuilder(simpleClassName)
+            TypeSpec.Builder builder = TypeSpec.classBuilder(simpleClassName)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addMethod(bindMethod)
-                    .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), TypeName.get(hostElement.asType())))
-                    .build();
+                    .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), TypeName.get(hostElement.asType())));
+
+            if (!lifeCycleAwareInfo.instanceStateElements.isEmpty()) {
+                builder = builder
+                        .addMethod(createSaveInstanceStateMethod(hostElement, lifeCycleAwareInfo.instanceStateElements))
+                        .addMethod(createRestoreInstanceStateMethod(hostElement, lifeCycleAwareInfo.instanceStateElements));
+            }
+
+            TypeSpec classType = builder.build();
 
             final Writer writer = sourceFile.openWriter();
             JavaFile.builder(packageElement.getQualifiedName().toString(), classType)
@@ -151,13 +179,37 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
     }
 
-    private CodeBlock generateBindMethod(Element hostElement, ListenersInfo listenersInfo) {
+    private MethodSpec createRestoreInstanceStateMethod(Element hostElement, List<Element> instanceStateElements) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("restoreInstanceState")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(void.class)
+                .addParameter(TypeName.get(hostElement.asType()), "view")
+                .addParameter(Bundle.class, "bundle");
+        for (Element element : instanceStateElements) {
+            builder.addStatement("view.$L = bundle.getParcelable($S)", element.getSimpleName(), element.getSimpleName());
+        }
+        return builder.build();
+    }
+
+    private MethodSpec createSaveInstanceStateMethod(Element hostElement, List<Element> instanceStateElements) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("saveInstanceState")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(void.class)
+                .addParameter(TypeName.get(hostElement.asType()), "view")
+                .addParameter(Bundle.class, "bundle");
+        for (Element element : instanceStateElements) {
+            builder.addStatement("bundle.putParcelable($S, view.$L)", element.getSimpleName(), element.getSimpleName());
+        }
+        return builder.build();
+    }
+
+    private CodeBlock generateBindMethod(LifeCycleAwareInfo lifeCycleAwareInfo) {
         CodeBlock.Builder builder = CodeBlock.builder();
-        for (Element element : listenersInfo.elements) {
+        for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
             builder.addStatement("listeners.add(view.$L)", element);
         }
-        if (!listenersInfo.retainedObjects.isEmpty()) {
-            Set<Map.Entry<String, Element>> entries = listenersInfo.retainedObjects.entrySet();
+        if (!lifeCycleAwareInfo.retainedObjects.isEmpty()) {
+            Set<Map.Entry<String, Element>> entries = lifeCycleAwareInfo.retainedObjects.entrySet();
             for (Map.Entry<String, Element> entry : entries) {
                 builder.addStatement("retainedObjectCallables.put($S, view.$L)", entry.getKey(), entry.getValue());
             }
