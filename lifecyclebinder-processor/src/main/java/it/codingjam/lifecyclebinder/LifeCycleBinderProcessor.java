@@ -49,6 +49,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
@@ -61,6 +62,7 @@ import javax.tools.JavaFileObject;
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class LifeCycleBinderProcessor extends AbstractProcessor {
 
+    public static final String LIFE_CYCLE_BINDER_SUFFIX = "$LifeCycleBinder";
     private Types typeUtils;
     private Elements elementUtils;
     private Filer filer;
@@ -85,10 +87,25 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         if (elementsByClass == null) {
             return true;
         }
+
+        calculateNestedElements(elementsByClass);
+
         for (Map.Entry<Element, LifeCycleAwareInfo> entry : elementsByClass.entrySet()) {
             generateBinder(entry.getValue(), entry.getKey());
         }
         return false;
+    }
+
+    private void calculateNestedElements(Map<Element, LifeCycleAwareInfo> elementsByClass) {
+        for (LifeCycleAwareInfo lifeCycleAwareInfo : elementsByClass.values()) {
+            for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
+                for (Map.Entry<Element, LifeCycleAwareInfo> entry : elementsByClass.entrySet()) {
+                    if (entry.getKey().asType().equals(element.asType())) {
+                        lifeCycleAwareInfo.nestedElements.add(element);
+                    }
+                }
+            }
+        }
     }
 
     private Map<Element, LifeCycleAwareInfo> createLifeCycleAwareElementsMap(Set<? extends Element> lifeCycleAwareElements, Set<? extends Element> instanceStateElements) {
@@ -136,12 +153,14 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
         public final List<Element> instanceStateElements = new ArrayList<>();
 
+        public final List<Element> nestedElements = new ArrayList<>();
+
         public final TreeMap<String, Element> retainedObjects = new TreeMap<>();
     }
 
     private void generateBinder(LifeCycleAwareInfo lifeCycleAwareInfo, Element hostElement) {
         PackageElement packageElement = processingEnv.getElementUtils().getPackageOf(hostElement);
-        final String simpleClassName = hostElement.getSimpleName().toString() + "$LifeCycleBinder";
+        final String simpleClassName = hostElement.getSimpleName().toString() + LIFE_CYCLE_BINDER_SUFFIX;
         final String qualifiedClassName = packageElement.getQualifiedName() + "." + simpleClassName;
 
         try {
@@ -161,10 +180,12 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                     .addMethod(bindMethod)
                     .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), TypeName.get(hostElement.asType())));
 
-            if (!lifeCycleAwareInfo.instanceStateElements.isEmpty()) {
+            addNestedBinderFields(builder, lifeCycleAwareInfo);
+
+            if (!lifeCycleAwareInfo.instanceStateElements.isEmpty() || !lifeCycleAwareInfo.nestedElements.isEmpty()) {
                 builder = builder
-                        .addMethod(createSaveInstanceStateMethod(hostElement, lifeCycleAwareInfo.instanceStateElements))
-                        .addMethod(createRestoreInstanceStateMethod(hostElement, lifeCycleAwareInfo.instanceStateElements));
+                        .addMethod(createSaveInstanceStateMethod(lifeCycleAwareInfo, hostElement.asType()))
+                        .addMethod(createRestoreInstanceStateMethod(lifeCycleAwareInfo, hostElement.asType()));
             }
 
             TypeSpec classType = builder.build();
@@ -179,26 +200,41 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
     }
 
-    private MethodSpec createRestoreInstanceStateMethod(Element hostElement, List<Element> instanceStateElements) {
+    private void addNestedBinderFields(TypeSpec.Builder builder, LifeCycleAwareInfo lifeCycleAwareInfo) {
+        for (Element element : lifeCycleAwareInfo.nestedElements) {
+            builder.addField(
+                    ClassName.bestGuess(element.asType().toString() + LIFE_CYCLE_BINDER_SUFFIX),
+                    element.getSimpleName().toString(),
+                    Modifier.PRIVATE);
+        }
+    }
+
+    private MethodSpec createRestoreInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror type) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("restoreInstanceState")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class)
-                .addParameter(TypeName.get(hostElement.asType()), "view")
+                .addParameter(TypeName.get(type), "view")
                 .addParameter(Bundle.class, "bundle");
-        for (Element element : instanceStateElements) {
+        for (Element element : lifeCycleAwareInfo.instanceStateElements) {
             builder.addStatement("view.$L = bundle.getParcelable($S)", element.getSimpleName(), element.getSimpleName());
+        }
+        for (Element element : lifeCycleAwareInfo.nestedElements) {
+            builder.addStatement("$L.restoreInstanceState(view.$L, bundle)", element.getSimpleName(), element.getSimpleName());
         }
         return builder.build();
     }
 
-    private MethodSpec createSaveInstanceStateMethod(Element hostElement, List<Element> instanceStateElements) {
+    private MethodSpec createSaveInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror hostType) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("saveInstanceState")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class)
-                .addParameter(TypeName.get(hostElement.asType()), "view")
+                .addParameter(TypeName.get(hostType), "view")
                 .addParameter(Bundle.class, "bundle");
-        for (Element element : instanceStateElements) {
+        for (Element element : lifeCycleAwareInfo.instanceStateElements) {
             builder.addStatement("bundle.putParcelable($S, view.$L)", element.getSimpleName(), element.getSimpleName());
+        }
+        for (Element element : lifeCycleAwareInfo.nestedElements) {
+            builder.addStatement("$L.saveInstanceState(view.$L, bundle)", element.getSimpleName(), element.getSimpleName());
         }
         return builder.build();
     }
