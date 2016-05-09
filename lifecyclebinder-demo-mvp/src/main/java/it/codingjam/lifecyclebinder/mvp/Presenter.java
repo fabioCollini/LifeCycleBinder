@@ -25,35 +25,27 @@ import android.view.MenuItem;
 import java.util.concurrent.TimeUnit;
 
 import it.codingjam.lifecyclebinder.DefaultViewLifeCycleAware;
+import it.codingjam.lifecyclebinder.InstanceState;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
 public class Presenter extends DefaultViewLifeCycleAware<View> {
 
-    public static final String MODEL = "MODEL";
     public static final int SHARE_REQUEST_CODE = 123;
 
     private View view;
 
-    private Model model;
+    @InstanceState
+    Model model;
 
     private boolean loading;
 
     @Override
     public void onCreate(View view, Bundle bundle) {
         if (model == null) {
-            if (bundle == null) {
-                model = new Model();
-            } else {
-                bundle.getParcelable(MODEL);
-            }
+            model = new Model();
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(View view, Bundle bundle) {
-        bundle.putParcelable(MODEL, model);
     }
 
     @Override

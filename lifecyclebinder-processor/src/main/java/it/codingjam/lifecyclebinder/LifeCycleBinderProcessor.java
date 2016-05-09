@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -33,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -79,7 +79,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Map<Element, LifeCycleAwareInfo> elementsByClass = createLifeCycleAwareElementsMap(
+        List<LifeCycleAwareInfo> elementsByClass = createLifeCycleAwareElements(
                 roundEnv.getElementsAnnotatedWith(LifeCycleAware.class),
                 roundEnv.getElementsAnnotatedWith(InstanceState.class)
         );
@@ -90,25 +90,32 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
         calculateNestedElements(elementsByClass);
 
-        for (Map.Entry<Element, LifeCycleAwareInfo> entry : elementsByClass.entrySet()) {
-            generateBinder(entry.getValue(), entry.getKey());
+        for (LifeCycleAwareInfo entry : elementsByClass) {
+            generateBinder(entry);
         }
         return false;
     }
 
-    private void calculateNestedElements(Map<Element, LifeCycleAwareInfo> elementsByClass) {
-        for (LifeCycleAwareInfo lifeCycleAwareInfo : elementsByClass.values()) {
+    private void calculateNestedElements(List<LifeCycleAwareInfo> elementsByClass) {
+        for (LifeCycleAwareInfo lifeCycleAwareInfo : elementsByClass) {
             for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
-                for (Map.Entry<Element, LifeCycleAwareInfo> entry : elementsByClass.entrySet()) {
-                    if (entry.getKey().asType().equals(element.asType())) {
-                        lifeCycleAwareInfo.nestedElements.add(element);
+                for (LifeCycleAwareInfo entry : elementsByClass) {
+                    if (entry.element.asType().equals(element.asType())) {
+                        lifeCycleAwareInfo.nestedElements.add(new NestedLifeCycleAwareInfo(element, entry, null));
+                    }
+                }
+            }
+            for (RetainedObjectInfo retainedEntry : lifeCycleAwareInfo.retainedObjects) {
+                for (LifeCycleAwareInfo entry : elementsByClass) {
+                    if (ClassName.get(entry.element.asType()).equals(retainedEntry.typeName)) {
+                        lifeCycleAwareInfo.nestedElements.add(new NestedLifeCycleAwareInfo(retainedEntry.field, entry, retainedEntry));
                     }
                 }
             }
         }
     }
 
-    private Map<Element, LifeCycleAwareInfo> createLifeCycleAwareElementsMap(Set<? extends Element> lifeCycleAwareElements, Set<? extends Element> instanceStateElements) {
+    private List<LifeCycleAwareInfo> createLifeCycleAwareElements(Set<? extends Element> lifeCycleAwareElements, Set<? extends Element> instanceStateElements) {
         Map<Element, LifeCycleAwareInfo> elementsByClass = new HashMap<>();
 
         for (Element element : lifeCycleAwareElements) {
@@ -127,7 +134,8 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             if (!annotation.retained()) {
                 info.lifeCycleAwareElements.add(variable);
             } else {
-                info.retainedObjects.put(annotation.name(), variable);
+                TypeName typeName = ((ParameterizedTypeName) ParameterizedTypeName.get(variable.asType())).typeArguments.get(0);
+                info.retainedObjects.add(new RetainedObjectInfo(annotation.name(), variable, typeName));
             }
         }
         for (Element element : instanceStateElements) {
@@ -136,29 +144,20 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, enclosingElement);
             info.instanceStateElements.add(element);
         }
-        return elementsByClass;
+        return new ArrayList<>(elementsByClass.values());
     }
 
     private LifeCycleAwareInfo getLifeCycleAwareInfo(Map<Element, LifeCycleAwareInfo> elementsByClass, Element enclosingElement) {
         LifeCycleAwareInfo info = elementsByClass.get(enclosingElement);
         if (info == null) {
-            info = new LifeCycleAwareInfo();
+            info = new LifeCycleAwareInfo(enclosingElement);
             elementsByClass.put(enclosingElement, info);
         }
         return info;
     }
 
-    private static class LifeCycleAwareInfo {
-        public final List<Element> lifeCycleAwareElements = new ArrayList<>();
-
-        public final List<Element> instanceStateElements = new ArrayList<>();
-
-        public final List<Element> nestedElements = new ArrayList<>();
-
-        public final TreeMap<String, Element> retainedObjects = new TreeMap<>();
-    }
-
-    private void generateBinder(LifeCycleAwareInfo lifeCycleAwareInfo, Element hostElement) {
+    private void generateBinder(LifeCycleAwareInfo lifeCycleAwareInfo) {
+        Element hostElement = lifeCycleAwareInfo.element;
         PackageElement packageElement = processingEnv.getElementUtils().getPackageOf(hostElement);
         final String simpleClassName = hostElement.getSimpleName().toString() + LIFE_CYCLE_BINDER_SUFFIX;
         final String qualifiedClassName = packageElement.getQualifiedName() + "." + simpleClassName;
@@ -201,11 +200,21 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     }
 
     private void addNestedBinderFields(TypeSpec.Builder builder, LifeCycleAwareInfo lifeCycleAwareInfo) {
-        for (Element element : lifeCycleAwareInfo.nestedElements) {
+        for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
+            String typeName;
+            if (info.retained != null) {
+                typeName = info.retained.typeName.toString();
+            } else {
+                typeName = info.field.asType().toString();
+            }
+            ClassName className = ClassName.bestGuess(typeName + LIFE_CYCLE_BINDER_SUFFIX);
             builder.addField(
-                    ClassName.bestGuess(element.asType().toString() + LIFE_CYCLE_BINDER_SUFFIX),
-                    element.getSimpleName().toString(),
-                    Modifier.PRIVATE);
+                    FieldSpec.builder(
+                            className,
+                            info.field.getSimpleName().toString(),
+                            Modifier.PRIVATE
+                    ).initializer("new $T()", className).build()
+            );
         }
     }
 
@@ -218,8 +227,12 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         for (Element element : lifeCycleAwareInfo.instanceStateElements) {
             builder.addStatement("view.$L = bundle.getParcelable($S)", element.getSimpleName(), element.getSimpleName());
         }
-        for (Element element : lifeCycleAwareInfo.nestedElements) {
-            builder.addStatement("$L.restoreInstanceState(view.$L, bundle)", element.getSimpleName(), element.getSimpleName());
+        for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
+            if (info.retained != null) {
+                builder.addStatement("$L.restoreInstanceState(($T) retainedObjects.get($S), bundle)", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
+            } else {
+                builder.addStatement("$L.restoreInstanceState(view.$L, bundle)", info.field.getSimpleName(), info.field.getSimpleName());
+            }
         }
         return builder.build();
     }
@@ -233,8 +246,12 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         for (Element element : lifeCycleAwareInfo.instanceStateElements) {
             builder.addStatement("bundle.putParcelable($S, view.$L)", element.getSimpleName(), element.getSimpleName());
         }
-        for (Element element : lifeCycleAwareInfo.nestedElements) {
-            builder.addStatement("$L.saveInstanceState(view.$L, bundle)", element.getSimpleName(), element.getSimpleName());
+        for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
+            if (info.retained != null) {
+                builder.addStatement("$L.saveInstanceState(($T) retainedObjects.get($S), bundle)", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
+            } else {
+                builder.addStatement("$L.saveInstanceState(view.$L, bundle)", info.field.getSimpleName(), info.field.getSimpleName());
+            }
         }
         return builder.build();
     }
@@ -245,9 +262,8 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             builder.addStatement("listeners.add(view.$L)", element);
         }
         if (!lifeCycleAwareInfo.retainedObjects.isEmpty()) {
-            Set<Map.Entry<String, Element>> entries = lifeCycleAwareInfo.retainedObjects.entrySet();
-            for (Map.Entry<String, Element> entry : entries) {
-                builder.addStatement("retainedObjectCallables.put($S, view.$L)", entry.getKey(), entry.getValue());
+            for (RetainedObjectInfo entry : lifeCycleAwareInfo.retainedObjects) {
+                builder.addStatement("retainedObjectCallables.put($S, view.$L)", entry.name, entry.field);
             }
         }
         return builder.build();

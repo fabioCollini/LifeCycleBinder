@@ -28,6 +28,8 @@ public abstract class ObjectBinder<T> {
 
     protected List<ViewLifeCycleAware<? super T>> listeners = new ArrayList<>();
 
+    protected Map<String, ViewLifeCycleAware<? super T>> retainedObjects = new HashMap<>();
+
     protected Map<String, Callable<? extends ViewLifeCycleAware<? super T>>> retainedObjectCallables = new HashMap<>();
 
     public abstract void bind(T view);
@@ -42,8 +44,9 @@ public abstract class ObjectBinder<T> {
         return listeners;
     }
 
-    public boolean addListener(ViewLifeCycleAware<? super T> listener) {
-        return listeners.add(listener);
+    public void addListener(String key, ViewLifeCycleAware<? super T> listener) {
+        listeners.add(listener);
+        retainedObjects.put(key, listener);
     }
 
     public Map<String, Callable<? extends ViewLifeCycleAware<? super T>>> getRetainedObjectCallables() {
