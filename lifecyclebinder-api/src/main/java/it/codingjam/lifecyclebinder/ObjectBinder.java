@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-public abstract class ObjectBinder<T> {
+public abstract class ObjectBinder<T, V> {
 
-    protected List<ViewLifeCycleAware<? super T>> listeners = new ArrayList<>();
+    protected List<ViewLifeCycleAware<? super V>> listeners = new ArrayList<>();
 
-    protected Map<String, ViewLifeCycleAware<? super T>> retainedObjects = new HashMap<>();
+    protected Map<String, ViewLifeCycleAware<? super V>> retainedObjects = new HashMap<>();
 
-    protected Map<String, Callable<? extends ViewLifeCycleAware<? super T>>> retainedObjectCallables = new HashMap<>();
+    protected Map<String, Callable<? extends ViewLifeCycleAware<? super V>>> retainedObjectCallables = new HashMap<>();
 
     public abstract void bind(T view);
 
@@ -40,16 +40,16 @@ public abstract class ObjectBinder<T> {
     public void saveInstanceState(T view, Bundle bundle) {
     }
 
-    public List<ViewLifeCycleAware<? super T>> getListeners() {
+    public List<ViewLifeCycleAware<? super V>> getListeners() {
         return listeners;
     }
 
-    public void addListener(String key, ViewLifeCycleAware<? super T> listener) {
+    public void addListener(String key, ViewLifeCycleAware<? super V> listener) {
         listeners.add(listener);
         retainedObjects.put(key, listener);
     }
 
-    public Map<String, Callable<? extends ViewLifeCycleAware<? super T>>> getRetainedObjectCallables() {
+    public Map<String, Callable<? extends ViewLifeCycleAware<? super V>>> getRetainedObjectCallables() {
         return retainedObjectCallables;
     }
 }

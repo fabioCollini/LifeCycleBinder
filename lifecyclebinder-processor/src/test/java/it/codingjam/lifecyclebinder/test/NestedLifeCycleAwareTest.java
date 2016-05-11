@@ -26,7 +26,7 @@ import javax.tools.JavaFileObject;
 
 import it.codingjam.lifecyclebinder.LifeCycleBinderProcessor;
 
-public class MyObjectWithParcelableTest {
+public class NestedLifeCycleAwareTest {
 
     public static final String SOURCE =
             "package com.test;\n" +
@@ -43,6 +43,8 @@ public class MyObjectWithParcelableTest {
                     "\n" +
                     "    @InstanceState\n" +
                     "    MyParcelable myParcelable;\n" +
+                    "    @LifeCycleAware\n" +
+                    "    MyObject myObject;\n" +
                     "\n" +
                     "    @Override\n" +
                     "    public void onCreate(MyView view, Bundle bundle) {\n" +
@@ -115,6 +117,9 @@ public class MyObjectWithParcelableTest {
                     "\n"+
                     "  public void bind(MyActivity view) {\n" +
                     "    listeners.add(view.myObject);\n" +
+                    "    myObject.bind(view.myObject);\n" +
+                    "    listeners.addAll(myObject.getListeners());\n" +
+                    "    retainedObjectCallables.putAll(myObject.getRetainedObjectCallables());\n" +
                     "  }\n" +
                     "  public void saveInstanceState(MyActivity view, Bundle bundle) {\n" +
                     "    myObject.saveInstanceState(view.myObject, bundle);\n" +

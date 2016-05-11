@@ -34,16 +34,16 @@ public class LifeCycleBinder {
     private static <T> void bind(T obj, FragmentManager fragmentManager, FragmentManager activityFragmentManager) {
         LifeCycleRetainedFragment retainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager);
         LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
-        Class<ObjectBinder<T>> c = getObjectBinderClass(obj);
+        Class<ObjectBinder<T, T>> c = getObjectBinderClass(obj);
         fragment.init(c);
         fragmentManager.executePendingTransactions();
     }
 
     @NonNull
-    private static <T> Class<ObjectBinder<T>> getObjectBinderClass(T obj) {
+    private static <T> Class<ObjectBinder<T, T>> getObjectBinderClass(T obj) {
         String className = obj.getClass().getName() + "$LifeCycleBinder";
         try {
-            return (Class<ObjectBinder<T>>) Class.forName(className);
+            return (Class<ObjectBinder<T, T>>) Class.forName(className);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Error searching class " + className, e);
         }

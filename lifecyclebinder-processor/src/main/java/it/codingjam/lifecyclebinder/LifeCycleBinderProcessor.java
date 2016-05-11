@@ -128,7 +128,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
             LifeCycleAware annotation = variable.getAnnotation(LifeCycleAware.class);
 
-            Element enclosingElement = variable.getEnclosingElement();
+            TypeElement enclosingElement = (TypeElement) variable.getEnclosingElement();
 
             LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, enclosingElement);
             if (!annotation.retained()) {
@@ -140,14 +140,14 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
         for (Element element : instanceStateElements) {
             VariableElement variable = (VariableElement) element;
-            Element enclosingElement = variable.getEnclosingElement();
+            TypeElement enclosingElement = (TypeElement) variable.getEnclosingElement();
             LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, enclosingElement);
             info.instanceStateElements.add(element);
         }
         return new ArrayList<>(elementsByClass.values());
     }
 
-    private LifeCycleAwareInfo getLifeCycleAwareInfo(Map<Element, LifeCycleAwareInfo> elementsByClass, Element enclosingElement) {
+    private LifeCycleAwareInfo getLifeCycleAwareInfo(Map<Element, LifeCycleAwareInfo> elementsByClass, TypeElement enclosingElement) {
         LifeCycleAwareInfo info = elementsByClass.get(enclosingElement);
         if (info == null) {
             info = new LifeCycleAwareInfo(enclosingElement);
@@ -157,7 +157,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     }
 
     private void generateBinder(LifeCycleAwareInfo lifeCycleAwareInfo) {
-        Element hostElement = lifeCycleAwareInfo.element;
+        TypeElement hostElement = lifeCycleAwareInfo.element;
         PackageElement packageElement = processingEnv.getElementUtils().getPackageOf(hostElement);
         final String simpleClassName = hostElement.getSimpleName().toString() + LIFE_CYCLE_BINDER_SUFFIX;
         final String qualifiedClassName = packageElement.getQualifiedName() + "." + simpleClassName;
@@ -167,17 +167,19 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(
                     qualifiedClassName, lifeCycleAwareInfo.lifeCycleAwareElements.toArray(new Element[lifeCycleAwareInfo.lifeCycleAwareElements.size()]));
 
+            TypeName objectGenericType = TypeName.get(hostElement.asType());
+            TypeName viewGenericType = getObjectBinderGenericTypeName(hostElement);
             MethodSpec bindMethod = MethodSpec.methodBuilder("bind")
                     .addModifiers(Modifier.PUBLIC)
                     .returns(void.class)
-                    .addParameter(TypeName.get(hostElement.asType()), "view")
+                    .addParameter(objectGenericType, "view")
                     .addCode(generateBindMethod(lifeCycleAwareInfo))
                     .build();
 
             TypeSpec.Builder builder = TypeSpec.classBuilder(simpleClassName)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addMethod(bindMethod)
-                    .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), TypeName.get(hostElement.asType())));
+                    .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType));
 
             addNestedBinderFields(builder, lifeCycleAwareInfo);
 
@@ -197,6 +199,20 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         } catch (IOException e) {
             throw new RuntimeException("Failed writing class file " + qualifiedClassName, e);
         }
+    }
+
+    private TypeName getObjectBinderGenericTypeName(TypeElement hostElement) {
+        List<? extends TypeMirror> interfaces = hostElement.getInterfaces();
+        for (TypeMirror type : interfaces) {
+            TypeName typeName = TypeName.get(type);
+            if (typeName instanceof ParameterizedTypeName) {
+                ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
+                if (parameterizedTypeName.typeArguments.size() == 1 && parameterizedTypeName.rawType.equals(TypeName.get(ViewLifeCycleAware.class))) {
+                    return parameterizedTypeName.typeArguments.get(0);
+                }
+            }
+        }
+        return TypeName.get(hostElement.asType());
     }
 
     private void addNestedBinderFields(TypeSpec.Builder builder, LifeCycleAwareInfo lifeCycleAwareInfo) {
@@ -266,6 +282,16 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                 builder.addStatement("retainedObjectCallables.put($S, view.$L)", entry.name, entry.field);
             }
         }
+        for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
+            if (info.retained != null) {
+                builder.addStatement("$L.bind(($T) retainedObjects.get($S))", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
+            } else {
+                builder.addStatement("$L.bind(view.$L)", info.field.getSimpleName(), info.field.getSimpleName());
+            }
+            builder.addStatement("listeners.addAll($L.getListeners())", info.field.getSimpleName());
+            builder.addStatement("retainedObjectCallables.putAll($L.getRetainedObjectCallables())", info.field.getSimpleName());
+        }
+
         return builder.build();
     }
 

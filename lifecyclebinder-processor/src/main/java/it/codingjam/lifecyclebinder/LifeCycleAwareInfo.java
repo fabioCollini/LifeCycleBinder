@@ -20,9 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 
 public class LifeCycleAwareInfo {
-    public final Element element;
+    public final TypeElement element;
 
     public final List<Element> lifeCycleAwareElements = new ArrayList<>();
 
@@ -32,7 +33,7 @@ public class LifeCycleAwareInfo {
 
     public final List<RetainedObjectInfo> retainedObjects = new ArrayList<>();
 
-    public LifeCycleAwareInfo(Element element) {
+    public LifeCycleAwareInfo(TypeElement element) {
         this.element = element;
     }
 

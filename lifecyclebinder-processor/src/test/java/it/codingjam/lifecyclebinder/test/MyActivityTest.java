@@ -42,7 +42,7 @@ public class MyActivityTest {
                     "\n" +
                     "import it.codingjam.lifecyclebinder.ObjectBinder;\n" +
                     "\n" +
-                    "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity> {\n" +
+                    "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity, MyActivity> {\n" +
                     "  public void bind(MyActivity view) {\n" +
                     "    listeners.add(view.myObject);\n" +
                     "  }\n" +

@@ -33,9 +33,9 @@ public class LifeCycleBinderFragment<T> extends Fragment {
 
     private T viewParam;
 
-    private ObjectBinder<T> objectBinder;
+    private ObjectBinder<T, T> objectBinder;
 
-    private Class<ObjectBinder<T>> objectBinderClass;
+    private Class<ObjectBinder<T, T>> objectBinderClass;
 
     @NonNull
     static <T> LifeCycleBinderFragment<T> getOrCreate(FragmentManager fragmentManager) {
@@ -53,7 +53,7 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            objectBinderClass = (Class<ObjectBinder<T>>) savedInstanceState.getSerializable(OBJECT_BINDER_CLASS);
+            objectBinderClass = (Class<ObjectBinder<T, T>>) savedInstanceState.getSerializable(OBJECT_BINDER_CLASS);
         }
         viewParam = (T) getParentFragment();
         if (viewParam == null) {
@@ -77,7 +77,7 @@ public class LifeCycleBinderFragment<T> extends Fragment {
         }
     }
 
-    private ObjectBinder<T> createObjectBinder() {
+    private ObjectBinder<T, T> createObjectBinder() {
         try {
             return objectBinderClass.newInstance();
         } catch (java.lang.InstantiationException e) {
@@ -169,7 +169,7 @@ public class LifeCycleBinderFragment<T> extends Fragment {
         }
     }
 
-    public void init(Class<ObjectBinder<T>> objectBinderClass) {
+    public void init(Class<ObjectBinder<T, T>> objectBinderClass) {
         this.objectBinderClass = objectBinderClass;
     }
 }

@@ -26,11 +26,12 @@ import java.util.concurrent.TimeUnit;
 
 import it.codingjam.lifecyclebinder.DefaultViewLifeCycleAware;
 import it.codingjam.lifecyclebinder.InstanceState;
+import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
-public class Presenter extends DefaultViewLifeCycleAware<View> {
+public class Presenter extends DefaultViewLifeCycleAware<View> implements ViewLifeCycleAware<View> {
 
     public static final int SHARE_REQUEST_CODE = 123;
 

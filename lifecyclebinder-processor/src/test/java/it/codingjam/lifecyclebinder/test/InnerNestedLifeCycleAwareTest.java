@@ -26,7 +26,7 @@ import javax.tools.JavaFileObject;
 
 import it.codingjam.lifecyclebinder.LifeCycleBinderProcessor;
 
-public class MyObjectWithParcelableTest {
+public class InnerNestedLifeCycleAwareTest {
 
     public static final String SOURCE =
             "package com.test;\n" +
@@ -39,10 +39,12 @@ public class MyObjectWithParcelableTest {
                     "import it.codingjam.lifecyclebinder.LifeCycleAware;\n" +
                     "import it.codingjam.lifecyclebinder.ViewLifeCycleAware;\n" +
                     "import it.codingjam.lifecyclebinder.InstanceState;\n" +
-                    "class MyObjectWithParcelable implements ViewLifeCycleAware<MyView> {\n" +
+                    "public class MyObjectWithParcelable implements ViewLifeCycleAware<MyView> {\n" +
                     "\n" +
                     "    @InstanceState\n" +
                     "    MyParcelable myParcelable;\n" +
+                    "    @LifeCycleAware\n" +
+                    "    MyObject myObject;\n" +
                     "\n" +
                     "    @Override\n" +
                     "    public void onCreate(MyView view, Bundle bundle) {\n" +
@@ -98,10 +100,6 @@ public class MyObjectWithParcelableTest {
                     "    public void onActivityResult(int requestCode, int resultCode, Intent data) {\n" +
                     "\n" +
                     "    }\n" +
-                    "}\n" +
-                    "public class MyActivity extends FragmentActivity implements MyView  {\n" +
-                    "    @LifeCycleAware\n" +
-                    "    MyObjectWithParcelable myObject;\n" +
                     "}";
 
     public static final String RESULT =
@@ -110,25 +108,24 @@ public class MyObjectWithParcelableTest {
                     "import android.os.Bundle;\n" +
                     "import it.codingjam.lifecyclebinder.ObjectBinder;\n" +
                     "\n" +
-                    "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity, MyActivity> {\n" +
-                    "  private MyObjectWithParcelable$LifeCycleBinder myObject = new MyObjectWithParcelable$LifeCycleBinder();\n" +
-                    "\n"+
-                    "  public void bind(MyActivity view) {\n" +
+                    "public final class MyObjectWithParcelable$LifeCycleBinder extends ObjectBinder<MyObjectWithParcelable, MyView> {\n" +
+                    "\n" +
+                    "  public void bind(MyObjectWithParcelable view) {\n" +
                     "    listeners.add(view.myObject);\n" +
                     "  }\n" +
-                    "  public void saveInstanceState(MyActivity view, Bundle bundle) {\n" +
-                    "    myObject.saveInstanceState(view.myObject, bundle);\n" +
+                    "  public void saveInstanceState(MyObjectWithParcelable view, Bundle bundle) {\n" +
+                    "    bundle.putParcelable(\"myParcelable\", view.myParcelable);\n" +
                     "  }\n" +
                     "\n" +
-                    "  public void restoreInstanceState(MyActivity view, Bundle bundle) {\n" +
-                    "    myObject.restoreInstanceState(view.myObject, bundle);\n" +
+                    "  public void restoreInstanceState(MyObjectWithParcelable view, Bundle bundle) {\n" +
+                    "    view.myParcelable = bundle.getParcelable(\"myParcelable\");\n" +
                     "  }\n" +
                     "}";
 
     @Test
     public void testMyActivity() throws Exception {
-        JavaFileObject expectedSource = JavaFileObjects.forSourceString("com.test.MyActivity$LifeCycleBinder", RESULT);
-        JavaFileObject target = JavaFileObjects.forSourceString("com.test.MyActivity", SOURCE);
+        JavaFileObject expectedSource = JavaFileObjects.forSourceString("com.test.MyObjectWithParcelable$LifeCycleBinder", RESULT);
+        JavaFileObject target = JavaFileObjects.forSourceString("com.test.MyObjectWithParcelable", SOURCE);
         Truth.ASSERT.about(JavaSourceSubjectFactory.javaSource())
                 .that(target)
                 .processedWith(new LifeCycleBinderProcessor())

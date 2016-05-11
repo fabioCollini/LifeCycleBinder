@@ -55,7 +55,7 @@ public class Retained2Test {
                     "\n" +
                     "import it.codingjam.lifecyclebinder.ObjectBinder;\n" +
                     "\n" +
-                    "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity> {\n" +
+                    "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity, MyActivity> {\n" +
                     "  public void bind(MyActivity view) {\n" +
                     "    retainedObjectCallables.put(\"myName\", view.myObject);\n" +
                     "    retainedObjectCallables.put(\"myName2\", view.myObject2);\n" +

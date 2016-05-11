@@ -45,7 +45,7 @@ public class LifeCycleRetainedFragment extends Fragment {
         return fragment;
     }
 
-    public <T> void init(ObjectBinder<T> objectBinder) {
+    public <T> void init(ObjectBinder<T, T> objectBinder) {
         Map<String, Callable<? extends ViewLifeCycleAware<? super T>>> retainedObjectCallables = objectBinder.getRetainedObjectCallables();
         for (Map.Entry<String, Callable<? extends ViewLifeCycleAware<? super T>>> entry : retainedObjectCallables.entrySet()) {
             String key = entry.getKey();

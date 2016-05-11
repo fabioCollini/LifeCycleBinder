@@ -107,7 +107,7 @@ public class MyObjectWithParcelableFactoryTest {
                     "import android.os.Bundle;\n" +
                     "import it.codingjam.lifecyclebinder.ObjectBinder;\n" +
                     "\n" +
-                    "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity> {\n" +
+                    "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity, MyActivity> {\n" +
                     "  private MyObjectWithParcelable$LifeCycleBinder myObject = new MyObjectWithParcelable$LifeCycleBinder();\n" +
                     "\n" +
                     "  public void bind(MyActivity view) {\n" +
