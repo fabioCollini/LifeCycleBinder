@@ -235,38 +235,27 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     }
 
     private MethodSpec createRestoreInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror type) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("restoreInstanceState")
+        return createInstanceStateMethod(lifeCycleAwareInfo, type, "restoreInstanceState", "view.$L = bundle.getParcelable($S)");
+    }
+
+    private MethodSpec createSaveInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror hostType) {
+        return createInstanceStateMethod(lifeCycleAwareInfo, hostType, "saveInstanceState", "bundle.putParcelable($S, view.$L)");
+    }
+
+    private MethodSpec createInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror type, String methodName, String statement) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class)
                 .addParameter(TypeName.get(type), "view")
                 .addParameter(Bundle.class, "bundle");
         for (Element element : lifeCycleAwareInfo.instanceStateElements) {
-            builder.addStatement("view.$L = bundle.getParcelable($S)", element.getSimpleName(), element.getSimpleName());
+            builder.addStatement(statement, element.getSimpleName(), element.getSimpleName());
         }
         for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
             if (info.retained != null) {
-                builder.addStatement("$L.restoreInstanceState(($T) retainedObjects.get($S), bundle)", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
+                builder.addStatement("$L." + methodName + "(($T) retainedObjects.get($S), bundle)", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
             } else {
-                builder.addStatement("$L.restoreInstanceState(view.$L, bundle)", info.field.getSimpleName(), info.field.getSimpleName());
-            }
-        }
-        return builder.build();
-    }
-
-    private MethodSpec createSaveInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror hostType) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("saveInstanceState")
-                .addModifiers(Modifier.PUBLIC)
-                .returns(void.class)
-                .addParameter(TypeName.get(hostType), "view")
-                .addParameter(Bundle.class, "bundle");
-        for (Element element : lifeCycleAwareInfo.instanceStateElements) {
-            builder.addStatement("bundle.putParcelable($S, view.$L)", element.getSimpleName(), element.getSimpleName());
-        }
-        for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
-            if (info.retained != null) {
-                builder.addStatement("$L.saveInstanceState(($T) retainedObjects.get($S), bundle)", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
-            } else {
-                builder.addStatement("$L.saveInstanceState(view.$L, bundle)", info.field.getSimpleName(), info.field.getSimpleName());
+                builder.addStatement("$L." + methodName + "(view.$L, bundle)", info.field.getSimpleName(), info.field.getSimpleName());
             }
         }
         return builder.build();
