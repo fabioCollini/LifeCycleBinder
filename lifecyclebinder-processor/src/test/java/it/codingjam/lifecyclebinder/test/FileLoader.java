@@ -17,12 +17,17 @@
 package it.codingjam.lifecyclebinder.test;
 
 import com.google.testing.compile.JavaFileObjects;
+import com.google.testing.compile.JavaSourceSubjectFactory;
+
+import org.truth0.Truth;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
 import javax.tools.JavaFileObject;
+
+import it.codingjam.lifecyclebinder.LifeCycleBinderProcessor;
 
 public class FileLoader {
     public static JavaFileObject loadClass(String source) {
@@ -45,5 +50,22 @@ public class FileLoader {
                 }
             }
         }
+    }
+
+    public static void check(String name, String... extragenerated) {
+        checkSingleFile(name, name + "$LifeCycleBinder");
+        for (String s : extragenerated) {
+            checkSingleFile(name, s + "$LifeCycleBinder");
+        }
+    }
+
+    private static void checkSingleFile(String name, String expected) {
+        JavaFileObject target = loadClass(name);
+        Truth.ASSERT.about(JavaSourceSubjectFactory.javaSource())
+                .that(target)
+                .processedWith(new LifeCycleBinderProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(loadClass(expected));
     }
 }

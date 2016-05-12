@@ -37,7 +37,7 @@ public abstract class ObjectBinder<T, V> {
 //    public ObjectBinder(String bundlePrefix) {
 //        this.bundlePrefix = bundlePrefix + "_";
 //    }
-//
+
     public abstract void bind(T view);
 
     public void restoreInstanceState(T view, Bundle bundle) {
