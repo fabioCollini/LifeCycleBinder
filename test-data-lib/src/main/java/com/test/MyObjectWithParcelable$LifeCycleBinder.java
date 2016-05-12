@@ -14,4 +14,13 @@
  *  limitations under the License.
  */
 
-include ':lifecyclebinder-demo-fragments', ':lifecyclebinder-lib', ':lifecyclebinder-demo-mvp', ':lifecyclebinder-processor', ':lifecyclebinder-api', ':testapp', ':test-data-lib'
+package com.test;
+
+import it.codingjam.lifecyclebinder.ObjectBinder;
+
+public class MyObjectWithParcelable$LifeCycleBinder extends ObjectBinder<MyObjectWithParcelable, MyView> {
+    @Override
+    public void bind(MyObjectWithParcelable view) {
+
+    }
+}

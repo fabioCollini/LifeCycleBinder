@@ -14,4 +14,20 @@
  *  limitations under the License.
  */
 
-include ':lifecyclebinder-demo-fragments', ':lifecyclebinder-lib', ':lifecyclebinder-demo-mvp', ':lifecyclebinder-processor', ':lifecyclebinder-api', ':testapp', ':test-data-lib'
+package com.test;
+
+import android.support.v4.app.FragmentActivity;
+
+import java.util.concurrent.Callable;
+
+import it.codingjam.lifecyclebinder.LifeCycleAware;
+
+public class ActivityWithRetained extends FragmentActivity implements MyView {
+    @LifeCycleAware(retained = true, name = "myName")
+    Callable<MyObject> myObject = new Callable<MyObject>() {
+        @Override
+        public MyObject call() throws Exception {
+            return new MyObject();
+        }
+    };
+}

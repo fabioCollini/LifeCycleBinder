@@ -16,7 +16,6 @@
 
 package it.codingjam.lifecyclebinder.test;
 
-import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourceSubjectFactory;
 
 import org.junit.Test;
@@ -27,105 +26,10 @@ import javax.tools.JavaFileObject;
 import it.codingjam.lifecyclebinder.LifeCycleBinderProcessor;
 
 public class InnerNestedLifeCycleAwareTest {
-
-    public static final String SOURCE =
-            "package com.test;\n" +
-                    "import android.content.Intent;\n" +
-                    "import android.os.Bundle;\n" +
-                    "import android.view.Menu;\n" +
-                    "import android.view.MenuInflater;\n" +
-                    "import android.view.MenuItem;\n" +
-                    "import android.support.v4.app.FragmentActivity;\n" +
-                    "import it.codingjam.lifecyclebinder.LifeCycleAware;\n" +
-                    "import it.codingjam.lifecyclebinder.ViewLifeCycleAware;\n" +
-                    "import it.codingjam.lifecyclebinder.InstanceState;\n" +
-                    "public class MyObjectWithParcelable implements ViewLifeCycleAware<MyView> {\n" +
-                    "\n" +
-                    "    @InstanceState\n" +
-                    "    MyParcelable myParcelable;\n" +
-                    "    @LifeCycleAware\n" +
-                    "    MyObject myObject;\n" +
-                    "\n" +
-                    "    @Override\n" +
-                    "    public void onCreate(MyView view, Bundle bundle) {\n" +
-                    "\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    @Override\n" +
-                    "    public void onStart(MyView view) {\n" +
-                    "\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    @Override\n" +
-                    "    public void onResume(MyView view) {\n" +
-                    "\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    @Override\n" +
-                    "    public boolean hasOptionsMenu() {\n" +
-                    "        return false;\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    @Override\n" +
-                    "    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {\n" +
-                    "\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    @Override\n" +
-                    "    public boolean onOptionsItemSelected(MyView view, MenuItem item) {\n" +
-                    "        return false;\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    @Override\n" +
-                    "    public void onPause(MyView view) {\n" +
-                    "\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    @Override\n" +
-                    "    public void onStop(MyView view) {\n" +
-                    "\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    @Override\n" +
-                    "    public void onSaveInstanceState(MyView view, Bundle bundle) {\n" +
-                    "\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    @Override\n" +
-                    "    public void onDestroy(MyView view) {\n" +
-                    "\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    @Override\n" +
-                    "    public void onActivityResult(int requestCode, int resultCode, Intent data) {\n" +
-                    "\n" +
-                    "    }\n" +
-                    "}";
-
-    public static final String RESULT =
-            "package com.test;\n" +
-                    "\n" +
-                    "import android.os.Bundle;\n" +
-                    "import it.codingjam.lifecyclebinder.ObjectBinder;\n" +
-                    "\n" +
-                    "public final class MyObjectWithParcelable$LifeCycleBinder extends ObjectBinder<MyObjectWithParcelable, MyView> {\n" +
-                    "\n" +
-                    "  public void bind(MyObjectWithParcelable view) {\n" +
-                    "    listeners.add(view.myObject);\n" +
-                    "  }\n" +
-                    "  public void saveInstanceState(MyObjectWithParcelable view, Bundle bundle) {\n" +
-                    "    bundle.putParcelable(\"myParcelable\", view.myParcelable);\n" +
-                    "  }\n" +
-                    "\n" +
-                    "  public void restoreInstanceState(MyObjectWithParcelable view, Bundle bundle) {\n" +
-                    "    view.myParcelable = bundle.getParcelable(\"myParcelable\");\n" +
-                    "  }\n" +
-                    "}";
-
     @Test
     public void testMyActivity() throws Exception {
-        JavaFileObject expectedSource = JavaFileObjects.forSourceString("com.test.MyObjectWithParcelable$LifeCycleBinder", RESULT);
-        JavaFileObject target = JavaFileObjects.forSourceString("com.test.MyObjectWithParcelable", SOURCE);
+        JavaFileObject expectedSource = FileLoader.loadClass("com.test.MyObjectWithParcelableAndInnerObject$LifeCycleBinder");
+        JavaFileObject target = FileLoader.loadClass("com.test.ActivityMyObjectWithParcelableAndInnerObject");
         Truth.ASSERT.about(JavaSourceSubjectFactory.javaSource())
                 .that(target)
                 .processedWith(new LifeCycleBinderProcessor())

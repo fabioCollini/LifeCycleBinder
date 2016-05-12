@@ -14,4 +14,26 @@
  *  limitations under the License.
  */
 
-include ':lifecyclebinder-demo-fragments', ':lifecyclebinder-lib', ':lifecyclebinder-demo-mvp', ':lifecyclebinder-processor', ':lifecyclebinder-api', ':testapp', ':test-data-lib'
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    compile project(':lifecyclebinder-lib')
+    compile 'com.android.support:appcompat-v7:23.3.0'
+}

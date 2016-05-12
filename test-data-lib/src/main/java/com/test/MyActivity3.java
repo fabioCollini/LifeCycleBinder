@@ -14,4 +14,13 @@
  *  limitations under the License.
  */
 
-include ':lifecyclebinder-demo-fragments', ':lifecyclebinder-lib', ':lifecyclebinder-demo-mvp', ':lifecyclebinder-processor', ':lifecyclebinder-api', ':testapp', ':test-data-lib'
+package com.test;
+
+import android.support.v4.app.FragmentActivity;
+
+import it.codingjam.lifecyclebinder.InstanceState;
+
+public class MyActivity3 extends FragmentActivity implements MyView {
+    @InstanceState
+    MyParcelable myParcelable;
+}

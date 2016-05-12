@@ -16,7 +16,6 @@
 
 package it.codingjam.lifecyclebinder.test;
 
-import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourceSubjectFactory;
 
 import org.junit.Test;
@@ -28,37 +27,10 @@ import it.codingjam.lifecyclebinder.LifeCycleBinderProcessor;
 
 public class InstanceStateTest {
 
-    public static final String SOURCE =
-            "package com.test;\n" +
-                    "import android.support.v4.app.FragmentActivity;\n" +
-                    "import it.codingjam.lifecyclebinder.InstanceState;\n" +
-                    "public class MyActivity extends FragmentActivity implements MyView  {\n" +
-                    "    @InstanceState\n" +
-                    "    MyParcelable myParcelable;\n" +
-                    "}";
-
-    public static final String RESULT =
-            "package com.test;\n" +
-                    "\n" +
-                    "import android.os.Bundle;\n" +
-                    "import it.codingjam.lifecyclebinder.ObjectBinder;\n" +
-                    "\n" +
-                    "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity, MyActivity> {\n" +
-                    "  public void bind(MyActivity view) {\n" +
-                    "  }\n" +
-                    "  public void saveInstanceState(MyActivity view, Bundle bundle) {\n" +
-                    "    bundle.putParcelable(\"myParcelable\", view.myParcelable);\n" +
-                    "  }\n" +
-                    "\n" +
-                    "  public void restoreInstanceState(MyActivity view, Bundle bundle) {\n" +
-                    "    view.myParcelable = bundle.getParcelable(\"myParcelable\");\n" +
-                    "  }\n" +
-                    "}";
-
     @Test
     public void testMyActivity() throws Exception {
-        JavaFileObject expectedSource = JavaFileObjects.forSourceString("com.test.MyActivity$LifeCycleBinder", RESULT);
-        JavaFileObject target = JavaFileObjects.forSourceString("com.test.MyActivity", SOURCE);
+        JavaFileObject expectedSource = FileLoader.loadClass("com.test.MyActivity3$LifeCycleBinder");
+        JavaFileObject target = FileLoader.loadClass("com.test.MyActivity3");
         Truth.ASSERT.about(JavaSourceSubjectFactory.javaSource())
                 .that(target)
                 .processedWith(new LifeCycleBinderProcessor())

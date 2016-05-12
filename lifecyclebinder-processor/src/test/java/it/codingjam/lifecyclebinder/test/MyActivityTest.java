@@ -16,7 +16,6 @@
 
 package it.codingjam.lifecyclebinder.test;
 
-import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourceSubjectFactory;
 
 import org.junit.Test;
@@ -27,31 +26,10 @@ import javax.tools.JavaFileObject;
 import it.codingjam.lifecyclebinder.LifeCycleBinderProcessor;
 
 public class MyActivityTest {
-
-    public static final String SOURCE =
-            "package com.test;\n" +
-                    "import android.support.v4.app.FragmentActivity;\n" +
-                    "import it.codingjam.lifecyclebinder.LifeCycleAware;\n" +
-                    "public class MyActivity extends FragmentActivity implements MyView  {\n" +
-                    "    @LifeCycleAware\n" +
-                    "    MyObject myObject;\n" +
-                    "}";
-
-    public static final String RESULT =
-            "package com.test;\n" +
-                    "\n" +
-                    "import it.codingjam.lifecyclebinder.ObjectBinder;\n" +
-                    "\n" +
-                    "public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity, MyActivity> {\n" +
-                    "  public void bind(MyActivity view) {\n" +
-                    "    listeners.add(view.myObject);\n" +
-                    "  }\n" +
-                    "}";
-
     @Test
     public void testMyActivity() throws Exception {
-        JavaFileObject expectedSource = JavaFileObjects.forSourceString("com.test.MyActivity$LifeCycleBinder", RESULT);
-        JavaFileObject target = JavaFileObjects.forSourceString("com.test.MyActivity", SOURCE);
+        JavaFileObject expectedSource = FileLoader.loadClass("com.test.MyActivity$LifeCycleBinder");
+        JavaFileObject target = FileLoader.loadClass("com.test.MyActivity");
         Truth.ASSERT.about(JavaSourceSubjectFactory.javaSource())
                 .that(target)
                 .processedWith(new LifeCycleBinderProcessor())

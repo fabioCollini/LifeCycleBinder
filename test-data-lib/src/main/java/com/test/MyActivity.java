@@ -14,4 +14,13 @@
  *  limitations under the License.
  */
 
-include ':lifecyclebinder-demo-fragments', ':lifecyclebinder-lib', ':lifecyclebinder-demo-mvp', ':lifecyclebinder-processor', ':lifecyclebinder-api', ':testapp', ':test-data-lib'
+package com.test;
+
+import android.support.v4.app.FragmentActivity;
+
+import it.codingjam.lifecyclebinder.LifeCycleAware;
+
+public class MyActivity extends FragmentActivity implements MyView {
+    @LifeCycleAware
+    MyObject myObject;
+}
