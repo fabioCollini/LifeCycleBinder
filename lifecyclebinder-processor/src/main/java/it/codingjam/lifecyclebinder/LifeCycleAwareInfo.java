@@ -47,4 +47,8 @@ public class LifeCycleAwareInfo {
                 ", retainedObjects=" + retainedObjects +
                 '}';
     }
+
+    public Element[] getLifeCycleAwareElementsArray() {
+        return lifeCycleAwareElements.toArray(new Element[lifeCycleAwareElements.size()]);
+    }
 }

@@ -165,23 +165,19 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         try {
             message(Diagnostic.Kind.NOTE, "writing class " + qualifiedClassName);
             JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(
-                    qualifiedClassName, lifeCycleAwareInfo.lifeCycleAwareElements.toArray(new Element[lifeCycleAwareInfo.lifeCycleAwareElements.size()]));
+                    qualifiedClassName, lifeCycleAwareInfo.getLifeCycleAwareElementsArray());
 
             TypeName objectGenericType = TypeName.get(hostElement.asType());
             TypeName viewGenericType = getObjectBinderGenericTypeName(hostElement);
-            MethodSpec bindMethod = MethodSpec.methodBuilder("bind")
-                    .addModifiers(Modifier.PUBLIC)
-                    .returns(void.class)
-                    .addParameter(objectGenericType, "view")
-                    .addCode(generateBindMethod(lifeCycleAwareInfo))
-                    .build();
 
             TypeSpec.Builder builder = TypeSpec.classBuilder(simpleClassName)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addMethod(bindMethod)
-                    .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType));
+                    .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType))
+                    .addMethod(generateBindMethod(lifeCycleAwareInfo, objectGenericType));
 
-            addNestedBinderFields(builder, lifeCycleAwareInfo);
+            for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
+                builder.addField(generateNestedBinderField(info));
+            }
 
             if (!lifeCycleAwareInfo.instanceStateElements.isEmpty() || !lifeCycleAwareInfo.nestedElements.isEmpty()) {
                 builder = builder
@@ -189,16 +185,42 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                         .addMethod(createRestoreInstanceStateMethod(lifeCycleAwareInfo, hostElement.asType()));
             }
 
-            TypeSpec classType = builder.build();
-
-            final Writer writer = sourceFile.openWriter();
-            JavaFile.builder(packageElement.getQualifiedName().toString(), classType)
-                    .build()
-                    .writeTo(writer);
-            writer.close();
+            writeFile(packageElement, sourceFile, builder.build());
         } catch (IOException e) {
             throw new RuntimeException("Failed writing class file " + qualifiedClassName, e);
         }
+    }
+
+    private void writeFile(PackageElement packageElement, JavaFileObject sourceFile, TypeSpec typeSpec) throws IOException {
+        final Writer writer = sourceFile.openWriter();
+        JavaFile.builder(packageElement.getQualifiedName().toString(), typeSpec)
+                .build()
+                .writeTo(writer);
+        writer.close();
+    }
+
+    private FieldSpec generateNestedBinderField(NestedLifeCycleAwareInfo info) {
+        String typeName;
+        if (info.retained != null) {
+            typeName = info.retained.typeName.toString();
+        } else {
+            typeName = info.field.asType().toString();
+        }
+        ClassName className = ClassName.bestGuess(typeName + LIFE_CYCLE_BINDER_SUFFIX);
+        return FieldSpec.builder(
+                className,
+                info.field.getSimpleName().toString(),
+                Modifier.PRIVATE
+        ).initializer("new $T()", className).build();
+    }
+
+    private MethodSpec generateBindMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeName objectGenericType) {
+        return MethodSpec.methodBuilder("bind")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(void.class)
+                .addParameter(objectGenericType, "view")
+                .addCode(generateBindMethodBody(lifeCycleAwareInfo))
+                .build();
     }
 
     private TypeName getObjectBinderGenericTypeName(TypeElement hostElement) {
@@ -213,25 +235,6 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             }
         }
         return TypeName.get(hostElement.asType());
-    }
-
-    private void addNestedBinderFields(TypeSpec.Builder builder, LifeCycleAwareInfo lifeCycleAwareInfo) {
-        for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
-            String typeName;
-            if (info.retained != null) {
-                typeName = info.retained.typeName.toString();
-            } else {
-                typeName = info.field.asType().toString();
-            }
-            ClassName className = ClassName.bestGuess(typeName + LIFE_CYCLE_BINDER_SUFFIX);
-            builder.addField(
-                    FieldSpec.builder(
-                            className,
-                            info.field.getSimpleName().toString(),
-                            Modifier.PRIVATE
-                    ).initializer("new $T()", className).build()
-            );
-        }
     }
 
     private MethodSpec createRestoreInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror type) {
@@ -261,7 +264,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         return builder.build();
     }
 
-    private CodeBlock generateBindMethod(LifeCycleAwareInfo lifeCycleAwareInfo) {
+    private CodeBlock generateBindMethodBody(LifeCycleAwareInfo lifeCycleAwareInfo) {
         CodeBlock.Builder builder = CodeBlock.builder();
         for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
             builder.addStatement("listeners.add(view.$L)", element);
