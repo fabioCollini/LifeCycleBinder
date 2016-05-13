@@ -26,6 +26,8 @@ import java.util.concurrent.Callable;
 
 public abstract class ObjectBinder<T, V> {
 
+    public static final String SEPARATOR = " ";
+
     protected List<ViewLifeCycleAware<? super V>> listeners = new ArrayList<>();
 
     protected Map<String, ViewLifeCycleAware<? super V>> retainedObjects = new HashMap<>();
@@ -35,7 +37,7 @@ public abstract class ObjectBinder<T, V> {
     protected final String bundlePrefix;
 
     public ObjectBinder(String bundlePrefix) {
-        this.bundlePrefix = bundlePrefix + " ";
+        this.bundlePrefix = bundlePrefix + SEPARATOR;
     }
 
     public abstract void bind(T view);

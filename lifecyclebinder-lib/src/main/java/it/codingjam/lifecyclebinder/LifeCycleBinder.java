@@ -50,11 +50,11 @@ public class LifeCycleBinder {
     }
 
     public static <T> T getRetainedObject(FragmentActivity activity, String name) {
-        return getRetainedObject(activity.getSupportFragmentManager(), name);
+        return getRetainedObject(activity.getSupportFragmentManager(), activity.getClass().getName() + ObjectBinder.SEPARATOR + name);
     }
 
     public static <T> T getRetainedObject(Fragment fragment, String name) {
-        return getRetainedObject(fragment.getFragmentManager(), name);
+        return getRetainedObject(fragment.getFragmentManager(), fragment.getClass().getName() + ObjectBinder.SEPARATOR + name);
     }
 
     private static <T> T getRetainedObject(FragmentManager fragmentManager, String name) {
