@@ -16,6 +16,10 @@
 
 apply plugin: 'java'
 
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.fabioCollini.lifecyclebinder'
+
 dependencies {
     compile project(':lifecyclebinder-api')
 
