@@ -19,6 +19,10 @@ package com.test;
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class MyObjectWithParcelable2$LifeCycleBinder extends ObjectBinder<MyObjectWithParcelable2, MyView> {
+    public MyObjectWithParcelable2$LifeCycleBinder(String bundlePrefix) {
+        super(bundlePrefix);
+    }
+
     @Override
     public void bind(MyObjectWithParcelable2 view) {
 

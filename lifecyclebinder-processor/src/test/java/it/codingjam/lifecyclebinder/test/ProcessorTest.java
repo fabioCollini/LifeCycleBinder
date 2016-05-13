@@ -53,6 +53,11 @@ public class ProcessorTest {
 
     @Test
     public void testNestedObjects() throws Exception {
+        check("com.test.ActivityMyObjectWithParcelableAndInnerObject");
+    }
+
+    @Test
+    public void testNestedObjects2() throws Exception {
         check("com.test.ActivityMyObjectWithParcelableAndInnerObject",
                 "com.test.MyObjectWithParcelableAndInnerObject");
     }

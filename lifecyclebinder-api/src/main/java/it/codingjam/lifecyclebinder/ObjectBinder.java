@@ -32,11 +32,11 @@ public abstract class ObjectBinder<T, V> {
 
     protected Map<String, Callable<? extends ViewLifeCycleAware<? super V>>> retainedObjectCallables = new HashMap<>();
 
-//    protected final String bundlePrefix;
-//
-//    public ObjectBinder(String bundlePrefix) {
-//        this.bundlePrefix = bundlePrefix + "_";
-//    }
+    protected final String bundlePrefix;
+
+    public ObjectBinder(String bundlePrefix) {
+        this.bundlePrefix = bundlePrefix + " ";
+    }
 
     public abstract void bind(T view);
 

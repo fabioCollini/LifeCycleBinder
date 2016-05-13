@@ -45,7 +45,6 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -54,6 +53,10 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
+
+import static javax.lang.model.element.Modifier.FINAL;
+import static javax.lang.model.element.Modifier.PRIVATE;
+import static javax.lang.model.element.Modifier.PUBLIC;
 
 @SupportedAnnotationTypes({
         "it.codingjam.lifecyclebinder.LifeCycleAware",
@@ -171,12 +174,13 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             TypeName viewGenericType = getObjectBinderGenericTypeName(hostElement);
 
             TypeSpec.Builder builder = TypeSpec.classBuilder(simpleClassName)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addModifiers(PUBLIC, FINAL)
+                    .addMethod(generateConstructor(hostElement, !objectGenericType.equals(viewGenericType)))
                     .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType))
                     .addMethod(generateBindMethod(lifeCycleAwareInfo, objectGenericType));
 
             for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
-                builder.addField(generateNestedBinderField(info));
+                builder.addField(generateNestedBinderField(hostElement, info));
             }
 
             if (!lifeCycleAwareInfo.instanceStateElements.isEmpty() || !lifeCycleAwareInfo.nestedElements.isEmpty()) {
@@ -191,15 +195,25 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
     }
 
+    private MethodSpec generateConstructor(TypeElement hostElement, boolean addParameter) {
+        MethodSpec.Builder builder = MethodSpec.constructorBuilder().addModifiers(PUBLIC);
+        if (addParameter) {
+            builder.addParameter(String.class, "bundlePrefix").addStatement("super(bundlePrefix)");
+        } else {
+            builder.addStatement("super($S)", hostElement);
+        }
+        return builder.build();
+    }
+
     private void writeFile(PackageElement packageElement, JavaFileObject sourceFile, TypeSpec typeSpec) throws IOException {
         final Writer writer = sourceFile.openWriter();
-        JavaFile.builder(packageElement.getQualifiedName().toString(), typeSpec)
+        JavaFile.builder(packageElement.getQualifiedName().toString(), typeSpec).skipJavaLangImports(true)
                 .build()
                 .writeTo(writer);
         writer.close();
     }
 
-    private FieldSpec generateNestedBinderField(NestedLifeCycleAwareInfo info) {
+    private FieldSpec generateNestedBinderField(TypeElement hostElement, NestedLifeCycleAwareInfo info) {
         String typeName;
         if (info.retained != null) {
             typeName = info.retained.typeName.toString();
@@ -210,13 +224,13 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         return FieldSpec.builder(
                 className,
                 info.field.getSimpleName().toString(),
-                Modifier.PRIVATE
-        ).initializer("new $T()", className).build();
+                PRIVATE
+        ).initializer("new $T($S)", className, hostElement.getQualifiedName().toString() + " " + info.field.getSimpleName()).build();
     }
 
     private MethodSpec generateBindMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeName objectGenericType) {
         return MethodSpec.methodBuilder("bind")
-                .addModifiers(Modifier.PUBLIC)
+                .addModifiers(PUBLIC)
                 .returns(void.class)
                 .addParameter(objectGenericType, "view")
                 .addCode(generateBindMethodBody(lifeCycleAwareInfo))
@@ -238,16 +252,16 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     }
 
     private MethodSpec createRestoreInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror type) {
-        return createInstanceStateMethod(lifeCycleAwareInfo, type, "restoreInstanceState", "view.$L = bundle.getParcelable($S)");
+        return createInstanceStateMethod(lifeCycleAwareInfo, type, "restoreInstanceState", "view.$L = bundle.getParcelable(bundlePrefix + $S)");
     }
 
     private MethodSpec createSaveInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror hostType) {
-        return createInstanceStateMethod(lifeCycleAwareInfo, hostType, "saveInstanceState", "bundle.putParcelable($S, view.$L)");
+        return createInstanceStateMethod(lifeCycleAwareInfo, hostType, "saveInstanceState", "bundle.putParcelable(bundlePrefix + $S, view.$L)");
     }
 
     private MethodSpec createInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror type, String methodName, String statement) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName)
-                .addModifiers(Modifier.PUBLIC)
+                .addModifiers(PUBLIC)
                 .returns(void.class)
                 .addParameter(TypeName.get(type), "view")
                 .addParameter(Bundle.class, "bundle");
@@ -256,7 +270,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
         for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
             if (info.retained != null) {
-                builder.addStatement("$L." + methodName + "(($T) retainedObjects.get($S), bundle)", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
+                builder.addStatement("$L." + methodName + "(($T) retainedObjects.get(bundlePrefix + $S), bundle)", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
             } else {
                 builder.addStatement("$L." + methodName + "(view.$L, bundle)", info.field.getSimpleName(), info.field.getSimpleName());
             }
@@ -271,12 +285,12 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
         if (!lifeCycleAwareInfo.retainedObjects.isEmpty()) {
             for (RetainedObjectInfo entry : lifeCycleAwareInfo.retainedObjects) {
-                builder.addStatement("retainedObjectCallables.put($S, view.$L)", entry.name, entry.field);
+                builder.addStatement("retainedObjectCallables.put(bundlePrefix + $S, view.$L)", entry.name, entry.field);
             }
         }
         for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
             if (info.retained != null) {
-                builder.addStatement("$L.bind(($T) retainedObjects.get($S))", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
+                builder.addStatement("$L.bind(($T) retainedObjects.get(bundlePrefix + $S))", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
             } else {
                 builder.addStatement("$L.bind(view.$L)", info.field.getSimpleName(), info.field.getSimpleName());
             }

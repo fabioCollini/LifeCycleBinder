@@ -52,11 +52,12 @@ public class FileLoader {
         }
     }
 
-    public static void check(String name, String... extragenerated) {
-        checkSingleFile(name, name + "$LifeCycleBinder");
-        for (String s : extragenerated) {
-            checkSingleFile(name, s + "$LifeCycleBinder");
-        }
+    public static void check(String name) {
+        check(name, name);
+    }
+
+    public static void check(String name, String expected) {
+        checkSingleFile(name, expected + "$LifeCycleBinder");
     }
 
     private static void checkSingleFile(String name, String expected) {
