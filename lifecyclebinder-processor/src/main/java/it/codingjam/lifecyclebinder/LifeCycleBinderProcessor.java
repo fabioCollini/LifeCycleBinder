@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -232,7 +233,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         return MethodSpec.methodBuilder("bind")
                 .addModifiers(PUBLIC)
                 .returns(void.class)
-                .addParameter(objectGenericType, "view")
+                .addParameter(objectGenericType, "view", FINAL)
                 .addCode(generateBindMethodBody(lifeCycleAwareInfo))
                 .build();
     }
@@ -285,7 +286,31 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
         if (!lifeCycleAwareInfo.retainedObjects.isEmpty()) {
             for (RetainedObjectInfo entry : lifeCycleAwareInfo.retainedObjects) {
-                builder.addStatement("initRetainedObject(bundlePrefix + $S, view.$L)", entry.name, entry.field);
+                TypeName typeName = ParameterizedTypeName.get(entry.field.asType());
+                if (!(typeName instanceof ParameterizedTypeName)) {
+                    //TODO error
+                }
+                ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
+                if (parameterizedTypeName.typeArguments.size() != 1) {
+                    //TODO error
+                }
+                if (parameterizedTypeName.rawType.equals(TypeName.get(Callable.class))) {
+                    builder.addStatement("initRetainedObject(bundlePrefix + $S, view.$L)", entry.name, entry.field);
+                } else {
+                    TypeName returnTypeName = parameterizedTypeName.typeArguments.get(0);
+                    TypeSpec callable = TypeSpec.anonymousClassBuilder("")
+                            .addSuperinterface(ParameterizedTypeName.get(ClassName.get(Callable.class), returnTypeName))
+                            .addMethod(MethodSpec.methodBuilder("call")
+                                    .addAnnotation(Override.class)
+                                    .addModifiers(PUBLIC)
+                                    .addException(Exception.class)
+                                    .returns(returnTypeName)
+                                    .addStatement("return view.$L.get()",entry.field)
+                                    .build())
+                            .build();
+
+                    builder.addStatement("initRetainedObject(bundlePrefix + $S, $L)", entry.name, callable);
+                }
             }
         }
         for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {

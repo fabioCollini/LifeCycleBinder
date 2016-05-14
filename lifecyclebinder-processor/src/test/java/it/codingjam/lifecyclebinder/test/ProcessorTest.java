@@ -61,4 +61,9 @@ public class ProcessorTest {
         check("com.test.ActivityMyObjectWithParcelableAndInnerObject",
                 "com.test.MyObjectWithParcelableAndInnerObject");
     }
+
+    @Test
+    public void testRetainedObjectsWithProviders() throws Exception {
+        check("com.test.ActivityWithRetainedProvider");
+    }
 }
