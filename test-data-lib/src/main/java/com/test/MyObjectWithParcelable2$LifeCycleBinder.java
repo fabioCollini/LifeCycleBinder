@@ -24,7 +24,7 @@ public class MyObjectWithParcelable2$LifeCycleBinder extends ObjectBinder<MyObje
     }
 
     @Override
-    public void bind(MyObjectWithParcelable2 view) {
+    public void bind(final MyObjectWithParcelable2 view) {
 
     }
 }

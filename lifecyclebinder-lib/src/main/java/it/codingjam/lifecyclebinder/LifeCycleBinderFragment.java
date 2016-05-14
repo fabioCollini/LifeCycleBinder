@@ -30,6 +30,7 @@ public class LifeCycleBinderFragment<T> extends Fragment {
 
     public static final String LIFE_CYCLE_BINDER_FRAGMENT = "_LIFE_CYCLE_BINDER_FRAGMENT_";
     public static final String OBJECT_BINDER_CLASS = "objectBinderClass";
+    public static final String BUNDLE_PREFIX = "BUNDLE_PREFIX";
 
     private T viewParam;
 
@@ -37,12 +38,13 @@ public class LifeCycleBinderFragment<T> extends Fragment {
 
     private Class<ObjectBinder<T, T>> objectBinderClass;
 
+    private String bundlePrefix;
+
     @NonNull
     static <T> LifeCycleBinderFragment<T> getOrCreate(FragmentManager fragmentManager) {
         LifeCycleBinderFragment<T> fragment = (LifeCycleBinderFragment<T>) fragmentManager.findFragmentByTag(LIFE_CYCLE_BINDER_FRAGMENT);
 
         if (fragment == null) {
-            System.out.println("Logger: recreating LifeCycleBinderFragment");
             fragment = new LifeCycleBinderFragment<>();
             fragmentManager.beginTransaction().add(fragment, LIFE_CYCLE_BINDER_FRAGMENT).commit();
         }
@@ -54,6 +56,7 @@ public class LifeCycleBinderFragment<T> extends Fragment {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             objectBinderClass = (Class<ObjectBinder<T, T>>) savedInstanceState.getSerializable(OBJECT_BINDER_CLASS);
+            bundlePrefix = savedInstanceState.getString(BUNDLE_PREFIX);
         }
         viewParam = (T) getParentFragment();
         if (viewParam == null) {
@@ -79,11 +82,11 @@ public class LifeCycleBinderFragment<T> extends Fragment {
 
     private ObjectBinder<T, T> createObjectBinder() {
         try {
-            return objectBinderClass.newInstance();
-        } catch (java.lang.InstantiationException e) {
-            throw new RuntimeException("Error instantiating class " + objectBinderClass.getName(), e);
+            return objectBinderClass.getConstructor(String.class).newInstance(bundlePrefix);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Illegal access exception instantiating class " + objectBinderClass.getName(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error instantiating class " + objectBinderClass.getName(), e);
         }
     }
 
@@ -147,6 +150,7 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(OBJECT_BINDER_CLASS, objectBinderClass);
+        outState.putString(BUNDLE_PREFIX, bundlePrefix);
         objectBinder.saveInstanceState(viewParam, outState);
         for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
             listener.onSaveInstanceState(viewParam, outState);
@@ -169,7 +173,12 @@ public class LifeCycleBinderFragment<T> extends Fragment {
         }
     }
 
-    public void init(Class<ObjectBinder<T, T>> objectBinderClass) {
+    public void init(Class<ObjectBinder<T, T>> objectBinderClass, String bundlePrefix) {
         this.objectBinderClass = objectBinderClass;
+        this.bundlePrefix = bundlePrefix;
+    }
+
+    public String getBundlePrefix() {
+        return bundlePrefix;
     }
 }

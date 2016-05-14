@@ -10,7 +10,7 @@ public final class MyObjectWithParcelableAndInnerObject$LifeCycleBinder extends 
         super(bundlePrefix);
     }
 
-    public void bind(MyObjectWithParcelableAndInnerObject view) {
+    public void bind(final MyObjectWithParcelableAndInnerObject view) {
         listeners.add(view.myObject);
     }
 

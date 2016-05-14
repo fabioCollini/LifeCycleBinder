@@ -7,11 +7,11 @@ import it.codingjam.lifecyclebinder.ObjectBinder;
 public final class ActivityMyObjectWithParcelableAndInnerObject$LifeCycleBinder extends ObjectBinder<ActivityMyObjectWithParcelableAndInnerObject, ActivityMyObjectWithParcelableAndInnerObject> {
     private MyObjectWithParcelableAndInnerObject$LifeCycleBinder myObject = new MyObjectWithParcelableAndInnerObject$LifeCycleBinder("com.test.ActivityMyObjectWithParcelableAndInnerObject myObject");
 
-    public ActivityMyObjectWithParcelableAndInnerObject$LifeCycleBinder() {
-        super("com.test.ActivityMyObjectWithParcelableAndInnerObject");
+    public ActivityMyObjectWithParcelableAndInnerObject$LifeCycleBinder(String bundlePrefix) {
+        super(bundlePrefix);
     }
 
-    public void bind(ActivityMyObjectWithParcelableAndInnerObject view) {
+    public void bind(final ActivityMyObjectWithParcelableAndInnerObject view) {
         listeners.add(view.myObject);
         myObject.bind(view.myObject);
         listeners.addAll(myObject.getListeners());

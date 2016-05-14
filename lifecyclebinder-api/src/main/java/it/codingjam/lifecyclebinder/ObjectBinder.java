@@ -66,4 +66,8 @@ public abstract class ObjectBinder<T, V> {
         addListener(key, retainedObject);
         return retainedObject;
     }
+
+    public String getBundlePrefix() {
+        return bundlePrefix;
+    }
 }

@@ -24,18 +24,26 @@ import android.support.v4.app.FragmentManager;
 
 public class LifeCycleBinder {
     public static void bind(Fragment fragment) {
-        bind(fragment, fragment.getChildFragmentManager(), fragment.getActivity().getSupportFragmentManager());
+        bind(fragment, "");
     }
 
     public static void bind(FragmentActivity activity) {
-        bind(activity, activity.getSupportFragmentManager(), activity.getSupportFragmentManager());
+        bind(activity, "");
     }
 
-    private static <T> void bind(T obj, FragmentManager fragmentManager, FragmentManager activityFragmentManager) {
+    public static void bind(Fragment fragment, String key) {
+        bind(key, fragment, fragment.getChildFragmentManager(), fragment.getActivity().getSupportFragmentManager());
+    }
+
+    public static void bind(FragmentActivity activity, String key) {
+        bind(key, activity, activity.getSupportFragmentManager(), activity.getSupportFragmentManager());
+    }
+
+    private static <T> void bind(String key, T obj, FragmentManager fragmentManager, FragmentManager activityFragmentManager) {
         LifeCycleRetainedFragment retainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager);
         LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
         Class<ObjectBinder<T, T>> c = getObjectBinderClass(obj);
-        fragment.init(c);
+        fragment.init(c, obj.getClass().getName() + ObjectBinder.SEPARATOR + key);
         fragmentManager.executePendingTransactions();
     }
 
@@ -50,15 +58,16 @@ public class LifeCycleBinder {
     }
 
     public static <T> T getRetainedObject(FragmentActivity activity, String name) {
-        return getRetainedObject(activity.getSupportFragmentManager(), activity.getClass().getName() + ObjectBinder.SEPARATOR + name);
+        return getRetainedObject(activity.getSupportFragmentManager(), activity.getSupportFragmentManager(), name);
     }
 
     public static <T> T getRetainedObject(Fragment fragment, String name) {
-        return getRetainedObject(fragment.getFragmentManager(), fragment.getClass().getName() + ObjectBinder.SEPARATOR + name);
+        return getRetainedObject(fragment.getFragmentManager(), fragment.getActivity().getSupportFragmentManager(), name);
     }
 
-    private static <T> T getRetainedObject(FragmentManager fragmentManager, String name) {
-        return (T) LifeCycleRetainedFragment.getOrCreateRetainedFragment(fragmentManager).map.get(name);
+    private static <T> T getRetainedObject(FragmentManager fragmentManager, FragmentManager activityFragmentManager, String name) {
+        LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
+        return (T) LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager).map.get(fragment.getBundlePrefix() + name);
     }
 
     public static void startActivityForResult(FragmentActivity activity, Intent intent, int requestCode) {

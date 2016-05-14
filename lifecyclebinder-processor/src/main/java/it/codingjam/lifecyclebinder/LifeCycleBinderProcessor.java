@@ -176,7 +176,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
             TypeSpec.Builder builder = TypeSpec.classBuilder(simpleClassName)
                     .addModifiers(PUBLIC, FINAL)
-                    .addMethod(generateConstructor(hostElement, !objectGenericType.equals(viewGenericType)))
+                    .addMethod(generateConstructor())
                     .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType))
                     .addMethod(generateBindMethod(lifeCycleAwareInfo, objectGenericType));
 
@@ -196,14 +196,12 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
     }
 
-    private MethodSpec generateConstructor(TypeElement hostElement, boolean addParameter) {
-        MethodSpec.Builder builder = MethodSpec.constructorBuilder().addModifiers(PUBLIC);
-        if (addParameter) {
-            builder.addParameter(String.class, "bundlePrefix").addStatement("super(bundlePrefix)");
-        } else {
-            builder.addStatement("super($S)", hostElement);
-        }
-        return builder.build();
+    private MethodSpec generateConstructor() {
+        return MethodSpec.constructorBuilder()
+                .addModifiers(PUBLIC)
+                .addParameter(String.class, "bundlePrefix")
+                .addStatement("super(bundlePrefix)")
+                .build();
     }
 
     private void writeFile(PackageElement packageElement, JavaFileObject sourceFile, TypeSpec typeSpec) throws IOException {
@@ -305,7 +303,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                                     .addModifiers(PUBLIC)
                                     .addException(Exception.class)
                                     .returns(returnTypeName)
-                                    .addStatement("return view.$L.get()",entry.field)
+                                    .addStatement("return view.$L.get()", entry.field)
                                     .build())
                             .build();
 
