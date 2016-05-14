@@ -12,10 +12,9 @@ public final class MyActivity2$LifeCycleBinder extends ObjectBinder<MyActivity2,
   }
 
   public void bind(MyActivity2 view) {
-    retainedObjectCallables.put(bundlePrefix + "myName", view.myObject);
+    initRetainedObject(bundlePrefix + "myName", view.myObject);
     myObject.bind((MyObjectWithParcelable) retainedObjects.get(bundlePrefix + "myName"));
     listeners.addAll(myObject.getListeners());
-    retainedObjectCallables.putAll(myObject.getRetainedObjectCallables());
   }
   public void saveInstanceState(MyActivity2 view, Bundle bundle) {
     myObject.saveInstanceState((MyObjectWithParcelable) retainedObjects.get(bundlePrefix + "myName"), bundle);

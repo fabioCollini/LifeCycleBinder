@@ -32,9 +32,9 @@ public abstract class ObjectBinder<T, V> {
 
     protected Map<String, ViewLifeCycleAware<? super V>> retainedObjects = new HashMap<>();
 
-    protected Map<String, Callable<? extends ViewLifeCycleAware<? super V>>> retainedObjectCallables = new HashMap<>();
-
     protected final String bundlePrefix;
+
+    private RetainedObjectsFactory retainedObjectsFactory;
 
     public ObjectBinder(String bundlePrefix) {
         this.bundlePrefix = bundlePrefix + SEPARATOR;
@@ -57,7 +57,13 @@ public abstract class ObjectBinder<T, V> {
         retainedObjects.put(key, listener);
     }
 
-    public Map<String, Callable<? extends ViewLifeCycleAware<? super V>>> getRetainedObjectCallables() {
-        return retainedObjectCallables;
+    public void setRetainedObjectsFactory(RetainedObjectsFactory retainedObjectsFactory) {
+        this.retainedObjectsFactory = retainedObjectsFactory;
+    }
+
+    protected ViewLifeCycleAware<? super V> initRetainedObject(String key, Callable<? extends ViewLifeCycleAware<? super V>> factory) {
+        ViewLifeCycleAware<? super V> retainedObject = retainedObjectsFactory.init(key, factory);
+        addListener(key, retainedObject);
+        return retainedObject;
     }
 }

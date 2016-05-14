@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import it.codingjam.lifecyclebinder.DefaultViewLifeCycleAware;
 import it.codingjam.lifecyclebinder.InstanceState;
+import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -39,6 +40,9 @@ public class Presenter extends DefaultViewLifeCycleAware<View> implements ViewLi
 
     @InstanceState
     Model model;
+
+    @LifeCycleAware
+    Logger logger = new Logger();
 
     private boolean loading;
 

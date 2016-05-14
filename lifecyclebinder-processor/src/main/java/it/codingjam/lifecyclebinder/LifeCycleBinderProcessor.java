@@ -285,7 +285,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
         if (!lifeCycleAwareInfo.retainedObjects.isEmpty()) {
             for (RetainedObjectInfo entry : lifeCycleAwareInfo.retainedObjects) {
-                builder.addStatement("retainedObjectCallables.put(bundlePrefix + $S, view.$L)", entry.name, entry.field);
+                builder.addStatement("initRetainedObject(bundlePrefix + $S, view.$L)", entry.name, entry.field);
             }
         }
         for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
@@ -295,7 +295,6 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                 builder.addStatement("$L.bind(view.$L)", info.field.getSimpleName(), info.field.getSimpleName());
             }
             builder.addStatement("listeners.addAll($L.getListeners())", info.field.getSimpleName());
-            builder.addStatement("retainedObjectCallables.putAll($L.getRetainedObjectCallables())", info.field.getSimpleName());
         }
 
         return builder.build();

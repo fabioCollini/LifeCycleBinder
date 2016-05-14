@@ -15,7 +15,6 @@ public final class ActivityMyObjectWithParcelable$LifeCycleBinder extends Object
         listeners.add(view.myObject);
         myObject.bind(view.myObject);
         listeners.addAll(myObject.getListeners());
-        retainedObjectCallables.putAll(myObject.getRetainedObjectCallables());
     }
 
     public void saveInstanceState(ActivityMyObjectWithParcelable view, Bundle bundle) {

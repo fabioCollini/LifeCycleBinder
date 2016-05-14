@@ -8,7 +8,7 @@ public final class ActivityWithRetained2$LifeCycleBinder extends ObjectBinder<Ac
     }
 
     public void bind(ActivityWithRetained2 view) {
-        retainedObjectCallables.put(bundlePrefix + "myName", view.myObject);
-        retainedObjectCallables.put(bundlePrefix + "myName2", view.myObject2);
+        initRetainedObject(bundlePrefix + "myName", view.myObject);
+        initRetainedObject(bundlePrefix + "myName2", view.myObject2);
     }
 }

@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-public class LifeCycleRetainedFragment extends Fragment {
+public class LifeCycleRetainedFragment extends Fragment implements RetainedObjectsFactory {
     private static final String RETAINED_FRAGMENT = "_LIFE_CYCLE_RETAINED_FRAGMENT_";
 
     public final Map<String, ViewLifeCycleAware<?>> map = new HashMap<>();
@@ -45,20 +45,17 @@ public class LifeCycleRetainedFragment extends Fragment {
         return fragment;
     }
 
-    public <T> void init(ObjectBinder<T, T> objectBinder) {
-        Map<String, Callable<? extends ViewLifeCycleAware<? super T>>> retainedObjectCallables = objectBinder.getRetainedObjectCallables();
-        for (Map.Entry<String, Callable<? extends ViewLifeCycleAware<? super T>>> entry : retainedObjectCallables.entrySet()) {
-            String key = entry.getKey();
-            ViewLifeCycleAware<? super T> listener = (ViewLifeCycleAware<? super T>) map.get(key);
-            if (listener == null) {
-                try {
-                    listener = entry.getValue().call();
-                    map.put(key, listener);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+    @Override
+    public <T> ViewLifeCycleAware<? super T> init(String key, Callable<? extends ViewLifeCycleAware<? super T>> factory) {
+        ViewLifeCycleAware<? super T> listener = (ViewLifeCycleAware<? super T>) map.get(key);
+        if (listener == null) {
+            try {
+                listener = factory.call();
+                map.put(key, listener);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-            objectBinder.addListener(key, listener);
         }
+        return listener;
     }
 }

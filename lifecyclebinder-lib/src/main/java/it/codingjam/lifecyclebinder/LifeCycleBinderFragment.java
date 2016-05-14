@@ -63,8 +63,8 @@ public class LifeCycleBinderFragment<T> extends Fragment {
         try {
             LifeCycleRetainedFragment retainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(getActivity().getSupportFragmentManager());
             objectBinder = createObjectBinder();
+            objectBinder.setRetainedObjectsFactory(retainedFragment);
             objectBinder.bind(viewParam);
-            retainedFragment.init(objectBinder);
         } catch (Exception e) {
             throw new RuntimeException("Error invoking binding", e);
         }
