@@ -2,7 +2,7 @@ package com.test;
 
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
-public final class ActivityWithRetained2$LifeCycleBinder extends ObjectBinder<ActivityWithRetained2, ActivityWithRetained2> {
+public class ActivityWithRetained2$LifeCycleBinder extends ObjectBinder<ActivityWithRetained2, ActivityWithRetained2> {
     public ActivityWithRetained2$LifeCycleBinder(String bundlePrefix) {
         super(bundlePrefix);
     }

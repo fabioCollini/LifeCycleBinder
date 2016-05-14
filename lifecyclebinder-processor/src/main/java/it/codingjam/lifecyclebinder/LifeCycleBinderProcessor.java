@@ -175,7 +175,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             TypeName viewGenericType = getObjectBinderGenericTypeName(hostElement);
 
             TypeSpec.Builder builder = TypeSpec.classBuilder(simpleClassName)
-                    .addModifiers(PUBLIC, FINAL)
+                    .addModifiers(PUBLIC)
                     .addMethod(generateConstructor())
                     .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType))
                     .addMethod(generateBindMethod(lifeCycleAwareInfo, objectGenericType));

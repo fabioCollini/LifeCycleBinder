@@ -2,7 +2,7 @@ package com.test;
 
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
-public final class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity, MyActivity> {
+public class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity, MyActivity> {
     public MyActivity$LifeCycleBinder(String bundlePrefix) {
         super(bundlePrefix);
     }

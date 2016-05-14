@@ -5,7 +5,7 @@ import java.util.concurrent.Callable;
 
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
-public final class ActivityWithRetainedProvider$LifeCycleBinder extends ObjectBinder<ActivityWithRetainedProvider, ActivityWithRetainedProvider> {
+public class ActivityWithRetainedProvider$LifeCycleBinder extends ObjectBinder<ActivityWithRetainedProvider, ActivityWithRetainedProvider> {
     public ActivityWithRetainedProvider$LifeCycleBinder(String bundlePrefix) {
         super(bundlePrefix);
     }

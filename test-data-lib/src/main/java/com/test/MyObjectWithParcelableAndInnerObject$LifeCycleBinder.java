@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
-public final class MyObjectWithParcelableAndInnerObject$LifeCycleBinder extends ObjectBinder<MyObjectWithParcelableAndInnerObject, MyView> {
+public class MyObjectWithParcelableAndInnerObject$LifeCycleBinder extends ObjectBinder<MyObjectWithParcelableAndInnerObject, MyView> {
 
     public MyObjectWithParcelableAndInnerObject$LifeCycleBinder(String bundlePrefix) {
         super(bundlePrefix);
