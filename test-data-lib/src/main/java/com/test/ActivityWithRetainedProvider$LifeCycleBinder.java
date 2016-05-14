@@ -1,9 +1,10 @@
 package com.test;
 
 
+import it.codingjam.lifecyclebinder.ObjectBinder;
+
 import java.util.concurrent.Callable;
 
-import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class ActivityWithRetainedProvider$LifeCycleBinder extends ObjectBinder<ActivityWithRetainedProvider, ActivityWithRetainedProvider> {
     public ActivityWithRetainedProvider$LifeCycleBinder(String bundlePrefix) {
