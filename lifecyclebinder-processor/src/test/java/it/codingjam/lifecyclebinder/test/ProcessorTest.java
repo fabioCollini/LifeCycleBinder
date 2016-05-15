@@ -68,7 +68,12 @@ public class ProcessorTest {
     }
 
     @Test
-    public void testObjectWithBaseClass() throws Exception {
+    public void testActivityWithBaseClass() throws Exception {
         check("com.test.MyActivityWithBaseClass");
+    }
+
+    @Test
+    public void testObjectWithBaseClass() throws Exception {
+        check("com.test.MyObjectWithBaseClass");
     }
 }

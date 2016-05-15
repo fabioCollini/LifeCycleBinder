@@ -242,6 +242,15 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     }
 
     private TypeName getObjectBinderGenericTypeName(TypeElement hostElement) {
+        TypeName typeName = searchObjectBinderGenericTypeName(hostElement);
+        if (typeName != null) {
+            return typeName;
+        } else {
+            return TypeName.get(hostElement.asType());
+        }
+    }
+
+    private TypeName searchObjectBinderGenericTypeName(TypeElement hostElement) {
         List<? extends TypeMirror> interfaces = hostElement.getInterfaces();
         for (TypeMirror type : interfaces) {
             TypeName typeName = TypeName.get(type);
@@ -252,7 +261,12 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                 }
             }
         }
-        return TypeName.get(hostElement.asType());
+        TypeMirror superclass = hostElement.getSuperclass();
+        if (TypeName.get(superclass).equals(TypeName.get(Object.class))) {
+            return null;
+        } else {
+            return searchObjectBinderGenericTypeName((TypeElement) typeUtils.asElement(superclass));
+        }
     }
 
     private MethodSpec createRestoreInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror type) {
