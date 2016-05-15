@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements View {
         title = (TextView) findViewById(R.id.title);
         description = (TextView) findViewById(R.id.description);
 
-        LifeCycleBinder.bind(this);
+        LifeCycleBinder.bind(savedInstanceState, this);
         presenter = LifeCycleBinder.getRetainedObject(this, "NotePresenter");
 
         findViewById(R.id.share).setOnClickListener(new android.view.View.OnClickListener() {

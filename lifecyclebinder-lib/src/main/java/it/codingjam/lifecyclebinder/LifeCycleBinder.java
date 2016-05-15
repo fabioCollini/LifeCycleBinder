@@ -17,26 +17,31 @@
 package it.codingjam.lifecyclebinder;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
 public class LifeCycleBinder {
-    public static void bind(Fragment fragment) {
-        bind(fragment, "");
+    public static void bind(Bundle savedInstanceState, Fragment fragment) {
+        bind(savedInstanceState, fragment, "");
     }
 
-    public static void bind(FragmentActivity activity) {
-        bind(activity, "");
+    public static void bind(Bundle savedInstanceState, FragmentActivity activity) {
+        bind(savedInstanceState, activity, "");
     }
 
-    public static void bind(Fragment fragment, String key) {
-        bind(key, fragment, fragment.getChildFragmentManager(), fragment.getActivity().getSupportFragmentManager());
+    public static void bind(Bundle savedInstanceState, Fragment fragment, String key) {
+        if (savedInstanceState == null) {
+            bind(key, fragment, fragment.getChildFragmentManager(), fragment.getActivity().getSupportFragmentManager());
+        }
     }
 
-    public static void bind(FragmentActivity activity, String key) {
-        bind(key, activity, activity.getSupportFragmentManager(), activity.getSupportFragmentManager());
+    public static void bind(Bundle savedInstanceState, FragmentActivity activity, String key) {
+        if (savedInstanceState == null) {
+            bind(key, activity, activity.getSupportFragmentManager(), activity.getSupportFragmentManager());
+        }
     }
 
     private static <T> void bind(String key, T obj, FragmentManager fragmentManager, FragmentManager activityFragmentManager) {

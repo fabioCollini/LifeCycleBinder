@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(getIntent().getIntExtra(LAYOUT, 0));
 
         if (savedInstanceState == null) {
-            LifeCycleBinder.bind(this);
+            LifeCycleBinder.bind(savedInstanceState, this);
         }
 
         if (myParcelable == null) {

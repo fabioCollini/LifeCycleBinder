@@ -41,7 +41,7 @@ public class MyFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LifeCycleBinder.bind(this);
+        LifeCycleBinder.bind(savedInstanceState, this);
     }
 
     @Nullable
