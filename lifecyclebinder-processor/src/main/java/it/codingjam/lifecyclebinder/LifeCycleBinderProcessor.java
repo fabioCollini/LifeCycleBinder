@@ -149,7 +149,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                 info.lifeCycleAwareElements.add(variable);
             } else {
                 TypeName typeName = TypeUtils.getTypeArguments(variable.asType()).get(0);
-                info.retainedObjects.add(new RetainedObjectInfo(annotation.name(), variable, typeName));
+                info.retainedObjects.add(new RetainedObjectInfo(variable.getSimpleName().toString(), variable, typeName));
             }
         }
         for (Element element : instanceStateElements) {

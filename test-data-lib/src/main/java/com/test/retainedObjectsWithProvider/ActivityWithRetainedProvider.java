@@ -28,7 +28,7 @@ interface Provider<T> {
 }
 
 public class ActivityWithRetainedProvider extends FragmentActivity implements MyView {
-    @LifeCycleAware(retained = true, name = "myName")
+    @LifeCycleAware(retained = true)
     Provider<MyObject> myObject = new Provider<MyObject>() {
         @Override
         public MyObject get() {

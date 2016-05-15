@@ -26,7 +26,7 @@ import java.util.concurrent.Callable;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 
 public class ActivityWithRetained2 extends FragmentActivity implements MyView {
-    @LifeCycleAware(retained = true, name = "myName")
+    @LifeCycleAware(retained = true)
     Callable<MyObject> myObject = new Callable<MyObject>() {
         @Override
         public MyObject call() throws Exception {
@@ -34,7 +34,7 @@ public class ActivityWithRetained2 extends FragmentActivity implements MyView {
         }
     };
 
-    @LifeCycleAware(retained = true, name = "myName2")
+    @LifeCycleAware(retained = true)
     Callable<MyObject> myObject2 = new Callable<MyObject>() {
         @Override
         public MyObject call() throws Exception {

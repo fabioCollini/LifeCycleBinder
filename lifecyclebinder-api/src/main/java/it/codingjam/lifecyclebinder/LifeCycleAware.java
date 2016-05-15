@@ -26,6 +26,4 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface LifeCycleAware {
     boolean retained() default false;
-
-    String name() default "";
 }

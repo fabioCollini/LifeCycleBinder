@@ -30,7 +30,7 @@ public class ActivityWithRetainedProvider$LifeCycleBinder extends ObjectBinder<A
     }
 
     public void bind(final ActivityWithRetainedProvider view) {
-        initRetainedObject(bundlePrefix + "myName", new Callable<MyObject>() {
+        initRetainedObject(bundlePrefix + "myObject", new Callable<MyObject>() {
             @Override
             public MyObject call() throws Exception {
                 return view.myObject.get();

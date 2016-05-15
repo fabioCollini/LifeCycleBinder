@@ -85,7 +85,7 @@ class MyObjectWithParcelable implements ViewLifeCycleAware<MyView> {
 }
 
 public class MyActivity2 extends FragmentActivity implements MyView {
-    @LifeCycleAware(retained = true, name = "myName")
+    @LifeCycleAware(retained = true)
     Callable<MyObjectWithParcelable> myObject = new Callable<MyObjectWithParcelable>() {
         @Override
         public MyObjectWithParcelable call() throws Exception {
