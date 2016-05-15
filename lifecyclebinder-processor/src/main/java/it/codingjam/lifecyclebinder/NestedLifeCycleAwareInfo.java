@@ -17,7 +17,10 @@
 package it.codingjam.lifecyclebinder;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
+
+import java.util.List;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -29,14 +32,21 @@ public class NestedLifeCycleAwareInfo {
     public final RetainedObjectInfo retained;
     private final String fieldName;
     private final String bindMethodParameter;
-    private final ClassName binderClassName;
+    private final TypeName binderClassName;
 
     private NestedLifeCycleAwareInfo(Element field, RetainedObjectInfo retained, String fieldName, String bindMethodParameter, TypeName targetClassName) {
         this.field = field;
         this.retained = retained;
         this.fieldName = fieldName;
         this.bindMethodParameter = bindMethodParameter;
-        this.binderClassName = ClassName.bestGuess(targetClassName + LifeCycleBinderProcessor.LIFE_CYCLE_BINDER_SUFFIX);
+        List<TypeName> typeArguments = TypeUtils.getTypeArguments(targetClassName);
+        if (typeArguments.isEmpty()) {
+            this.binderClassName = ClassName.bestGuess(targetClassName + LifeCycleBinderProcessor.LIFE_CYCLE_BINDER_SUFFIX);
+        } else {
+            this.binderClassName = ParameterizedTypeName.get(
+                    ClassName.bestGuess(TypeUtils.getRawType(targetClassName) + LifeCycleBinderProcessor.LIFE_CYCLE_BINDER_SUFFIX),
+                    typeArguments.toArray(new TypeName[typeArguments.size()]));
+        }
     }
 
     public static NestedLifeCycleAwareInfo createNestedLifeCycleAwareInfo(Element field) {
@@ -51,7 +61,7 @@ public class NestedLifeCycleAwareInfo {
         return new NestedLifeCycleAwareInfo(field, null, "superClass$lifeCycleBinder", "view", TypeName.get(field.getSuperclass()));
     }
 
-    public ClassName getBinderClassName() {
+    public TypeName getBinderClassName() {
         return binderClassName;
     }
 

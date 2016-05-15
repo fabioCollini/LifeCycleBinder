@@ -26,6 +26,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -112,7 +113,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             }
             TypeMirror superclass = lifeCycleAwareInfo.element.getSuperclass();
             for (LifeCycleAwareInfo entry : elementsByClass) {
-                if (entry.element.asType().equals(superclass)) {
+                if (TypeUtils.isRawTypeEquals(superclass, entry.element.asType())) {
                     lifeCycleAwareInfo.nestedElements.add(NestedLifeCycleAwareInfo.createSuperclass(lifeCycleAwareInfo.element));
                     break;
                 }
@@ -147,7 +148,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             if (!annotation.retained()) {
                 info.lifeCycleAwareElements.add(variable);
             } else {
-                TypeName typeName = getTypeArguments(variable.asType()).get(0);
+                TypeName typeName = TypeUtils.getTypeArguments(variable.asType()).get(0);
                 info.retainedObjects.add(new RetainedObjectInfo(annotation.name(), variable, typeName));
             }
         }
@@ -189,6 +190,11 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                     .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType))
                     .addMethod(generateBindMethod(lifeCycleAwareInfo, objectGenericType));
 
+            List<TypeName> typeArguments = TypeUtils.getTypeArguments(hostElement.asType());
+            for (TypeName argument : typeArguments) {
+                builder.addTypeVariable((TypeVariableName) argument);
+            }
+
             for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
                 builder.addField(generateNestedBinderField(info));
             }
@@ -225,7 +231,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     }
 
     private FieldSpec generateNestedBinderField(NestedLifeCycleAwareInfo info) {
-        ClassName className = info.getBinderClassName();
+        TypeName className = info.getBinderClassName();
         return FieldSpec.builder(
                 className,
                 info.getFieldName(),
@@ -258,11 +264,13 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             if (typeName instanceof ParameterizedTypeName) {
                 ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
                 if (parameterizedTypeName.typeArguments.size() == 1 && parameterizedTypeName.rawType.equals(TypeName.get(ViewLifeCycleAware.class))) {
-                    List<TypeName> formalTypeArguments = getTypeArguments(hostElement.asType());
+                    List<TypeName> formalTypeArguments = TypeUtils.getTypeArguments(hostElement.asType());
                     TypeName ret = parameterizedTypeName.typeArguments.get(0);
                     for (int i = 0; i < formalTypeArguments.size(); i++) {
                         if (formalTypeArguments.get(i).equals(ret)) {
-                            return actualTypeArguments.get(i);
+                            if (!actualTypeArguments.isEmpty()) {
+                                return actualTypeArguments.get(i);
+                            }
                         }
                     }
                     return ret;
@@ -273,17 +281,8 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         if (TypeName.get(superclass).equals(TypeName.get(Object.class))) {
             return null;
         } else {
-            List<TypeName> superClassTypeElements = getTypeArguments(superclass);
+            List<TypeName> superClassTypeElements = TypeUtils.getTypeArguments(superclass);
             return searchObjectBinderGenericTypeName((TypeElement) typeUtils.asElement(superclass), superClassTypeElements);
-        }
-    }
-
-    private List<TypeName> getTypeArguments(TypeMirror mirror) {
-        TypeName typeName = ParameterizedTypeName.get(mirror);
-        if (typeName instanceof ParameterizedTypeName) {
-            return ((ParameterizedTypeName) typeName).typeArguments;
-        } else {
-            return Collections.emptyList();
         }
     }
 

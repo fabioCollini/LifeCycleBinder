@@ -81,4 +81,9 @@ public class ProcessorTest {
     public void testObjectWithGenericBaseClass() throws Exception {
         check("com.test.objectWithGenericBaseClass.MyObjectWithGenericBaseClass");
     }
+
+    @Test
+    public void testObjectWithNestedGenericBaseClass() throws Exception {
+        check("com.test.objectWithNestedGenericBaseClass.MyObjectWithGenericBaseClass");
+    }
 }
