@@ -76,4 +76,9 @@ public class ProcessorTest {
     public void testObjectWithBaseClass() throws Exception {
         check("com.test.MyObjectWithBaseClass");
     }
+
+    @Test
+    public void testObjectWithGenericBaseClass() throws Exception {
+        check("com.test.MyObjectWithGenericBaseClass");
+    }
 }

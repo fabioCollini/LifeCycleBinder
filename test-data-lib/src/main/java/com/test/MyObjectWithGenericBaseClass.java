@@ -22,22 +22,24 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import it.codingjam.lifecyclebinder.InstanceState;
+import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 
-class MyGenericBaseClass implements ViewLifeCycleAware<MyView> {
+class MyGenericBaseClass<T> implements ViewLifeCycleAware<T> {
 
     @Override
-    public void onCreate(MyView view, Bundle bundle) {
+    public void onCreate(T view, Bundle bundle) {
 
     }
 
     @Override
-    public void onStart(MyView view) {
+    public void onStart(T view) {
 
     }
 
     @Override
-    public void onResume(MyView view) {
+    public void onResume(T view) {
 
     }
 
@@ -52,27 +54,27 @@ class MyGenericBaseClass implements ViewLifeCycleAware<MyView> {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MyView view, MenuItem item) {
+    public boolean onOptionsItemSelected(T view, MenuItem item) {
         return false;
     }
 
     @Override
-    public void onPause(MyView view) {
+    public void onPause(T view) {
 
     }
 
     @Override
-    public void onStop(MyView view) {
+    public void onStop(T view) {
 
     }
 
     @Override
-    public void onSaveInstanceState(MyView view, Bundle bundle) {
+    public void onSaveInstanceState(T view, Bundle bundle) {
 
     }
 
     @Override
-    public void onDestroy(MyView view) {
+    public void onDestroy(T view) {
 
     }
 
@@ -81,5 +83,11 @@ class MyGenericBaseClass implements ViewLifeCycleAware<MyView> {
 
     }
 }
-public class MyObjectWithGenericBaseClass {
+
+public class MyObjectWithGenericBaseClass extends MyGenericBaseClass<MyView> {
+    @InstanceState
+    MyParcelable myParcelable;
+
+    @LifeCycleAware
+    MyObject myObject;
 }

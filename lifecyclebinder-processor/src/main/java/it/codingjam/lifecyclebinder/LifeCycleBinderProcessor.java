@@ -30,6 +30,7 @@ import com.squareup.javapoet.TypeSpec;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,7 +147,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             if (!annotation.retained()) {
                 info.lifeCycleAwareElements.add(variable);
             } else {
-                TypeName typeName = ((ParameterizedTypeName) ParameterizedTypeName.get(variable.asType())).typeArguments.get(0);
+                TypeName typeName = getTypeArguments(variable.asType()).get(0);
                 info.retainedObjects.add(new RetainedObjectInfo(annotation.name(), variable, typeName));
             }
         }
@@ -242,7 +243,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     }
 
     private TypeName getObjectBinderGenericTypeName(TypeElement hostElement) {
-        TypeName typeName = searchObjectBinderGenericTypeName(hostElement);
+        TypeName typeName = searchObjectBinderGenericTypeName(hostElement, Collections.emptyList());
         if (typeName != null) {
             return typeName;
         } else {
@@ -250,14 +251,21 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
     }
 
-    private TypeName searchObjectBinderGenericTypeName(TypeElement hostElement) {
+    private TypeName searchObjectBinderGenericTypeName(TypeElement hostElement, List<TypeName> actualTypeArguments) {
         List<? extends TypeMirror> interfaces = hostElement.getInterfaces();
         for (TypeMirror type : interfaces) {
             TypeName typeName = TypeName.get(type);
             if (typeName instanceof ParameterizedTypeName) {
                 ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
                 if (parameterizedTypeName.typeArguments.size() == 1 && parameterizedTypeName.rawType.equals(TypeName.get(ViewLifeCycleAware.class))) {
-                    return parameterizedTypeName.typeArguments.get(0);
+                    List<TypeName> formalTypeArguments = getTypeArguments(hostElement.asType());
+                    TypeName ret = parameterizedTypeName.typeArguments.get(0);
+                    for (int i = 0; i < formalTypeArguments.size(); i++) {
+                        if (formalTypeArguments.get(i).equals(ret)) {
+                            return actualTypeArguments.get(i);
+                        }
+                    }
+                    return ret;
                 }
             }
         }
@@ -265,7 +273,17 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         if (TypeName.get(superclass).equals(TypeName.get(Object.class))) {
             return null;
         } else {
-            return searchObjectBinderGenericTypeName((TypeElement) typeUtils.asElement(superclass));
+            List<TypeName> superClassTypeElements = getTypeArguments(superclass);
+            return searchObjectBinderGenericTypeName((TypeElement) typeUtils.asElement(superclass), superClassTypeElements);
+        }
+    }
+
+    private List<TypeName> getTypeArguments(TypeMirror mirror) {
+        TypeName typeName = ParameterizedTypeName.get(mirror);
+        if (typeName instanceof ParameterizedTypeName) {
+            return ((ParameterizedTypeName) typeName).typeArguments;
+        } else {
+            return Collections.emptyList();
         }
     }
 
