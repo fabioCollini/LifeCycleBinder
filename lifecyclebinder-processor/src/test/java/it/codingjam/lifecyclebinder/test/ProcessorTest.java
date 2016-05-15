@@ -23,62 +23,62 @@ import static it.codingjam.lifecyclebinder.test.FileLoader.check;
 public class ProcessorTest {
     @Test
     public void testMyActivity() throws Exception {
-        check("com.test.MyActivity");
+        check("com.test.myActivity.MyActivity");
     }
 
     @Test
     public void testInstanceState() throws Exception {
-        check("com.test.MyActivity3");
+        check("com.test.instanceState.MyActivity3");
     }
 
     @Test
     public void testRetained() throws Exception {
-        check("com.test.ActivityWithRetained");
+        check("com.test.retained.ActivityWithRetained");
     }
 
     @Test
     public void testRetained2() throws Exception {
-        check("com.test.ActivityWithRetained2");
+        check("com.test.retained.ActivityWithRetained2");
     }
 
     @Test
     public void testObjectWitParcelable() throws Exception {
-        check("com.test.ActivityMyObjectWithParcelable");
+        check("com.test.objectWithParcelable.ActivityMyObjectWithParcelable");
     }
 
     @Test
     public void testObjectWitParcelableFactory() throws Exception {
-        check("com.test.MyActivity2");
+        check("com.test.parcelable.MyActivity2");
     }
 
     @Test
     public void testNestedObjects() throws Exception {
-        check("com.test.ActivityMyObjectWithParcelableAndInnerObject");
+        check("com.test.nested.ActivityMyObjectWithParcelableAndInnerObject");
     }
 
     @Test
     public void testNestedObjects2() throws Exception {
-        check("com.test.ActivityMyObjectWithParcelableAndInnerObject",
-                "com.test.MyObjectWithParcelableAndInnerObject");
+        check("com.test.nested.ActivityMyObjectWithParcelableAndInnerObject",
+                "com.test.nested.MyObjectWithParcelableAndInnerObject");
     }
 
     @Test
     public void testRetainedObjectsWithProviders() throws Exception {
-        check("com.test.ActivityWithRetainedProvider");
+        check("com.test.retainedObjectsWithProvider.ActivityWithRetainedProvider");
     }
 
     @Test
     public void testActivityWithBaseClass() throws Exception {
-        check("com.test.MyActivityWithBaseClass");
+        check("com.test.activityWithBaseClass.MyActivityWithBaseClass");
     }
 
     @Test
     public void testObjectWithBaseClass() throws Exception {
-        check("com.test.MyObjectWithBaseClass");
+        check("com.test.objectWithBaseClass.MyObjectWithBaseClass");
     }
 
     @Test
     public void testObjectWithGenericBaseClass() throws Exception {
-        check("com.test.MyObjectWithGenericBaseClass");
+        check("com.test.objectWithGenericBaseClass.MyObjectWithGenericBaseClass");
     }
 }

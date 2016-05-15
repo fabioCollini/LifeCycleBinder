@@ -14,33 +14,39 @@
  *  limitations under the License.
  */
 
-package com.test;
+package com.test.parcelable;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.test.MyParcelable;
+import com.test.MyView;
+
+import java.util.concurrent.Callable;
 
 import it.codingjam.lifecyclebinder.InstanceState;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 
-class MyBaseClass implements ViewLifeCycleAware<MyView> {
+class MyObjectWithParcelable implements ViewLifeCycleAware<MyView> {
+
+    @InstanceState
+    MyParcelable myParcelable;
 
     @Override
     public void onCreate(MyView view, Bundle bundle) {
-
     }
 
     @Override
     public void onStart(MyView view) {
-
     }
 
     @Override
     public void onResume(MyView view) {
-
     }
 
     @Override
@@ -50,7 +56,6 @@ class MyBaseClass implements ViewLifeCycleAware<MyView> {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
     }
 
     @Override
@@ -60,34 +65,31 @@ class MyBaseClass implements ViewLifeCycleAware<MyView> {
 
     @Override
     public void onPause(MyView view) {
-
     }
 
     @Override
     public void onStop(MyView view) {
-
     }
 
     @Override
     public void onSaveInstanceState(MyView view, Bundle bundle) {
-
     }
 
     @Override
     public void onDestroy(MyView view) {
-
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
     }
 }
 
-public class MyObjectWithBaseClass extends MyBaseClass {
-    @InstanceState
-    MyParcelable myParcelable;
-
-    @LifeCycleAware
-    MyObject myObject;
+public class MyActivity2 extends FragmentActivity implements MyView {
+    @LifeCycleAware(retained = true, name = "myName")
+    Callable<MyObjectWithParcelable> myObject = new Callable<MyObjectWithParcelable>() {
+        @Override
+        public MyObjectWithParcelable call() throws Exception {
+            return new MyObjectWithParcelable();
+        }
+    };
 }

@@ -14,22 +14,20 @@
  *  limitations under the License.
  */
 
-package com.test;
+package com.test.parcelable;
 
-import android.support.v4.app.FragmentActivity;
+import com.test.MyView;
+import com.test.parcelable.MyObjectWithParcelable;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.ObjectBinder;
 
-interface Provider<T> {
-    T get();
-}
+public class MyObjectWithParcelable$LifeCycleBinder extends ObjectBinder<MyObjectWithParcelable, MyView> {
+    public MyObjectWithParcelable$LifeCycleBinder(String bundlePrefix) {
+        super(bundlePrefix);
+    }
 
-public class ActivityWithRetainedProvider extends FragmentActivity implements MyView {
-    @LifeCycleAware(retained = true, name = "myName")
-    Provider<MyObject> myObject = new Provider<MyObject>() {
-        @Override
-        public MyObject get() {
-            return new MyObject();
-        }
-    };
+    @Override
+    public void bind(final MyObjectWithParcelable view) {
+
+    }
 }

@@ -14,18 +14,16 @@
  *  limitations under the License.
  */
 
-package com.test;
+package com.test.myActivity;
 
-import android.support.v4.app.FragmentActivity;
+import it.codingjam.lifecyclebinder.ObjectBinder;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
+public class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity, MyActivity> {
+    public MyActivity$LifeCycleBinder(String bundlePrefix) {
+        super(bundlePrefix);
+    }
 
-class BaseClass extends FragmentActivity implements MyView {
-    @LifeCycleAware
-    MyObject myBaseObject;
-}
-
-public class MyActivityWithBaseClass extends BaseClass implements MyView {
-    @LifeCycleAware
-    MyObject myObject;
+    public void bind(final MyActivity view) {
+        listeners.add(view.myObject);
+    }
 }

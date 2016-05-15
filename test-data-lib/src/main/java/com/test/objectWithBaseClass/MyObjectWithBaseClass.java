@@ -14,25 +14,23 @@
  *  limitations under the License.
  */
 
-package com.test;
+package com.test.objectWithBaseClass;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.test.MyObject;
+import com.test.MyParcelable;
+import com.test.MyView;
 
 import it.codingjam.lifecyclebinder.InstanceState;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 
-class MyObjectWithParcelableAndInnerObject implements ViewLifeCycleAware<MyView> {
-
-    @InstanceState
-    MyParcelable myParcelable;
-    @LifeCycleAware
-    MyObject myObject;
+class MyBaseClass implements ViewLifeCycleAware<MyView> {
 
     @Override
     public void onCreate(MyView view, Bundle bundle) {
@@ -90,7 +88,10 @@ class MyObjectWithParcelableAndInnerObject implements ViewLifeCycleAware<MyView>
     }
 }
 
-public class ActivityMyObjectWithParcelableAndInnerObject extends FragmentActivity implements MyView {
+public class MyObjectWithBaseClass extends MyBaseClass {
+    @InstanceState
+    MyParcelable myParcelable;
+
     @LifeCycleAware
-    MyObjectWithParcelableAndInnerObject myObject;
+    MyObject myObject;
 }

@@ -14,17 +14,27 @@
  *  limitations under the License.
  */
 
-package com.test;
+package com.test.retainedObjectsWithProvider;
+
+
+import com.test.MyObject;
 
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
-public class MyObjectWithParcelable2$LifeCycleBinder extends ObjectBinder<MyObjectWithParcelable2, MyView> {
-    public MyObjectWithParcelable2$LifeCycleBinder(String bundlePrefix) {
+import java.util.concurrent.Callable;
+
+
+public class ActivityWithRetainedProvider$LifeCycleBinder extends ObjectBinder<ActivityWithRetainedProvider, ActivityWithRetainedProvider> {
+    public ActivityWithRetainedProvider$LifeCycleBinder(String bundlePrefix) {
         super(bundlePrefix);
     }
 
-    @Override
-    public void bind(final MyObjectWithParcelable2 view) {
-
+    public void bind(final ActivityWithRetainedProvider view) {
+        initRetainedObject(bundlePrefix + "myName", new Callable<MyObject>() {
+            @Override
+            public MyObject call() throws Exception {
+                return view.myObject.get();
+            }
+        });
     }
 }

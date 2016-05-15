@@ -14,27 +14,16 @@
  *  limitations under the License.
  */
 
-package com.test;
-
-import android.os.Bundle;
+package com.test.retained;
 
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
-public class MyObjectWithBaseClass$LifeCycleBinder extends ObjectBinder<MyObjectWithBaseClass, MyView> {
-
-    public MyObjectWithBaseClass$LifeCycleBinder(String bundlePrefix) {
+public class ActivityWithRetained$LifeCycleBinder extends ObjectBinder<ActivityWithRetained, ActivityWithRetained> {
+    public ActivityWithRetained$LifeCycleBinder(String bundlePrefix) {
         super(bundlePrefix);
     }
 
-    public void bind(final MyObjectWithBaseClass view) {
-        listeners.add(view.myObject);
-    }
-
-    public void saveInstanceState(MyObjectWithBaseClass view, Bundle bundle) {
-        bundle.putParcelable(bundlePrefix + "myParcelable", view.myParcelable);
-    }
-
-    public void restoreInstanceState(MyObjectWithBaseClass view, Bundle bundle) {
-        view.myParcelable = bundle.getParcelable(bundlePrefix + "myParcelable");
+    public void bind(final ActivityWithRetained view) {
+        initRetainedObject(bundlePrefix + "myName", view.myObject);
     }
 }

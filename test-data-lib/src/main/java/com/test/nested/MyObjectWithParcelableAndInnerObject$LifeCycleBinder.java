@@ -14,27 +14,29 @@
  *  limitations under the License.
  */
 
-package com.test;
+package com.test.nested;
 
 import android.os.Bundle;
 
+import com.test.MyView;
+
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
-public class MyObjectWithGenericBaseClass$LifeCycleBinder extends ObjectBinder<MyObjectWithGenericBaseClass, MyView> {
+public class MyObjectWithParcelableAndInnerObject$LifeCycleBinder extends ObjectBinder<MyObjectWithParcelableAndInnerObject, MyView> {
 
-    public MyObjectWithGenericBaseClass$LifeCycleBinder(String bundlePrefix) {
+    public MyObjectWithParcelableAndInnerObject$LifeCycleBinder(String bundlePrefix) {
         super(bundlePrefix);
     }
 
-    public void bind(final MyObjectWithGenericBaseClass view) {
+    public void bind(final MyObjectWithParcelableAndInnerObject view) {
         listeners.add(view.myObject);
     }
 
-    public void saveInstanceState(MyObjectWithGenericBaseClass view, Bundle bundle) {
+    public void saveInstanceState(MyObjectWithParcelableAndInnerObject view, Bundle bundle) {
         bundle.putParcelable(bundlePrefix + "myParcelable", view.myParcelable);
     }
 
-    public void restoreInstanceState(MyObjectWithGenericBaseClass view, Bundle bundle) {
+    public void restoreInstanceState(MyObjectWithParcelableAndInnerObject view, Bundle bundle) {
         view.myParcelable = bundle.getParcelable(bundlePrefix + "myParcelable");
     }
 }

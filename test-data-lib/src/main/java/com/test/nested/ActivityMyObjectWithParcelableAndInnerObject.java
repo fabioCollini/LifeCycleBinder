@@ -14,32 +14,42 @@
  *  limitations under the License.
  */
 
-package com.test;
+package com.test.nested;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.test.MyObject;
+import com.test.MyParcelable;
+import com.test.MyView;
 
 import it.codingjam.lifecyclebinder.InstanceState;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 
-class MyGenericBaseClass<T> implements ViewLifeCycleAware<T> {
+class MyObjectWithParcelableAndInnerObject implements ViewLifeCycleAware<MyView> {
+
+    @InstanceState
+    MyParcelable myParcelable;
+    @LifeCycleAware
+    MyObject myObject;
 
     @Override
-    public void onCreate(T view, Bundle bundle) {
+    public void onCreate(MyView view, Bundle bundle) {
 
     }
 
     @Override
-    public void onStart(T view) {
+    public void onStart(MyView view) {
 
     }
 
     @Override
-    public void onResume(T view) {
+    public void onResume(MyView view) {
 
     }
 
@@ -54,27 +64,27 @@ class MyGenericBaseClass<T> implements ViewLifeCycleAware<T> {
     }
 
     @Override
-    public boolean onOptionsItemSelected(T view, MenuItem item) {
+    public boolean onOptionsItemSelected(MyView view, MenuItem item) {
         return false;
     }
 
     @Override
-    public void onPause(T view) {
+    public void onPause(MyView view) {
 
     }
 
     @Override
-    public void onStop(T view) {
+    public void onStop(MyView view) {
 
     }
 
     @Override
-    public void onSaveInstanceState(T view, Bundle bundle) {
+    public void onSaveInstanceState(MyView view, Bundle bundle) {
 
     }
 
     @Override
-    public void onDestroy(T view) {
+    public void onDestroy(MyView view) {
 
     }
 
@@ -84,10 +94,7 @@ class MyGenericBaseClass<T> implements ViewLifeCycleAware<T> {
     }
 }
 
-public class MyObjectWithGenericBaseClass extends MyGenericBaseClass<MyView> {
-    @InstanceState
-    MyParcelable myParcelable;
-
+public class ActivityMyObjectWithParcelableAndInnerObject extends FragmentActivity implements MyView {
     @LifeCycleAware
-    MyObject myObject;
+    MyObjectWithParcelableAndInnerObject myObject;
 }

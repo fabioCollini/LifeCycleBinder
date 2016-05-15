@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.test;
+package com.test.objectWithParcelable;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,6 +22,9 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.test.MyParcelable;
+import com.test.MyView;
 
 import it.codingjam.lifecyclebinder.InstanceState;
 import it.codingjam.lifecyclebinder.LifeCycleAware;

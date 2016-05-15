@@ -14,9 +14,12 @@
  *  limitations under the License.
  */
 
-package com.test;
+package com.test.myActivity;
 
 import android.support.v4.app.FragmentActivity;
+
+import com.test.MyObject;
+import com.test.MyView;
 
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 

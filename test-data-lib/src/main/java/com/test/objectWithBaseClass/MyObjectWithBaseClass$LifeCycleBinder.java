@@ -14,17 +14,29 @@
  *  limitations under the License.
  */
 
-package com.test;
+package com.test.objectWithBaseClass;
+
+import android.os.Bundle;
+
+import com.test.MyView;
 
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
-public class MyObjectWithParcelable$LifeCycleBinder extends ObjectBinder<MyObjectWithParcelable, MyView> {
-    public MyObjectWithParcelable$LifeCycleBinder(String bundlePrefix) {
+public class MyObjectWithBaseClass$LifeCycleBinder extends ObjectBinder<MyObjectWithBaseClass, MyView> {
+
+    public MyObjectWithBaseClass$LifeCycleBinder(String bundlePrefix) {
         super(bundlePrefix);
     }
 
-    @Override
-    public void bind(final MyObjectWithParcelable view) {
+    public void bind(final MyObjectWithBaseClass view) {
+        listeners.add(view.myObject);
+    }
 
+    public void saveInstanceState(MyObjectWithBaseClass view, Bundle bundle) {
+        bundle.putParcelable(bundlePrefix + "myParcelable", view.myParcelable);
+    }
+
+    public void restoreInstanceState(MyObjectWithBaseClass view, Bundle bundle) {
+        view.myParcelable = bundle.getParcelable(bundlePrefix + "myParcelable");
     }
 }

@@ -14,36 +14,37 @@
  *  limitations under the License.
  */
 
-package com.test;
+package com.test.objectWithGenericBaseClass;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import java.util.concurrent.Callable;
+import com.test.MyObject;
+import com.test.MyParcelable;
+import com.test.MyView;
 
 import it.codingjam.lifecyclebinder.InstanceState;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 
-class MyObjectWithParcelable implements ViewLifeCycleAware<MyView> {
-
-    @InstanceState
-    MyParcelable myParcelable;
+class MyGenericBaseClass<T> implements ViewLifeCycleAware<T> {
 
     @Override
-    public void onCreate(MyView view, Bundle bundle) {
+    public void onCreate(T view, Bundle bundle) {
+
     }
 
     @Override
-    public void onStart(MyView view) {
+    public void onStart(T view) {
+
     }
 
     @Override
-    public void onResume(MyView view) {
+    public void onResume(T view) {
+
     }
 
     @Override
@@ -53,40 +54,44 @@ class MyObjectWithParcelable implements ViewLifeCycleAware<MyView> {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
     }
 
     @Override
-    public boolean onOptionsItemSelected(MyView view, MenuItem item) {
+    public boolean onOptionsItemSelected(T view, MenuItem item) {
         return false;
     }
 
     @Override
-    public void onPause(MyView view) {
+    public void onPause(T view) {
+
     }
 
     @Override
-    public void onStop(MyView view) {
+    public void onStop(T view) {
+
     }
 
     @Override
-    public void onSaveInstanceState(MyView view, Bundle bundle) {
+    public void onSaveInstanceState(T view, Bundle bundle) {
+
     }
 
     @Override
-    public void onDestroy(MyView view) {
+    public void onDestroy(T view) {
+
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
     }
 }
 
-public class MyActivity2 extends FragmentActivity implements MyView {
-    @LifeCycleAware(retained = true, name = "myName")
-    Callable<MyObjectWithParcelable> myObject = new Callable<MyObjectWithParcelable>() {
-        @Override
-        public MyObjectWithParcelable call() throws Exception {
-            return new MyObjectWithParcelable();
-        }
-    };
+public class MyObjectWithGenericBaseClass extends MyGenericBaseClass<MyView> {
+    @InstanceState
+    MyParcelable myParcelable;
+
+    @LifeCycleAware
+    MyObject myObject;
 }

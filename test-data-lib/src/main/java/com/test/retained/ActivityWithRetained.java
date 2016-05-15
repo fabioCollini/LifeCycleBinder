@@ -14,13 +14,23 @@
  *  limitations under the License.
  */
 
-package com.test;
+package com.test.retained;
 
 import android.support.v4.app.FragmentActivity;
 
-import it.codingjam.lifecyclebinder.InstanceState;
+import com.test.MyObject;
+import com.test.MyView;
 
-public class MyActivity3 extends FragmentActivity implements MyView {
-    @InstanceState
-    MyParcelable myParcelable;
+import java.util.concurrent.Callable;
+
+import it.codingjam.lifecyclebinder.LifeCycleAware;
+
+public class ActivityWithRetained extends FragmentActivity implements MyView {
+    @LifeCycleAware(retained = true, name = "myName")
+    Callable<MyObject> myObject = new Callable<MyObject>() {
+        @Override
+        public MyObject call() throws Exception {
+            return new MyObject();
+        }
+    };
 }
