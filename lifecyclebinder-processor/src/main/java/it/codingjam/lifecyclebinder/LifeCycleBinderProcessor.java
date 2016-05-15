@@ -249,7 +249,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     }
 
     private TypeName getObjectBinderGenericTypeName(TypeElement hostElement) {
-        TypeName typeName = searchObjectBinderGenericTypeName(hostElement, Collections.emptyList());
+        TypeName typeName = searchObjectBinderGenericTypeName(hostElement, null);
         if (typeName != null) {
             return typeName;
         } else {
@@ -268,7 +268,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                     TypeName ret = parameterizedTypeName.typeArguments.get(0);
                     for (int i = 0; i < formalTypeArguments.size(); i++) {
                         if (formalTypeArguments.get(i).equals(ret)) {
-                            if (!actualTypeArguments.isEmpty()) {
+                            if (actualTypeArguments != null) {
                                 return actualTypeArguments.get(i);
                             }
                         }
