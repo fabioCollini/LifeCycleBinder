@@ -179,6 +179,6 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     }
 
     public String getBundlePrefix() {
-        return bundlePrefix;
+        return objectBinder.getBundlePrefix();
     }
 }

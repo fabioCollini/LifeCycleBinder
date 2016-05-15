@@ -43,8 +43,9 @@ public class LifeCycleBinder {
         LifeCycleRetainedFragment retainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager);
         LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
         Class<ObjectBinder<T, T>> c = getObjectBinderClass(obj);
-        fragment.init(c, obj.getClass().getName() + ObjectBinder.SEPARATOR + key);
+        fragment.init(c, obj.getClass().getName() + (key != null && !key.isEmpty() ? ObjectBinder.SEPARATOR + key : ""));
         fragmentManager.executePendingTransactions();
+        System.out.println(fragment);
     }
 
     @NonNull
@@ -62,7 +63,7 @@ public class LifeCycleBinder {
     }
 
     public static <T> T getRetainedObject(Fragment fragment, String name) {
-        return getRetainedObject(fragment.getFragmentManager(), fragment.getActivity().getSupportFragmentManager(), name);
+        return getRetainedObject(fragment.getChildFragmentManager(), fragment.getActivity().getSupportFragmentManager(), name);
     }
 
     private static <T> T getRetainedObject(FragmentManager fragmentManager, FragmentManager activityFragmentManager, String name) {
