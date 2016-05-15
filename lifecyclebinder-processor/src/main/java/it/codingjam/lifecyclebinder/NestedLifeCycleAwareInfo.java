@@ -16,6 +16,8 @@
 
 package it.codingjam.lifecyclebinder;
 
+import com.squareup.javapoet.ClassName;
+
 import javax.lang.model.element.Element;
 
 public class NestedLifeCycleAwareInfo {
@@ -30,5 +32,15 @@ public class NestedLifeCycleAwareInfo {
         this.field = field;
         this.info = info;
         this.retained = retained;
+    }
+
+    public ClassName getBinderClassName() {
+        String typeName;
+        if (retained != null) {
+            typeName = retained.typeName.toString();
+        } else {
+            typeName = field.asType().toString();
+        }
+        return ClassName.bestGuess(typeName + LifeCycleBinderProcessor.LIFE_CYCLE_BINDER_SUFFIX);
     }
 }

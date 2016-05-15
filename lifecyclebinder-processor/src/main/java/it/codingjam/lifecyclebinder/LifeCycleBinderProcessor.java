@@ -176,12 +176,12 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
             TypeSpec.Builder builder = TypeSpec.classBuilder(simpleClassName)
                     .addModifiers(PUBLIC)
-                    .addMethod(generateConstructor())
+                    .addMethod(generateConstructor(hostElement, lifeCycleAwareInfo.nestedElements))
                     .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType))
                     .addMethod(generateBindMethod(lifeCycleAwareInfo, objectGenericType));
 
             for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
-                builder.addField(generateNestedBinderField(hostElement, info));
+                builder.addField(generateNestedBinderField(info));
             }
 
             if (!lifeCycleAwareInfo.instanceStateElements.isEmpty() || !lifeCycleAwareInfo.nestedElements.isEmpty()) {
@@ -196,12 +196,15 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
     }
 
-    private MethodSpec generateConstructor() {
-        return MethodSpec.constructorBuilder()
+    private MethodSpec generateConstructor(TypeElement hostElement, List<NestedLifeCycleAwareInfo> nestedElements) {
+        MethodSpec.Builder builder = MethodSpec.constructorBuilder()
                 .addModifiers(PUBLIC)
                 .addParameter(String.class, "bundlePrefix")
-                .addStatement("super(bundlePrefix)")
-                .build();
+                .addStatement("super(bundlePrefix)");
+        for (NestedLifeCycleAwareInfo info : nestedElements) {
+            builder.addStatement("$L = new $T(bundlePrefix + SEPARATOR + $S)", info.field.getSimpleName(), info.getBinderClassName(), info.field.getSimpleName());
+        }
+        return builder.build();
     }
 
     private void writeFile(PackageElement packageElement, JavaFileObject sourceFile, TypeSpec typeSpec) throws IOException {
@@ -212,19 +215,13 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         writer.close();
     }
 
-    private FieldSpec generateNestedBinderField(TypeElement hostElement, NestedLifeCycleAwareInfo info) {
-        String typeName;
-        if (info.retained != null) {
-            typeName = info.retained.typeName.toString();
-        } else {
-            typeName = info.field.asType().toString();
-        }
-        ClassName className = ClassName.bestGuess(typeName + LIFE_CYCLE_BINDER_SUFFIX);
+    private FieldSpec generateNestedBinderField(NestedLifeCycleAwareInfo info) {
+        ClassName className = info.getBinderClassName();
         return FieldSpec.builder(
                 className,
                 info.field.getSimpleName().toString(),
                 PRIVATE
-        ).initializer("new $T($S)", className, hostElement.getQualifiedName().toString() + " " + info.field.getSimpleName()).build();
+        ).build();
     }
 
     private MethodSpec generateBindMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeName objectGenericType) {

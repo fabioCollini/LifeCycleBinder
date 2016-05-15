@@ -5,10 +5,11 @@ import android.os.Bundle;
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class ActivityMyObjectWithParcelable$LifeCycleBinder extends ObjectBinder<ActivityMyObjectWithParcelable, ActivityMyObjectWithParcelable> {
-    private MyObjectWithParcelable2$LifeCycleBinder myObject = new MyObjectWithParcelable2$LifeCycleBinder("com.test.ActivityMyObjectWithParcelable myObject");
+    private MyObjectWithParcelable2$LifeCycleBinder myObject;
 
     public ActivityMyObjectWithParcelable$LifeCycleBinder(String bundlePrefix) {
         super(bundlePrefix);
+        myObject = new MyObjectWithParcelable2$LifeCycleBinder(bundlePrefix + SEPARATOR + "myObject");
     }
 
     public void bind(final ActivityMyObjectWithParcelable view) {
