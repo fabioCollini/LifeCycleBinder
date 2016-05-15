@@ -66,4 +66,9 @@ public class ProcessorTest {
     public void testRetainedObjectsWithProviders() throws Exception {
         check("com.test.ActivityWithRetainedProvider");
     }
+
+    @Test
+    public void testObjectWithBaseClass() throws Exception {
+        check("com.test.MyActivityWithBaseClass");
+    }
 }

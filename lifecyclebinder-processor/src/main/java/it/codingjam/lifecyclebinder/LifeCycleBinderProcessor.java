@@ -105,14 +105,22 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
                 for (LifeCycleAwareInfo entry : elementsByClass) {
                     if (entry.element.asType().equals(element.asType())) {
-                        lifeCycleAwareInfo.nestedElements.add(new NestedLifeCycleAwareInfo(element, entry, null));
+                        lifeCycleAwareInfo.nestedElements.add(NestedLifeCycleAwareInfo.createNestedLifeCycleAwareInfo(element));
                     }
                 }
             }
+            TypeMirror superclass = lifeCycleAwareInfo.element.getSuperclass();
+            for (LifeCycleAwareInfo entry : elementsByClass) {
+                if (entry.element.asType().equals(superclass)) {
+                    lifeCycleAwareInfo.nestedElements.add(NestedLifeCycleAwareInfo.createSuperclass(lifeCycleAwareInfo.element));
+                    break;
+                }
+            }
+
             for (RetainedObjectInfo retainedEntry : lifeCycleAwareInfo.retainedObjects) {
                 for (LifeCycleAwareInfo entry : elementsByClass) {
                     if (ClassName.get(entry.element.asType()).equals(retainedEntry.typeName)) {
-                        lifeCycleAwareInfo.nestedElements.add(new NestedLifeCycleAwareInfo(retainedEntry.field, entry, retainedEntry));
+                        lifeCycleAwareInfo.nestedElements.add(NestedLifeCycleAwareInfo.createRetainedObject(retainedEntry.field, retainedEntry));
                     }
                 }
             }
@@ -176,7 +184,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
             TypeSpec.Builder builder = TypeSpec.classBuilder(simpleClassName)
                     .addModifiers(PUBLIC)
-                    .addMethod(generateConstructor(hostElement, lifeCycleAwareInfo.nestedElements))
+                    .addMethod(generateConstructor(lifeCycleAwareInfo.nestedElements))
                     .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType))
                     .addMethod(generateBindMethod(lifeCycleAwareInfo, objectGenericType));
 
@@ -196,13 +204,13 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
     }
 
-    private MethodSpec generateConstructor(TypeElement hostElement, List<NestedLifeCycleAwareInfo> nestedElements) {
+    private MethodSpec generateConstructor(List<NestedLifeCycleAwareInfo> nestedElements) {
         MethodSpec.Builder builder = MethodSpec.constructorBuilder()
                 .addModifiers(PUBLIC)
                 .addParameter(String.class, "bundlePrefix")
                 .addStatement("super(bundlePrefix)");
         for (NestedLifeCycleAwareInfo info : nestedElements) {
-            builder.addStatement("$L = new $T(bundlePrefix + SEPARATOR + $S)", info.field.getSimpleName(), info.getBinderClassName(), info.field.getSimpleName());
+            builder.addStatement("$L = new $T(bundlePrefix + SEPARATOR + $S)", info.getFieldName(), info.getBinderClassName(), info.getFieldName());
         }
         return builder.build();
     }
@@ -219,7 +227,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         ClassName className = info.getBinderClassName();
         return FieldSpec.builder(
                 className,
-                info.field.getSimpleName().toString(),
+                info.getFieldName(),
                 PRIVATE
         ).build();
     }
@@ -268,7 +276,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             if (info.retained != null) {
                 builder.addStatement("$L." + methodName + "(($T) retainedObjects.get(bundlePrefix + $S), bundle)", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
             } else {
-                builder.addStatement("$L." + methodName + "(view.$L, bundle)", info.field.getSimpleName(), info.field.getSimpleName());
+                builder.addStatement("$L." + methodName + "($L, bundle)", info.getFieldName(), info.getBindMethodParameter());
             }
         }
         return builder.build();
@@ -312,9 +320,9 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             if (info.retained != null) {
                 builder.addStatement("$L.bind(($T) retainedObjects.get(bundlePrefix + $S))", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
             } else {
-                builder.addStatement("$L.bind(view.$L)", info.field.getSimpleName(), info.field.getSimpleName());
+                builder.addStatement("$L.bind($L)", info.getFieldName(), info.getBindMethodParameter());
             }
-            builder.addStatement("listeners.addAll($L.getListeners())", info.field.getSimpleName());
+            builder.addStatement("listeners.addAll($L.getListeners())", info.getFieldName());
         }
 
         return builder.build();
