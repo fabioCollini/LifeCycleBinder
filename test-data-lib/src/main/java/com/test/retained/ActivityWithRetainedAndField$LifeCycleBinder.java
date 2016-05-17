@@ -14,13 +14,16 @@
  *  limitations under the License.
  */
 
-package it.codingjam.lifecyclebinder;
+package com.test.retained;
 
+import it.codingjam.lifecyclebinder.ObjectBinder;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
+public class ActivityWithRetainedAndField$LifeCycleBinder extends ObjectBinder<ActivityWithRetained, ActivityWithRetained> {
+    public ActivityWithRetainedAndField$LifeCycleBinder(String bundlePrefix) {
+        super(bundlePrefix);
+    }
 
-@Target(ElementType.FIELD)
-public @interface LifeCycleAware {
-    boolean retained() default false;
+    public void bind(final ActivityWithRetained view) {
+        view.myObject = initRetainedObject(bundlePrefix + "myObjectProvider", view.myObjectProvider);
+    }
 }

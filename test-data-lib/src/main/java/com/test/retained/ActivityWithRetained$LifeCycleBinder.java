@@ -24,6 +24,6 @@ public class ActivityWithRetained$LifeCycleBinder extends ObjectBinder<ActivityW
     }
 
     public void bind(final ActivityWithRetained view) {
-        initRetainedObject(bundlePrefix + "myObject", view.myObject);
+        initRetainedObject(bundlePrefix + "myObjectProvider", view.myObjectProvider);
     }
 }

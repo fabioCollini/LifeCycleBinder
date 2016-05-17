@@ -37,6 +37,11 @@ public class ProcessorTest {
     }
 
     @Test
+    public void testRetainedWithField() throws Exception {
+        check("com.test.retained.ActivityWithRetainedAndField");
+    }
+
+    @Test
     public void testRetained2() throws Exception {
         check("com.test.retained.ActivityWithRetained2");
     }

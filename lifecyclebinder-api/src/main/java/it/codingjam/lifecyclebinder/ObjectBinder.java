@@ -61,10 +61,10 @@ public abstract class ObjectBinder<T, V> {
         this.retainedObjectsFactory = retainedObjectsFactory;
     }
 
-    protected ViewLifeCycleAware<? super V> initRetainedObject(String key, Callable<? extends ViewLifeCycleAware<? super V>> factory) {
+    protected <O extends ViewLifeCycleAware<? super V>> O initRetainedObject(String key, Callable<? extends ViewLifeCycleAware<? super V>> factory) {
         ViewLifeCycleAware<? super V> retainedObject = retainedObjectsFactory.init(key, factory);
         addListener(key, retainedObject);
-        return retainedObject;
+        return (O) retainedObject;
     }
 
     public String getBundlePrefix() {
