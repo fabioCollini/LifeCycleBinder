@@ -26,12 +26,12 @@ import android.widget.TextView;
 
 import java.util.concurrent.Callable;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
+import it.codingjam.lifecyclebinder.RetainedObjectProvider;
 
 public class MyRetainedFragment extends Fragment {
 
-    @LifeCycleAware(retained = true, name = "MyRetainedFragment")
+    @RetainedObjectProvider
     public Callable<Logger> logger = new Callable<Logger>() {
         @Override
         public Logger call() throws Exception {

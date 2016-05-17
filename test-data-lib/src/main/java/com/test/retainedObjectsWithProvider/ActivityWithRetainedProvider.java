@@ -21,14 +21,14 @@ import android.support.v4.app.FragmentActivity;
 import com.test.MyObject;
 import com.test.MyView;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.RetainedObjectProvider;
 
 interface Provider<T> {
     T get();
 }
 
 public class ActivityWithRetainedProvider extends FragmentActivity implements MyView {
-    @LifeCycleAware(retained = true)
+    @RetainedObjectProvider
     Provider<MyObject> myObject = new Provider<MyObject>() {
         @Override
         public MyObject get() {

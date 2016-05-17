@@ -59,7 +59,8 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
 @SupportedAnnotationTypes({
-        "it.codingjam.lifecyclebinder.LifeCycleAware"
+        "it.codingjam.lifecyclebinder.LifeCycleAware",
+        "it.codingjam.lifecyclebinder.RetainedObjectProvider"
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class LifeCycleBinderProcessor extends AbstractProcessor {
@@ -82,7 +83,8 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         List<LifeCycleAwareInfo> elementsByClass = createLifeCycleAwareElements(
-                roundEnv.getElementsAnnotatedWith(LifeCycleAware.class)
+                roundEnv.getElementsAnnotatedWith(LifeCycleAware.class),
+                roundEnv.getElementsAnnotatedWith(RetainedObjectProvider.class)
         );
 
         if (elementsByClass == null) {
@@ -124,7 +126,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
     }
 
-    private List<LifeCycleAwareInfo> createLifeCycleAwareElements(Set<? extends Element> lifeCycleAwareElements) {
+    private List<LifeCycleAwareInfo> createLifeCycleAwareElements(Set<? extends Element> lifeCycleAwareElements, Set<? extends Element> retainedObjectElements) {
         Map<Element, LifeCycleAwareInfo> elementsByClass = new HashMap<>();
 
         for (Element element : lifeCycleAwareElements) {
@@ -140,12 +142,24 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             TypeElement enclosingElement = (TypeElement) variable.getEnclosingElement();
 
             LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, enclosingElement);
-            if (!annotation.retained()) {
-                info.lifeCycleAwareElements.add(variable);
-            } else {
-                TypeName typeName = TypeUtils.getTypeArguments(variable.asType()).get(0);
-                info.retainedObjects.add(new RetainedObjectInfo(variable.getSimpleName().toString(), variable, typeName));
+            info.lifeCycleAwareElements.add(variable);
+        }
+
+        for (Element element : retainedObjectElements) {
+            if (element.getKind() != ElementKind.FIELD) {
+                error(element, "Only fields can be annotated with @%s", RetainedObjectProvider.class);
+                return null;
             }
+
+            VariableElement variable = (VariableElement) element;
+
+            RetainedObjectProvider annotation = variable.getAnnotation(RetainedObjectProvider.class);
+
+            TypeElement enclosingElement = (TypeElement) variable.getEnclosingElement();
+
+            LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, enclosingElement);
+            TypeName typeName = TypeUtils.getTypeArguments(variable.asType()).get(0);
+            info.retainedObjects.add(new RetainedObjectInfo(variable.getSimpleName().toString(), variable, typeName, annotation.value()));
         }
         return new ArrayList<>(elementsByClass.values());
     }
@@ -284,11 +298,12 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                 if (parameterizedTypeName.typeArguments.size() != 1) {
                     //TODO error
                 }
+                Object argument;
                 if (parameterizedTypeName.rawType.equals(TypeName.get(Callable.class))) {
-                    builder.addStatement("initRetainedObject(bundlePrefix + $S, view.$L)", entry.name, entry.field);
+                    argument = "view." + entry.field;
                 } else {
                     TypeName returnTypeName = parameterizedTypeName.typeArguments.get(0);
-                    TypeSpec callable = TypeSpec.anonymousClassBuilder("")
+                    argument = TypeSpec.anonymousClassBuilder("")
                             .addSuperinterface(ParameterizedTypeName.get(ClassName.get(Callable.class), returnTypeName))
                             .addMethod(MethodSpec.methodBuilder("call")
                                     .addAnnotation(Override.class)
@@ -298,8 +313,11 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                                     .addStatement("return view.$L.get()", entry.field)
                                     .build())
                             .build();
-
-                    builder.addStatement("initRetainedObject(bundlePrefix + $S, $L)", entry.name, callable);
+                }
+                if (entry.fieldToPopulate != null && entry.fieldToPopulate.length() > 0) {
+                    builder.addStatement("view.$L = initRetainedObject(bundlePrefix + $S, $L)", entry.fieldToPopulate, entry.name, argument);
+                } else {
+                    builder.addStatement("initRetainedObject(bundlePrefix + $S, $L)", entry.name, argument);
                 }
             }
         }

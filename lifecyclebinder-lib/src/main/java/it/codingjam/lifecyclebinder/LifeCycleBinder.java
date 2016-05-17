@@ -63,19 +63,6 @@ public class LifeCycleBinder {
         }
     }
 
-    public static <T> T getRetainedObject(FragmentActivity activity, String name) {
-        return getRetainedObject(activity.getSupportFragmentManager(), activity.getSupportFragmentManager(), name);
-    }
-
-    public static <T> T getRetainedObject(Fragment fragment, String name) {
-        return getRetainedObject(fragment.getChildFragmentManager(), fragment.getActivity().getSupportFragmentManager(), name);
-    }
-
-    private static <T> T getRetainedObject(FragmentManager fragmentManager, FragmentManager activityFragmentManager, String name) {
-        LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
-        return (T) LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager).map.get(fragment.getBundlePrefix() + name);
-    }
-
     public static void startActivityForResult(FragmentActivity activity, Intent intent, int requestCode) {
         LifeCycleBinderFragment.getOrCreate(activity.getSupportFragmentManager()).startActivityForResult(intent, requestCode);
     }

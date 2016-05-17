@@ -27,9 +27,12 @@ public class RetainedObjectInfo {
 
     public final TypeName typeName;
 
-    public RetainedObjectInfo(String name, Element field, TypeName typeName) {
+    public final String fieldToPopulate;
+
+    public RetainedObjectInfo(String name, Element field, TypeName typeName, String fieldToPopulate) {
         this.name = name;
         this.field = field;
         this.typeName = typeName;
+        this.fieldToPopulate = fieldToPopulate;
     }
 }

@@ -29,9 +29,6 @@ public class MainActivity extends AppCompatActivity {
     @LifeCycleAware
     public Logger logger = new Logger("MainActivity");
 
-    @InstanceState
-    MyParcelable myParcelable;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,10 +36,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             LifeCycleBinder.bind(savedInstanceState, this);
-        }
-
-        if (myParcelable == null) {
-            myParcelable = new MyParcelable();
         }
     }
 }

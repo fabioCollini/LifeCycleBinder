@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
 
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
+import it.codingjam.lifecyclebinder.RetainedObjectProvider;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements View {
     @LifeCycleAware
     Logger logger = new Logger();
 
-    @LifeCycleAware(retained = true)
+    @RetainedObjectProvider("presenter")
     Callable<Presenter> presenterFactory = new Callable<Presenter>() {
         @Override
         public Presenter call() throws Exception {
@@ -58,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements View {
         description = (TextView) findViewById(R.id.description);
 
         LifeCycleBinder.bind(savedInstanceState, this);
-        presenter = LifeCycleBinder.getRetainedObject(this, "presenterFactory");
 
         findViewById(R.id.share).setOnClickListener(new android.view.View.OnClickListener() {
             @Override
