@@ -27,8 +27,6 @@ public class LifeCycleAwareInfo {
 
     public final List<Element> lifeCycleAwareElements = new ArrayList<>();
 
-    public final List<Element> instanceStateElements = new ArrayList<>();
-
     public final List<NestedLifeCycleAwareInfo> nestedElements = new ArrayList<>();
 
     public final List<RetainedObjectInfo> retainedObjects = new ArrayList<>();
@@ -42,7 +40,6 @@ public class LifeCycleAwareInfo {
         return "LifeCycleAwareInfo{" +
                 "element=" + element +
                 ", lifeCycleAwareElements=" + lifeCycleAwareElements +
-                ", instanceStateElements=" + instanceStateElements +
                 ", nestedElements=" + nestedElements +
                 ", retainedObjects=" + retainedObjects +
                 '}';

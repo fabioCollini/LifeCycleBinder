@@ -16,8 +16,6 @@
 
 package com.test.objectWithGenericBaseClass;
 
-import android.os.Bundle;
-
 import com.test.MyView;
 
 import it.codingjam.lifecyclebinder.ObjectBinder;
@@ -30,13 +28,5 @@ public class MyObjectWithGenericBaseClass$LifeCycleBinder extends ObjectBinder<M
 
     public void bind(final MyObjectWithGenericBaseClass view) {
         listeners.add(view.myObject);
-    }
-
-    public void saveInstanceState(MyObjectWithGenericBaseClass view, Bundle bundle) {
-        bundle.putParcelable(bundlePrefix + "myParcelable", view.myParcelable);
-    }
-
-    public void restoreInstanceState(MyObjectWithGenericBaseClass view, Bundle bundle) {
-        view.myParcelable = bundle.getParcelable(bundlePrefix + "myParcelable");
     }
 }

@@ -16,8 +16,6 @@
 
 package com.test.nested;
 
-import android.os.Bundle;
-
 import com.test.MyView;
 
 import it.codingjam.lifecyclebinder.ObjectBinder;
@@ -30,13 +28,5 @@ public class MyObjectWithParcelableAndInnerObject$LifeCycleBinder extends Object
 
     public void bind(final MyObjectWithParcelableAndInnerObject view) {
         listeners.add(view.myObject);
-    }
-
-    public void saveInstanceState(MyObjectWithParcelableAndInnerObject view, Bundle bundle) {
-        bundle.putParcelable(bundlePrefix + "myParcelable", view.myParcelable);
-    }
-
-    public void restoreInstanceState(MyObjectWithParcelableAndInnerObject view, Bundle bundle) {
-        view.myParcelable = bundle.getParcelable(bundlePrefix + "myParcelable");
     }
 }

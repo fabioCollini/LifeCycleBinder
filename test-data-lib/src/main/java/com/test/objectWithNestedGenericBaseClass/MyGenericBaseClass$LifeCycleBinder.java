@@ -16,8 +16,6 @@
 
 package com.test.objectWithNestedGenericBaseClass;
 
-import android.os.Bundle;
-
 import com.test.MyView;
 
 import it.codingjam.lifecyclebinder.ObjectBinder;
@@ -29,13 +27,5 @@ public class MyGenericBaseClass$LifeCycleBinder<T extends MyView> extends Object
 
   public void bind(final MyGenericBaseClass<T> view) {
     listeners.add(view.myBaseObject);
-  }
-
-  public void saveInstanceState(MyGenericBaseClass<T> view, Bundle bundle) {
-    bundle.putParcelable(bundlePrefix + "myBaseParcelable", view.myBaseParcelable);
-  }
-
-  public void restoreInstanceState(MyGenericBaseClass<T> view, Bundle bundle) {
-    view.myBaseParcelable = bundle.getParcelable(bundlePrefix + "myBaseParcelable");
   }
 }

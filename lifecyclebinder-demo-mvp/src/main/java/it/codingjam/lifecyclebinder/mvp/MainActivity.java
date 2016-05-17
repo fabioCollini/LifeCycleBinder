@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements View {
     @LifeCycleAware
     Logger logger = new Logger();
 
-    @LifeCycleAware(retained = true, name = "NotePresenter")
+    @LifeCycleAware(retained = true)
     Callable<Presenter> presenterFactory = new Callable<Presenter>() {
         @Override
         public Presenter call() throws Exception {
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements View {
         description = (TextView) findViewById(R.id.description);
 
         LifeCycleBinder.bind(savedInstanceState, this);
-        presenter = LifeCycleBinder.getRetainedObject(this, "NotePresenter");
+        presenter = LifeCycleBinder.getRetainedObject(this, "presenterFactory");
 
         findViewById(R.id.share).setOnClickListener(new android.view.View.OnClickListener() {
             @Override

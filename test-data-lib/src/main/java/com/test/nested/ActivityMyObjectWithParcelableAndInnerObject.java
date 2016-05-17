@@ -24,17 +24,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.test.MyObject;
-import com.test.MyParcelable;
 import com.test.MyView;
 
-import it.codingjam.lifecyclebinder.InstanceState;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 
 class MyObjectWithParcelableAndInnerObject implements ViewLifeCycleAware<MyView> {
 
-    @InstanceState
-    MyParcelable myParcelable;
     @LifeCycleAware
     MyObject myObject;
 

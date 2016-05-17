@@ -19,7 +19,6 @@ package it.codingjam.lifecyclebinder.testapp;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import it.codingjam.lifecyclebinder.InstanceState;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
 

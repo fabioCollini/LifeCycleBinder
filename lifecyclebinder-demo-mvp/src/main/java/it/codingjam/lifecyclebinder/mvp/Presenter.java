@@ -25,7 +25,6 @@ import android.view.MenuItem;
 import java.util.concurrent.TimeUnit;
 
 import it.codingjam.lifecyclebinder.DefaultViewLifeCycleAware;
-import it.codingjam.lifecyclebinder.InstanceState;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 import rx.Observable;
@@ -36,10 +35,11 @@ public class Presenter extends DefaultViewLifeCycleAware<View> implements ViewLi
 
     public static final int SHARE_REQUEST_CODE = 123;
 
+    public static final String MODEL = "MODEL";
+
     private View view;
 
-    @InstanceState
-    Model model;
+    private Model model;
 
     @LifeCycleAware
     Logger logger = new Logger();
@@ -48,9 +48,17 @@ public class Presenter extends DefaultViewLifeCycleAware<View> implements ViewLi
 
     @Override
     public void onCreate(View view, Bundle bundle) {
+        if (bundle != null) {
+            model = bundle.getParcelable(MODEL);
+        }
         if (model == null) {
             model = new Model();
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(View view, Bundle bundle) {
+        bundle.putParcelable(MODEL, model);
     }
 
     @Override

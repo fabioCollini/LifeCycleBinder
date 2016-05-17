@@ -27,11 +27,6 @@ public class ProcessorTest {
     }
 
     @Test
-    public void testInstanceState() throws Exception {
-        check("com.test.instanceState.MyActivity3");
-    }
-
-    @Test
     public void testRetained() throws Exception {
         check("com.test.retained.ActivityWithRetained");
     }
@@ -39,16 +34,6 @@ public class ProcessorTest {
     @Test
     public void testRetained2() throws Exception {
         check("com.test.retained.ActivityWithRetained2");
-    }
-
-    @Test
-    public void testObjectWitParcelable() throws Exception {
-        check("com.test.objectWithParcelable.ActivityMyObjectWithParcelable");
-    }
-
-    @Test
-    public void testObjectWitParcelableFactory() throws Exception {
-        check("com.test.parcelable.MyActivity2");
     }
 
     @Test

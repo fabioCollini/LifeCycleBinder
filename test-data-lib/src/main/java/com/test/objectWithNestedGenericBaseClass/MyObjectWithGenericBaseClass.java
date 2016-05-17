@@ -23,16 +23,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.test.MyObject;
-import com.test.MyParcelable;
 import com.test.MyView;
 
-import it.codingjam.lifecyclebinder.InstanceState;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 
 class MyGenericBaseClass<T extends MyView> implements ViewLifeCycleAware<T> {
-    @InstanceState
-    MyParcelable myBaseParcelable;
 
     @LifeCycleAware
     MyObject myBaseObject;
@@ -94,8 +90,6 @@ class MyGenericBaseClass<T extends MyView> implements ViewLifeCycleAware<T> {
 }
 
 public class MyObjectWithGenericBaseClass extends MyGenericBaseClass<MyView> {
-    @InstanceState
-    MyParcelable myParcelable;
 
     @LifeCycleAware
     MyObject myObject;

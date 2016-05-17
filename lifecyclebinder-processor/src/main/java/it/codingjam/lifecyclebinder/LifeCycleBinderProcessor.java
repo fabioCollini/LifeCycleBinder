@@ -16,8 +16,6 @@
 
 package it.codingjam.lifecyclebinder;
 
-import android.os.Bundle;
-
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -31,7 +29,6 @@ import com.squareup.javapoet.TypeVariableName;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,8 +59,7 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
 @SupportedAnnotationTypes({
-        "it.codingjam.lifecyclebinder.LifeCycleAware",
-        "it.codingjam.lifecyclebinder.InstanceState"
+        "it.codingjam.lifecyclebinder.LifeCycleAware"
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class LifeCycleBinderProcessor extends AbstractProcessor {
@@ -86,8 +82,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         List<LifeCycleAwareInfo> elementsByClass = createLifeCycleAwareElements(
-                roundEnv.getElementsAnnotatedWith(LifeCycleAware.class),
-                roundEnv.getElementsAnnotatedWith(InstanceState.class)
+                roundEnv.getElementsAnnotatedWith(LifeCycleAware.class)
         );
 
         if (elementsByClass == null) {
@@ -129,7 +124,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         }
     }
 
-    private List<LifeCycleAwareInfo> createLifeCycleAwareElements(Set<? extends Element> lifeCycleAwareElements, Set<? extends Element> instanceStateElements) {
+    private List<LifeCycleAwareInfo> createLifeCycleAwareElements(Set<? extends Element> lifeCycleAwareElements) {
         Map<Element, LifeCycleAwareInfo> elementsByClass = new HashMap<>();
 
         for (Element element : lifeCycleAwareElements) {
@@ -151,12 +146,6 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                 TypeName typeName = TypeUtils.getTypeArguments(variable.asType()).get(0);
                 info.retainedObjects.add(new RetainedObjectInfo(variable.getSimpleName().toString(), variable, typeName));
             }
-        }
-        for (Element element : instanceStateElements) {
-            VariableElement variable = (VariableElement) element;
-            TypeElement enclosingElement = (TypeElement) variable.getEnclosingElement();
-            LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, enclosingElement);
-            info.instanceStateElements.add(element);
         }
         return new ArrayList<>(elementsByClass.values());
     }
@@ -197,12 +186,6 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
             for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
                 builder.addField(generateNestedBinderField(info));
-            }
-
-            if (!lifeCycleAwareInfo.instanceStateElements.isEmpty() || !lifeCycleAwareInfo.nestedElements.isEmpty()) {
-                builder = builder
-                        .addMethod(createSaveInstanceStateMethod(lifeCycleAwareInfo, hostElement.asType()))
-                        .addMethod(createRestoreInstanceStateMethod(lifeCycleAwareInfo, hostElement.asType()));
             }
 
             writeFile(packageElement, sourceFile, builder.build());
@@ -284,33 +267,6 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             List<TypeName> superClassTypeElements = TypeUtils.getTypeArguments(superclass);
             return searchObjectBinderGenericTypeName((TypeElement) typeUtils.asElement(superclass), superClassTypeElements);
         }
-    }
-
-    private MethodSpec createRestoreInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror type) {
-        return createInstanceStateMethod(lifeCycleAwareInfo, type, "restoreInstanceState", "view.$L = bundle.getParcelable(bundlePrefix + $S)");
-    }
-
-    private MethodSpec createSaveInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror hostType) {
-        return createInstanceStateMethod(lifeCycleAwareInfo, hostType, "saveInstanceState", "bundle.putParcelable(bundlePrefix + $S, view.$L)");
-    }
-
-    private MethodSpec createInstanceStateMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeMirror type, String methodName, String statement) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName)
-                .addModifiers(PUBLIC)
-                .returns(void.class)
-                .addParameter(TypeName.get(type), "view")
-                .addParameter(Bundle.class, "bundle");
-        for (Element element : lifeCycleAwareInfo.instanceStateElements) {
-            builder.addStatement(statement, element.getSimpleName(), element.getSimpleName());
-        }
-        for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
-            if (info.retained != null) {
-                builder.addStatement("$L." + methodName + "(($T) retainedObjects.get(bundlePrefix + $S), bundle)", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
-            } else {
-                builder.addStatement("$L." + methodName + "($L, bundle)", info.getFieldName(), info.getBindMethodParameter());
-            }
-        }
-        return builder.build();
     }
 
     private CodeBlock generateBindMethodBody(LifeCycleAwareInfo lifeCycleAwareInfo) {

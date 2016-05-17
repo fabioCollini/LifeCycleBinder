@@ -16,8 +16,6 @@
 
 package com.test.activityWithBaseClass;
 
-import android.os.Bundle;
-
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class MyActivityWithBaseClass$LifeCycleBinder extends ObjectBinder<MyActivityWithBaseClass, MyActivityWithBaseClass> {
@@ -33,13 +31,5 @@ public class MyActivityWithBaseClass$LifeCycleBinder extends ObjectBinder<MyActi
         listeners.add(view.myObject);
         superClass$lifeCycleBinder.bind(view);
         listeners.addAll(superClass$lifeCycleBinder.getListeners());
-    }
-
-    public void saveInstanceState(MyActivityWithBaseClass view, Bundle bundle) {
-        superClass$lifeCycleBinder.saveInstanceState(view, bundle);
-    }
-
-    public void restoreInstanceState(MyActivityWithBaseClass view, Bundle bundle) {
-        superClass$lifeCycleBinder.restoreInstanceState(view, bundle);
     }
 }
