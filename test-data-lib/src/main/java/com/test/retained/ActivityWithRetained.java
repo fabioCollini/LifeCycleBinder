@@ -24,10 +24,11 @@ import com.test.MyView;
 import java.util.concurrent.Callable;
 
 import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.RetainedObjectProvider;
 
 public class ActivityWithRetained extends FragmentActivity implements MyView {
-    @LifeCycleAware(retained = true)
-    Callable<MyObject> myObject = new Callable<MyObject>() {
+    @RetainedObjectProvider
+    Callable<MyObject> myObjectProvider = new Callable<MyObject>() {
         @Override
         public MyObject call() throws Exception {
             return new MyObject();

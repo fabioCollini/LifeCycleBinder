@@ -14,13 +14,25 @@
  *  limitations under the License.
  */
 
-package it.codingjam.lifecyclebinder;
+package com.test.retained;
 
+import android.support.v4.app.FragmentActivity;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
+import com.test.MyObject;
+import com.test.MyView;
 
-@Target(ElementType.FIELD)
-public @interface LifeCycleAware {
-    boolean retained() default false;
+import java.util.concurrent.Callable;
+
+import it.codingjam.lifecyclebinder.RetainedObjectProvider;
+
+public class ActivityWithRetainedAndField extends FragmentActivity implements MyView {
+    @RetainedObjectProvider("myObject")
+    Callable<MyObject> myObjectProvider = new Callable<MyObject>() {
+        @Override
+        public MyObject call() throws Exception {
+            return new MyObject();
+        }
+    };
+
+    MyObject myObject;
 }
