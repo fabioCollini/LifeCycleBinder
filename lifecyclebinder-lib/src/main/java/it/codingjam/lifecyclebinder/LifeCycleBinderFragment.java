@@ -46,7 +46,7 @@ public class LifeCycleBinderFragment<T> extends Fragment {
 
         if (fragment == null) {
             fragment = new LifeCycleBinderFragment<>();
-            fragmentManager.beginTransaction().add(fragment, LIFE_CYCLE_BINDER_FRAGMENT).commit();
+            fragmentManager.beginTransaction().add(fragment, LIFE_CYCLE_BINDER_FRAGMENT).commitNow();
         }
         return fragment;
     }

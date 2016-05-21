@@ -39,8 +39,7 @@ public class LifeCycleRetainedFragment extends Fragment implements RetainedObjec
 
         if (fragment == null) {
             fragment = new LifeCycleRetainedFragment();
-            fragmentManager.beginTransaction().add(fragment, RETAINED_FRAGMENT).commit();
-            fragmentManager.executePendingTransactions();
+            fragmentManager.beginTransaction().add(fragment, RETAINED_FRAGMENT).commitNow();
         }
         return fragment;
     }

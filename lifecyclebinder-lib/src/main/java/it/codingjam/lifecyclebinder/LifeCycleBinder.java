@@ -45,12 +45,12 @@ public class LifeCycleBinder {
     }
 
     private static <T> void bind(String key, T obj, FragmentManager fragmentManager, FragmentManager activityFragmentManager) {
-        LifeCycleRetainedFragment retainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager);
-        LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.getOrCreate(fragmentManager);
         Class<ObjectBinder<T, T>> c = getObjectBinderClass(obj);
-        fragment.init(c, obj.getClass().getName() + (key != null && !key.isEmpty() ? ObjectBinder.SEPARATOR + key : ""));
-        fragmentManager.executePendingTransactions();
-        System.out.println(fragment);
+        String bundlePrefix = obj.getClass().getName() + (key != null && !key.isEmpty() ? ObjectBinder.SEPARATOR + key : "");
+        LifeCycleRetainedFragment retainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(activityFragmentManager);
+        LifeCycleBinderFragment<T> fragment = new LifeCycleBinderFragment<>();
+        fragment.init(c, bundlePrefix);
+        fragmentManager.beginTransaction().add(fragment, LifeCycleBinderFragment.LIFE_CYCLE_BINDER_FRAGMENT).commitNow();
     }
 
     @NonNull
