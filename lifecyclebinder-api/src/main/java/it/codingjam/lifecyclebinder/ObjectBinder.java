@@ -17,16 +17,12 @@
 package it.codingjam.lifecyclebinder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 public abstract class ObjectBinder<T, V> {
 
     protected List<ViewLifeCycleAware<? super V>> listeners = new ArrayList<>();
-
-    protected Map<String, ViewLifeCycleAware<? super V>> retainedObjects = new HashMap<>();
 
     private RetainedObjectsFactory retainedObjectsFactory;
 
@@ -36,9 +32,8 @@ public abstract class ObjectBinder<T, V> {
         return listeners;
     }
 
-    public void addListener(String key, ViewLifeCycleAware<? super V> listener) {
+    public void addListener(ViewLifeCycleAware<? super V> listener) {
         listeners.add(listener);
-        retainedObjects.put(key, listener);
     }
 
     public void setRetainedObjectsFactory(RetainedObjectsFactory retainedObjectsFactory) {
@@ -47,7 +42,7 @@ public abstract class ObjectBinder<T, V> {
 
     protected <O extends ViewLifeCycleAware<? super V>> O initRetainedObject(String key, Callable<? extends ViewLifeCycleAware<? super V>> factory) {
         ViewLifeCycleAware<? super V> retainedObject = retainedObjectsFactory.init(key, factory);
-        addListener(key, retainedObject);
+        addListener(retainedObject);
         return (O) retainedObject;
     }
 }
