@@ -16,7 +16,7 @@
 
 package it.codingjam.lifecyclebinder.mvp;
 
-public interface View {
+public interface MvpView {
     void update(Model model);
 
     void showLoading();

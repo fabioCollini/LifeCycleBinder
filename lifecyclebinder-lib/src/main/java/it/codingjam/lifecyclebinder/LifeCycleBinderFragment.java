@@ -42,13 +42,17 @@ public class LifeCycleBinderFragment<T> extends Fragment {
 
     @NonNull
     static <T> LifeCycleBinderFragment<T> getOrCreate(FragmentManager fragmentManager) {
-        LifeCycleBinderFragment<T> fragment = (LifeCycleBinderFragment<T>) fragmentManager.findFragmentByTag(LIFE_CYCLE_BINDER_FRAGMENT);
+        LifeCycleBinderFragment<T> fragment = get(fragmentManager);
 
         if (fragment == null) {
             fragment = new LifeCycleBinderFragment<>();
             fragmentManager.beginTransaction().add(fragment, LIFE_CYCLE_BINDER_FRAGMENT).commitNow();
         }
         return fragment;
+    }
+
+    public static <T> LifeCycleBinderFragment<T> get(FragmentManager fragmentManager) {
+        return (LifeCycleBinderFragment<T>) fragmentManager.findFragmentByTag(LIFE_CYCLE_BINDER_FRAGMENT);
     }
 
     @Override

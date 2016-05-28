@@ -17,6 +17,7 @@
 package it.codingjam.lifecyclebinder.testapp;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
 import it.codingjam.lifecyclebinder.LifeCycleAware;
@@ -34,8 +35,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(getIntent().getIntExtra(LAYOUT, 0));
 
-        if (savedInstanceState == null) {
-            LifeCycleBinder.bind(savedInstanceState, this);
-        }
+        LifeCycleBinder.bind(this);
+    }
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
     }
 }

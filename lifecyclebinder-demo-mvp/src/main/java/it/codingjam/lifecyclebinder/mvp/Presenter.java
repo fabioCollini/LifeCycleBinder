@@ -31,13 +31,13 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
-public class Presenter extends DefaultViewLifeCycleAware<View> implements ViewLifeCycleAware<View> {
+public class Presenter extends DefaultViewLifeCycleAware<MvpView> implements ViewLifeCycleAware<MvpView> {
 
     public static final int SHARE_REQUEST_CODE = 123;
 
     public static final String MODEL = "MODEL";
 
-    private View view;
+    private MvpView view;
 
     private Model model;
 
@@ -47,7 +47,7 @@ public class Presenter extends DefaultViewLifeCycleAware<View> implements ViewLi
     private boolean loading;
 
     @Override
-    public void onCreate(View view, Bundle bundle) {
+    public void onCreate(MvpView view, Bundle bundle) {
         if (bundle != null) {
             model = bundle.getParcelable(MODEL);
         }
@@ -57,12 +57,12 @@ public class Presenter extends DefaultViewLifeCycleAware<View> implements ViewLi
     }
 
     @Override
-    public void onSaveInstanceState(View view, Bundle bundle) {
+    public void onSaveInstanceState(MvpView view, Bundle bundle) {
         bundle.putParcelable(MODEL, model);
     }
 
     @Override
-    public void onResume(View view) {
+    public void onResume(MvpView view) {
         this.view = view;
         if (loading) {
             view.showLoading();
@@ -76,7 +76,7 @@ public class Presenter extends DefaultViewLifeCycleAware<View> implements ViewLi
     }
 
     @Override
-    public void onPause(View view) {
+    public void onPause(MvpView view) {
         this.view = null;
     }
 
@@ -120,7 +120,7 @@ public class Presenter extends DefaultViewLifeCycleAware<View> implements ViewLi
     }
 
     @Override
-    public boolean onOptionsItemSelected(View view, MenuItem item) {
+    public boolean onOptionsItemSelected(MvpView view, MenuItem item) {
         if (item.getItemId() == R.id.share_item) {
             share();
             return true;
