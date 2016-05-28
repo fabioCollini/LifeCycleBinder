@@ -111,9 +111,6 @@ public class LifeCycleBinderFragment<T> extends Fragment {
             throw new RuntimeException("Error invoking binding", e);
         }
 
-        if (savedInstanceState != null) {
-            objectBinder.restoreInstanceState(viewParam, savedInstanceState);
-        }
         for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
             listener.onCreate(viewParam, savedInstanceState);
         }
@@ -188,7 +185,6 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        objectBinder.saveInstanceState(viewParam, outState);
         for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
             listener.onSaveInstanceState(viewParam, outState);
         }

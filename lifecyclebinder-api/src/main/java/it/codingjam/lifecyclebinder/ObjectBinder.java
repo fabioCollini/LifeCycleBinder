@@ -16,8 +16,6 @@
 
 package it.codingjam.lifecyclebinder;
 
-import android.os.Bundle;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,12 +39,6 @@ public abstract class ObjectBinder<T, V> {
     }
 
     public abstract void bind(T view);
-
-    public void restoreInstanceState(T view, Bundle bundle) {
-    }
-
-    public void saveInstanceState(T view, Bundle bundle) {
-    }
 
     public List<ViewLifeCycleAware<? super V>> getListeners() {
         return listeners;
