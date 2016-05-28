@@ -19,11 +19,7 @@ package com.test.nested;
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class ActivityMyObjectWithParcelableAndInnerObject$LifeCycleBinder extends ObjectBinder<ActivityMyObjectWithParcelableAndInnerObject, ActivityMyObjectWithParcelableAndInnerObject> {
-    private MyObjectWithParcelableAndInnerObject$LifeCycleBinder myObject;
-
-    public ActivityMyObjectWithParcelableAndInnerObject$LifeCycleBinder() {
-        myObject = new MyObjectWithParcelableAndInnerObject$LifeCycleBinder();
-    }
+    private MyObjectWithParcelableAndInnerObject$LifeCycleBinder myObject = new MyObjectWithParcelableAndInnerObject$LifeCycleBinder();
 
     public void bind(final ActivityMyObjectWithParcelableAndInnerObject view) {
         listeners.add(view.myObject);

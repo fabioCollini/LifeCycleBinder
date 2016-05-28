@@ -20,11 +20,7 @@ import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class MyActivityWithBaseClass$LifeCycleBinder extends ObjectBinder<MyActivityWithBaseClass, MyActivityWithBaseClass> {
 
-    private BaseClass$LifeCycleBinder superClass$lifeCycleBinder;
-
-    public MyActivityWithBaseClass$LifeCycleBinder() {
-        superClass$lifeCycleBinder = new BaseClass$LifeCycleBinder();
-    }
+    private BaseClass$LifeCycleBinder superClass$lifeCycleBinder = new BaseClass$LifeCycleBinder();
 
     public void bind(final MyActivityWithBaseClass view) {
         listeners.add(view.myObject);

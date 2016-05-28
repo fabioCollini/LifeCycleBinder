@@ -18,11 +18,8 @@ package com.test.retainedObjectsWithProvider;
 
 
 import com.test.MyObject;
-
-import java.util.concurrent.Callable;
-
 import it.codingjam.lifecyclebinder.ObjectBinder;
-
+import java.util.concurrent.Callable;
 
 public class ActivityWithRetainedProvider$LifeCycleBinder extends ObjectBinder<ActivityWithRetainedProvider, ActivityWithRetainedProvider> {
     public void bind(final ActivityWithRetainedProvider view) {

@@ -19,13 +19,8 @@ package com.test.nestedfactory;
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class ActivityMyObjectWithParcelableAndInnerObject$LifeCycleBinder extends ObjectBinder<ActivityMyObjectWithParcelableAndInnerObject, ActivityMyObjectWithParcelableAndInnerObject> {
-    private MyObjectWithParcelableAndInnerObject$LifeCycleBinder myObjectFactory;
-    private MyObjectWithParcelableAndInnerObject$LifeCycleBinder myObjectFactoryNoField;
-
-    public ActivityMyObjectWithParcelableAndInnerObject$LifeCycleBinder() {
-        myObjectFactory = new MyObjectWithParcelableAndInnerObject$LifeCycleBinder();
-        myObjectFactoryNoField = new MyObjectWithParcelableAndInnerObject$LifeCycleBinder();
-    }
+    private MyObjectWithParcelableAndInnerObject$LifeCycleBinder myObjectFactory = new MyObjectWithParcelableAndInnerObject$LifeCycleBinder();
+    private MyObjectWithParcelableAndInnerObject$LifeCycleBinder myObjectFactoryNoField = new MyObjectWithParcelableAndInnerObject$LifeCycleBinder();
 
     public void bind(final ActivityMyObjectWithParcelableAndInnerObject view) {
         view.myObject = initRetainedObject("myObjectFactory", view.myObjectFactory);

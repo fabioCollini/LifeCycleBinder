@@ -192,10 +192,6 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                     .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType))
                     .addMethod(generateBindMethod(lifeCycleAwareInfo, objectGenericType));
 
-            if (!lifeCycleAwareInfo.nestedElements.isEmpty()) {
-                builder.addMethod(generateConstructor(lifeCycleAwareInfo.nestedElements));
-            }
-
             List<TypeName> typeArguments = TypeUtils.getTypeArguments(hostElement.asType());
             for (TypeName argument : typeArguments) {
                 builder.addTypeVariable((TypeVariableName) argument);
@@ -209,15 +205,6 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         } catch (IOException e) {
             throw new RuntimeException("Failed writing class file " + qualifiedClassName, e);
         }
-    }
-
-    private MethodSpec generateConstructor(List<NestedLifeCycleAwareInfo> nestedElements) {
-        MethodSpec.Builder builder = MethodSpec.constructorBuilder()
-                .addModifiers(PUBLIC);
-        for (NestedLifeCycleAwareInfo info : nestedElements) {
-            builder.addStatement("$L = new $T()", info.getFieldName(), info.getBinderClassName());
-        }
-        return builder.build();
     }
 
     private void writeFile(PackageElement packageElement, JavaFileObject sourceFile, TypeSpec typeSpec) throws IOException {
@@ -234,7 +221,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                 className,
                 info.getFieldName(),
                 PRIVATE
-        ).build();
+        ).initializer("new $T()", info.getBinderClassName()).build();
     }
 
     private MethodSpec generateBindMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeName objectGenericType) {
