@@ -189,9 +189,12 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
             TypeSpec.Builder builder = TypeSpec.classBuilder(simpleClassName)
                     .addModifiers(PUBLIC)
-                    .addMethod(generateConstructor(lifeCycleAwareInfo.nestedElements))
                     .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType))
                     .addMethod(generateBindMethod(lifeCycleAwareInfo, objectGenericType));
+
+            if (!lifeCycleAwareInfo.nestedElements.isEmpty()) {
+                builder.addMethod(generateConstructor(lifeCycleAwareInfo.nestedElements));
+            }
 
             List<TypeName> typeArguments = TypeUtils.getTypeArguments(hostElement.asType());
             for (TypeName argument : typeArguments) {
@@ -210,11 +213,9 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
 
     private MethodSpec generateConstructor(List<NestedLifeCycleAwareInfo> nestedElements) {
         MethodSpec.Builder builder = MethodSpec.constructorBuilder()
-                .addModifiers(PUBLIC)
-                .addParameter(String.class, "bundlePrefix")
-                .addStatement("super(bundlePrefix)");
+                .addModifiers(PUBLIC);
         for (NestedLifeCycleAwareInfo info : nestedElements) {
-            builder.addStatement("$L = new $T(bundlePrefix + SEPARATOR + $S)", info.getFieldName(), info.getBinderClassName(), info.getFieldName());
+            builder.addStatement("$L = new $T()", info.getFieldName(), info.getBinderClassName());
         }
         return builder.build();
     }
@@ -315,15 +316,15 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                             .build();
                 }
                 if (entry.fieldToPopulate != null && entry.fieldToPopulate.length() > 0) {
-                    builder.addStatement("view.$L = initRetainedObject(bundlePrefix + $S, $L)", entry.fieldToPopulate, entry.name, argument);
+                    builder.addStatement("view.$L = initRetainedObject($S, $L)", entry.fieldToPopulate, entry.name, argument);
                 } else {
-                    builder.addStatement("initRetainedObject(bundlePrefix + $S, $L)", entry.name, argument);
+                    builder.addStatement("initRetainedObject($S, $L)", entry.name, argument);
                 }
             }
         }
         for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
             if (info.retained != null) {
-                builder.addStatement("$L.bind(($T) retainedObjects.get(bundlePrefix + $S))", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
+                builder.addStatement("$L.bind(($T) retainedObjects.get($S))", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
             } else {
                 builder.addStatement("$L.bind($L)", info.getFieldName(), info.getBindMethodParameter());
             }

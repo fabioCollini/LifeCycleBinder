@@ -34,17 +34,14 @@ import java.util.concurrent.Callable;
 public class LifeCycleBinderFragment<T> extends Fragment {
 
     public static final String LIFE_CYCLE_BINDER_FRAGMENT = "_LIFE_CYCLE_BINDER_FRAGMENT_";
-    public static final String OBJECT_BINDER_CLASS = "objectBinderClass";
-    public static final String BUNDLE_PREFIX = "BUNDLE_PREFIX";
-    public static final int LOADER_ID = 123;
+    private static final String OBJECT_BINDER_CLASS = "objectBinderClass";
+    private static final int LOADER_ID = 123;
 
     private T viewParam;
 
     private ObjectBinder<T, T> objectBinder;
 
     private Class<ObjectBinder<T, T>> objectBinderClass;
-
-    private String bundlePrefix;
 
     private Map<String, ViewLifeCycleAware<?>> retainedObjects;
 
@@ -53,11 +50,10 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     }
 
     @NonNull
-    public static <T> LifeCycleBinderFragment<T> create(Class<ObjectBinder<T, T>> objectBinderClass, String bundlePrefix) {
+    public static <T> LifeCycleBinderFragment<T> create(Class<ObjectBinder<T, T>> objectBinderClass) {
         LifeCycleBinderFragment<T> fragment = new LifeCycleBinderFragment<>();
         Bundle args = new Bundle();
         args.putSerializable(OBJECT_BINDER_CLASS, objectBinderClass);
-        args.putString(BUNDLE_PREFIX, bundlePrefix);
         fragment.setArguments(args);
         return fragment;
     }
@@ -83,7 +79,6 @@ public class LifeCycleBinderFragment<T> extends Fragment {
         retainedObjects = ((RetainedObjectsLoader) (Loader) getLoaderManager().getLoader(LOADER_ID)).retainedObjects;
 
         objectBinderClass = (Class<ObjectBinder<T, T>>) getArguments().getSerializable(OBJECT_BINDER_CLASS);
-        bundlePrefix = getArguments().getString(BUNDLE_PREFIX);
         viewParam = (T) getParentFragment();
         if (viewParam == null) {
             viewParam = (T) getActivity();
@@ -118,7 +113,7 @@ public class LifeCycleBinderFragment<T> extends Fragment {
 
     private ObjectBinder<T, T> createObjectBinder() {
         try {
-            return objectBinderClass.getConstructor(String.class).newInstance(bundlePrefix);
+            return objectBinderClass.newInstance();
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Illegal access exception instantiating class " + objectBinderClass.getName(), e);
         } catch (Exception e) {
@@ -204,9 +199,5 @@ public class LifeCycleBinderFragment<T> extends Fragment {
         for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
             listener.onActivityResult(requestCode, resultCode, data);
         }
-    }
-
-    public String getBundlePrefix() {
-        return objectBinder.getBundlePrefix();
     }
 }

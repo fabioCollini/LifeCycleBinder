@@ -24,26 +24,17 @@ import android.support.v4.app.FragmentManager;
 
 public class LifeCycleBinder {
     public static void bind(Fragment fragment) {
-        bind(fragment, "");
+        bind(fragment, fragment.getChildFragmentManager());
     }
 
     public static void bind(FragmentActivity activity) {
-        bind(activity, "");
+        bind(activity, activity.getSupportFragmentManager());
     }
 
-    public static void bind(Fragment fragment, String key) {
-        bind(key, fragment, fragment.getChildFragmentManager());
-    }
-
-    public static void bind(FragmentActivity activity, String key) {
-        bind(key, activity, activity.getSupportFragmentManager());
-    }
-
-    private static <T> void bind(String key, T obj, FragmentManager fragmentManager) {
+    private static <T> void bind(T obj, FragmentManager fragmentManager) {
         if (LifeCycleBinderFragment.get(fragmentManager) == null) {
             Class<ObjectBinder<T, T>> c = getObjectBinderClass(obj);
-            String bundlePrefix = obj.getClass().getName() + (key != null && !key.isEmpty() ? ObjectBinder.SEPARATOR + key : "");
-            LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.create(c, bundlePrefix);
+            LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.create(c);
             fragmentManager.beginTransaction().add(fragment, LifeCycleBinderFragment.LIFE_CYCLE_BINDER_FRAGMENT).commitNow();
         }
     }

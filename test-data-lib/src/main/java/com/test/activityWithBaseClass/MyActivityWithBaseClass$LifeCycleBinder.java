@@ -22,9 +22,8 @@ public class MyActivityWithBaseClass$LifeCycleBinder extends ObjectBinder<MyActi
 
     private BaseClass$LifeCycleBinder superClass$lifeCycleBinder;
 
-    public MyActivityWithBaseClass$LifeCycleBinder(String bundlePrefix) {
-        super(bundlePrefix);
-        superClass$lifeCycleBinder = new BaseClass$LifeCycleBinder(bundlePrefix + SEPARATOR + "superClass$lifeCycleBinder");
+    public MyActivityWithBaseClass$LifeCycleBinder() {
+        superClass$lifeCycleBinder = new BaseClass$LifeCycleBinder();
     }
 
     public void bind(final MyActivityWithBaseClass view) {

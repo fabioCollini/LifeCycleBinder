@@ -19,18 +19,14 @@ package com.test.retainedObjectsWithProvider;
 
 import com.test.MyObject;
 
-import it.codingjam.lifecyclebinder.ObjectBinder;
-
 import java.util.concurrent.Callable;
+
+import it.codingjam.lifecyclebinder.ObjectBinder;
 
 
 public class ActivityWithRetainedProvider$LifeCycleBinder extends ObjectBinder<ActivityWithRetainedProvider, ActivityWithRetainedProvider> {
-    public ActivityWithRetainedProvider$LifeCycleBinder(String bundlePrefix) {
-        super(bundlePrefix);
-    }
-
     public void bind(final ActivityWithRetainedProvider view) {
-        initRetainedObject(bundlePrefix + "myObject", new Callable<MyObject>() {
+        initRetainedObject("myObject", new Callable<MyObject>() {
             @Override
             public MyObject call() throws Exception {
                 return view.myObject.get();

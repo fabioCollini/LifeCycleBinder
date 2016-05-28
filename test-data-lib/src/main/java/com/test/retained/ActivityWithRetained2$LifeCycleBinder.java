@@ -19,12 +19,8 @@ package com.test.retained;
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class ActivityWithRetained2$LifeCycleBinder extends ObjectBinder<ActivityWithRetained2, ActivityWithRetained2> {
-    public ActivityWithRetained2$LifeCycleBinder(String bundlePrefix) {
-        super(bundlePrefix);
-    }
-
     public void bind(final ActivityWithRetained2 view) {
-        initRetainedObject(bundlePrefix + "myObject", view.myObject);
-        initRetainedObject(bundlePrefix + "myObject2", view.myObject2);
+        initRetainedObject("myObject", view.myObject);
+        initRetainedObject("myObject2", view.myObject2);
     }
 }

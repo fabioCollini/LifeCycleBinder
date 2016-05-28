@@ -21,11 +21,6 @@ import com.test.MyView;
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class MyObjectWithGenericBaseClass$LifeCycleBinder extends ObjectBinder<MyObjectWithGenericBaseClass, MyView> {
-
-    public MyObjectWithGenericBaseClass$LifeCycleBinder(String bundlePrefix) {
-        super(bundlePrefix);
-    }
-
     public void bind(final MyObjectWithGenericBaseClass view) {
         listeners.add(view.myObject);
     }

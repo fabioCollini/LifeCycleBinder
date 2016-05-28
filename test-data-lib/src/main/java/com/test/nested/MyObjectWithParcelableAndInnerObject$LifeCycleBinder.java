@@ -21,11 +21,6 @@ import com.test.MyView;
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class MyObjectWithParcelableAndInnerObject$LifeCycleBinder extends ObjectBinder<MyObjectWithParcelableAndInnerObject, MyView> {
-
-    public MyObjectWithParcelableAndInnerObject$LifeCycleBinder(String bundlePrefix) {
-        super(bundlePrefix);
-    }
-
     public void bind(final MyObjectWithParcelableAndInnerObject view) {
         listeners.add(view.myObject);
     }

@@ -19,10 +19,6 @@ package com.test.activityWithBaseClass;
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class BaseClass$LifeCycleBinder extends ObjectBinder<BaseClass, BaseClass> {
-    public BaseClass$LifeCycleBinder(String bundlePrefix) {
-        super(bundlePrefix);
-    }
-
     public void bind(final BaseClass view) {
         listeners.add(view.myBaseObject);
     }

@@ -24,19 +24,11 @@ import java.util.concurrent.Callable;
 
 public abstract class ObjectBinder<T, V> {
 
-    public static final String SEPARATOR = " ";
-
     protected List<ViewLifeCycleAware<? super V>> listeners = new ArrayList<>();
 
     protected Map<String, ViewLifeCycleAware<? super V>> retainedObjects = new HashMap<>();
 
-    protected final String bundlePrefix;
-
     private RetainedObjectsFactory retainedObjectsFactory;
-
-    public ObjectBinder(String bundlePrefix) {
-        this.bundlePrefix = bundlePrefix + SEPARATOR;
-    }
 
     public abstract void bind(T view);
 
@@ -57,9 +49,5 @@ public abstract class ObjectBinder<T, V> {
         ViewLifeCycleAware<? super V> retainedObject = retainedObjectsFactory.init(key, factory);
         addListener(key, retainedObject);
         return (O) retainedObject;
-    }
-
-    public String getBundlePrefix() {
-        return bundlePrefix;
     }
 }
