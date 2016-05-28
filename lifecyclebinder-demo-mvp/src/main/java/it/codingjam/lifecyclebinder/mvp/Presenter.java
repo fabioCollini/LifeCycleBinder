@@ -22,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import it.codingjam.lifecyclebinder.DefaultViewLifeCycleAware;
@@ -83,7 +84,7 @@ public class Presenter extends DefaultViewLifeCycleAware<MvpView> implements Vie
     private void reloadData() {
         loading = true;
         view.showLoading();
-        Observable.just(new Note("title", "description"))
+        Observable.just(new Note("title" + new Random().nextInt(10), "description"))
                 .delay(5, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<Note>() {

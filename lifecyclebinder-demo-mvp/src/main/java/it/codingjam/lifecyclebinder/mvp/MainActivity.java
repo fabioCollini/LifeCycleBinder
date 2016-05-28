@@ -31,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.container);
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().add(R.id.container, new MainFragment()).commitNow();
+            getSupportFragmentManager().beginTransaction().add(R.id.container_1, new MainFragment()).commitNow();
+            getSupportFragmentManager().beginTransaction().add(R.id.container_2, new MainFragment()).commitNow();
         }
     }
 }
