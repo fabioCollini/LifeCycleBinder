@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.test.nested;
+package com.test.nestedfactory;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -104,6 +104,21 @@ class MyObjectWithParcelableAndInnerObject implements ViewLifeCycleAware<MyView>
 }
 
 public class ActivityMyObjectWithParcelableAndInnerObject extends FragmentActivity implements MyView {
-    @LifeCycleAware
+    @RetainedObjectProvider("myObject")
+    Callable<MyObjectWithParcelableAndInnerObject> myObjectFactory = new Callable<MyObjectWithParcelableAndInnerObject>() {
+        @Override
+        public MyObjectWithParcelableAndInnerObject call() throws Exception {
+            return new MyObjectWithParcelableAndInnerObject();
+        }
+    };
+
+    @RetainedObjectProvider
+    Callable<MyObjectWithParcelableAndInnerObject> myObjectFactoryNoField = new Callable<MyObjectWithParcelableAndInnerObject>() {
+        @Override
+        public MyObjectWithParcelableAndInnerObject call() throws Exception {
+            return new MyObjectWithParcelableAndInnerObject();
+        }
+    };
+
     MyObjectWithParcelableAndInnerObject myObject;
 }

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.test.nested;
+package com.test.nestedfactory;
 
 import com.test.MyView;
 

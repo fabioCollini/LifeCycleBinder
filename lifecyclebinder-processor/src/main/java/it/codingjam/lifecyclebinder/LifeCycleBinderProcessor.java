@@ -289,46 +289,51 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
             builder.addStatement("listeners.add(view.$L)", element);
         }
-        if (!lifeCycleAwareInfo.retainedObjects.isEmpty()) {
-            for (RetainedObjectInfo entry : lifeCycleAwareInfo.retainedObjects) {
-                TypeName typeName = ParameterizedTypeName.get(entry.field.asType());
-                if (!(typeName instanceof ParameterizedTypeName)) {
-                    //TODO error
+        for (RetainedObjectInfo entry : lifeCycleAwareInfo.retainedObjects) {
+            TypeName typeName = ParameterizedTypeName.get(entry.field.asType());
+            if (!(typeName instanceof ParameterizedTypeName)) {
+                //TODO error
+            }
+            ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
+            if (parameterizedTypeName.typeArguments.size() != 1) {
+                //TODO error
+            }
+            Object argument;
+            if (parameterizedTypeName.rawType.equals(TypeName.get(Callable.class))) {
+                argument = "view." + entry.field;
+            } else {
+                TypeName returnTypeName = parameterizedTypeName.typeArguments.get(0);
+                argument = TypeSpec.anonymousClassBuilder("")
+                        .addSuperinterface(ParameterizedTypeName.get(ClassName.get(Callable.class), returnTypeName))
+                        .addMethod(MethodSpec.methodBuilder("call")
+                                .addAnnotation(Override.class)
+                                .addModifiers(PUBLIC)
+                                .addException(Exception.class)
+                                .returns(returnTypeName)
+                                .addStatement("return view.$L.get()", entry.field)
+                                .build())
+                        .build();
+            }
+            if (entry.fieldToPopulate != null && entry.fieldToPopulate.length() > 0) {
+                builder.addStatement("view.$L = initRetainedObject($S, $L)", entry.fieldToPopulate, entry.name, argument);
+                if (lifeCycleAwareInfo.isNested(entry)) {
+                    builder.addStatement("$L.bind(view.$L)", entry.name, entry.fieldToPopulate);
+                    builder.addStatement("listeners.addAll($L.getListeners())", entry.name);
                 }
-                ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
-                if (parameterizedTypeName.typeArguments.size() != 1) {
-                    //TODO error
-                }
-                Object argument;
-                if (parameterizedTypeName.rawType.equals(TypeName.get(Callable.class))) {
-                    argument = "view." + entry.field;
-                } else {
-                    TypeName returnTypeName = parameterizedTypeName.typeArguments.get(0);
-                    argument = TypeSpec.anonymousClassBuilder("")
-                            .addSuperinterface(ParameterizedTypeName.get(ClassName.get(Callable.class), returnTypeName))
-                            .addMethod(MethodSpec.methodBuilder("call")
-                                    .addAnnotation(Override.class)
-                                    .addModifiers(PUBLIC)
-                                    .addException(Exception.class)
-                                    .returns(returnTypeName)
-                                    .addStatement("return view.$L.get()", entry.field)
-                                    .build())
-                            .build();
-                }
-                if (entry.fieldToPopulate != null && entry.fieldToPopulate.length() > 0) {
-                    builder.addStatement("view.$L = initRetainedObject($S, $L)", entry.fieldToPopulate, entry.name, argument);
+            } else {
+                if (lifeCycleAwareInfo.isNested(entry)) {
+                    builder.addStatement("$L.bind(($T) initRetainedObject($S, $L))", entry.name, entry.typeName, entry.name, argument);
+                    builder.addStatement("listeners.addAll($L.getListeners())", entry.name);
                 } else {
                     builder.addStatement("initRetainedObject($S, $L)", entry.name, argument);
                 }
             }
         }
         for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
-            if (info.retained != null) {
-                builder.addStatement("$L.bind(($T) retainedObjects.get($S))", info.field.getSimpleName(), info.retained.typeName, info.retained.name);
-            } else {
+            if (info.retained == null) {
                 builder.addStatement("$L.bind($L)", info.getFieldName(), info.getBindMethodParameter());
+                builder.addStatement("listeners.addAll($L.getListeners())", info.getFieldName());
             }
-            builder.addStatement("listeners.addAll($L.getListeners())", info.getFieldName());
         }
 
         return builder.build();

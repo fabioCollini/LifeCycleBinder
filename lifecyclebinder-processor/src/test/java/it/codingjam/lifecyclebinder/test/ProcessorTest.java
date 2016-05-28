@@ -53,6 +53,17 @@ public class ProcessorTest {
     }
 
     @Test
+    public void testNestedFactory() throws Exception {
+        check("com.test.nestedfactory.ActivityMyObjectWithParcelableAndInnerObject");
+    }
+
+    @Test
+    public void testNestedFactory2() throws Exception {
+        check("com.test.nestedfactory.ActivityMyObjectWithParcelableAndInnerObject",
+                "com.test.nestedfactory.MyObjectWithParcelableAndInnerObject");
+    }
+
+    @Test
     public void testRetainedObjectsWithProviders() throws Exception {
         check("com.test.retainedObjectsWithProvider.ActivityWithRetainedProvider");
     }
