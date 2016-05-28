@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import it.codingjam.lifecyclebinder.LifeCycleAware;
-import it.codingjam.lifecyclebinder.LifeCycleBinder;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,14 +30,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.container);
-        LifeCycleBinder.bind(this);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().add(R.id.container, new MainFragment()).commitNow();
         }
-    }
-
-    @Override
-    public Object onRetainCustomNonConfigurationInstance() {
-        return super.onRetainCustomNonConfigurationInstance();
     }
 }

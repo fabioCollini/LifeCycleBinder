@@ -22,15 +22,21 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 public class LifeCycleBinderFragment<T> extends Fragment {
 
     public static final String LIFE_CYCLE_BINDER_FRAGMENT = "_LIFE_CYCLE_BINDER_FRAGMENT_";
     public static final String OBJECT_BINDER_CLASS = "objectBinderClass";
     public static final String BUNDLE_PREFIX = "BUNDLE_PREFIX";
+    public static final int LOADER_ID = 123;
 
     private T viewParam;
 
@@ -39,6 +45,8 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     private Class<ObjectBinder<T, T>> objectBinderClass;
 
     private String bundlePrefix;
+
+    private Map<String, ViewLifeCycleAware<?>> retainedObjects;
 
     @NonNull
     static <T> LifeCycleBinderFragment<T> getOrCreate(FragmentManager fragmentManager) {
@@ -58,6 +66,23 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getLoaderManager().initLoader(LOADER_ID, null, new LoaderManager.LoaderCallbacks<Map<String, ViewLifeCycleAware<?>>>() {
+            @Override
+            public Loader<Map<String, ViewLifeCycleAware<?>>> onCreateLoader(int id, Bundle args) {
+                return new RetainedObjectsLoader(getActivity());
+            }
+
+            @Override
+            public void onLoadFinished(Loader<Map<String, ViewLifeCycleAware<?>>> loader, Map<String, ViewLifeCycleAware<?>> data) {
+            }
+
+            @Override
+            public void onLoaderReset(Loader<Map<String, ViewLifeCycleAware<?>>> loader) {
+            }
+        });
+
+        retainedObjects = ((RetainedObjectsLoader) (Loader) getLoaderManager().getLoader(LOADER_ID)).retainedObjects;
+
         if (savedInstanceState != null) {
             objectBinderClass = (Class<ObjectBinder<T, T>>) savedInstanceState.getSerializable(OBJECT_BINDER_CLASS);
             bundlePrefix = savedInstanceState.getString(BUNDLE_PREFIX);
@@ -68,9 +93,22 @@ public class LifeCycleBinderFragment<T> extends Fragment {
         }
 
         try {
-            LifeCycleRetainedFragment retainedFragment = LifeCycleRetainedFragment.getOrCreateRetainedFragment(getActivity().getSupportFragmentManager());
             objectBinder = createObjectBinder();
-            objectBinder.setRetainedObjectsFactory(retainedFragment);
+            objectBinder.setRetainedObjectsFactory(new RetainedObjectsFactory() {
+                @Override
+                public <T> ViewLifeCycleAware<? super T> init(String key, Callable<? extends ViewLifeCycleAware<? super T>> factory) {
+                    ViewLifeCycleAware<? super T> listener = (ViewLifeCycleAware<? super T>) retainedObjects.get(key);
+                    if (listener == null) {
+                        try {
+                            listener = factory.call();
+                            retainedObjects.put(key, listener);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    return listener;
+                }
+            });
             objectBinder.bind(viewParam);
         } catch (Exception e) {
             throw new RuntimeException("Error invoking binding", e);
