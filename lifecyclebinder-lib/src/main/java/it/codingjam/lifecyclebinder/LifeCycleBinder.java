@@ -43,8 +43,7 @@ public class LifeCycleBinder {
         if (LifeCycleBinderFragment.get(fragmentManager) == null) {
             Class<ObjectBinder<T, T>> c = getObjectBinderClass(obj);
             String bundlePrefix = obj.getClass().getName() + (key != null && !key.isEmpty() ? ObjectBinder.SEPARATOR + key : "");
-            LifeCycleBinderFragment<T> fragment = new LifeCycleBinderFragment<>();
-            fragment.init(c, bundlePrefix);
+            LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.create(c, bundlePrefix);
             fragmentManager.beginTransaction().add(fragment, LifeCycleBinderFragment.LIFE_CYCLE_BINDER_FRAGMENT).commitNow();
         }
     }
@@ -60,6 +59,10 @@ public class LifeCycleBinder {
     }
 
     public static void startActivityForResult(FragmentActivity activity, Intent intent, int requestCode) {
-        LifeCycleBinderFragment.getOrCreate(activity.getSupportFragmentManager()).startActivityForResult(intent, requestCode);
+        LifeCycleBinderFragment.get(activity.getSupportFragmentManager()).startActivityForResult(intent, requestCode);
+    }
+
+    public static void startActivityForResult(Fragment fragment, Intent intent, int requestCode) {
+        LifeCycleBinderFragment.get(fragment.getFragmentManager()).startActivityForResult(intent, requestCode);
     }
 }

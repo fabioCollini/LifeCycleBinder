@@ -48,19 +48,18 @@ public class LifeCycleBinderFragment<T> extends Fragment {
 
     private Map<String, ViewLifeCycleAware<?>> retainedObjects;
 
-    @NonNull
-    static <T> LifeCycleBinderFragment<T> getOrCreate(FragmentManager fragmentManager) {
-        LifeCycleBinderFragment<T> fragment = get(fragmentManager);
-
-        if (fragment == null) {
-            fragment = new LifeCycleBinderFragment<>();
-            fragmentManager.beginTransaction().add(fragment, LIFE_CYCLE_BINDER_FRAGMENT).commitNow();
-        }
-        return fragment;
-    }
-
     public static <T> LifeCycleBinderFragment<T> get(FragmentManager fragmentManager) {
         return (LifeCycleBinderFragment<T>) fragmentManager.findFragmentByTag(LIFE_CYCLE_BINDER_FRAGMENT);
+    }
+
+    @NonNull
+    public static <T> LifeCycleBinderFragment<T> create(Class<ObjectBinder<T, T>> objectBinderClass, String bundlePrefix) {
+        LifeCycleBinderFragment<T> fragment = new LifeCycleBinderFragment<>();
+        Bundle args = new Bundle();
+        args.putSerializable(OBJECT_BINDER_CLASS, objectBinderClass);
+        args.putString(BUNDLE_PREFIX, bundlePrefix);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -83,10 +82,8 @@ public class LifeCycleBinderFragment<T> extends Fragment {
 
         retainedObjects = ((RetainedObjectsLoader) (Loader) getLoaderManager().getLoader(LOADER_ID)).retainedObjects;
 
-        if (savedInstanceState != null) {
-            objectBinderClass = (Class<ObjectBinder<T, T>>) savedInstanceState.getSerializable(OBJECT_BINDER_CLASS);
-            bundlePrefix = savedInstanceState.getString(BUNDLE_PREFIX);
-        }
+        objectBinderClass = (Class<ObjectBinder<T, T>>) getArguments().getSerializable(OBJECT_BINDER_CLASS);
+        bundlePrefix = getArguments().getString(BUNDLE_PREFIX);
         viewParam = (T) getParentFragment();
         if (viewParam == null) {
             viewParam = (T) getActivity();
@@ -191,8 +188,6 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(OBJECT_BINDER_CLASS, objectBinderClass);
-        outState.putString(BUNDLE_PREFIX, bundlePrefix);
         objectBinder.saveInstanceState(viewParam, outState);
         for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
             listener.onSaveInstanceState(viewParam, outState);
@@ -213,11 +208,6 @@ public class LifeCycleBinderFragment<T> extends Fragment {
         for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
             listener.onActivityResult(requestCode, resultCode, data);
         }
-    }
-
-    public void init(Class<ObjectBinder<T, T>> objectBinderClass, String bundlePrefix) {
-        this.objectBinderClass = objectBinderClass;
-        this.bundlePrefix = bundlePrefix;
     }
 
     public String getBundlePrefix() {
