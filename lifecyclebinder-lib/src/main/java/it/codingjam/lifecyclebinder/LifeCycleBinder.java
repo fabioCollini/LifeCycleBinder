@@ -17,7 +17,6 @@
 package it.codingjam.lifecyclebinder;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -31,21 +30,24 @@ public class LifeCycleBinder {
         bind(activity, activity.getSupportFragmentManager());
     }
 
+    public static <T extends Fragment> void bind(T fragment, Class<ObjectBinder<T, T>> objectBinderClass) {
+        bind(fragment.getChildFragmentManager(), objectBinderClass);
+    }
+
+    public static <T extends FragmentActivity> void bind(T activity, Class<ObjectBinder<T, T>> objectBinderClass) {
+        bind(activity.getSupportFragmentManager(), objectBinderClass);
+    }
+
     private static <T> void bind(T obj, FragmentManager fragmentManager) {
         if (LifeCycleBinderFragment.get(fragmentManager) == null) {
-            Class<ObjectBinder<T, T>> c = getObjectBinderClass(obj);
-            LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.create(c);
-            fragmentManager.beginTransaction().add(fragment, LifeCycleBinderFragment.LIFE_CYCLE_BINDER_FRAGMENT).commitNow();
+            Class<ObjectBinder<T, T>> c = ReflectionUtils.getObjectBinderClass(obj);
+            LifeCycleBinderFragment.createAndAdd(fragmentManager, c);
         }
     }
 
-    @NonNull
-    private static <T> Class<ObjectBinder<T, T>> getObjectBinderClass(T obj) {
-        String className = obj.getClass().getName() + "$LifeCycleBinder";
-        try {
-            return (Class<ObjectBinder<T, T>>) Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Error searching class " + className, e);
+    private static <T> void bind(FragmentManager fragmentManager, Class<ObjectBinder<T, T>> objectBinderClass) {
+        if (LifeCycleBinderFragment.get(fragmentManager) == null) {
+            LifeCycleBinderFragment.createAndAdd(fragmentManager, objectBinderClass);
         }
     }
 

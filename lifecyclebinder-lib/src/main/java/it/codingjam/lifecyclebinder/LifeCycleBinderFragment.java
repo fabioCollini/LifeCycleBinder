@@ -35,7 +35,7 @@ import java.util.concurrent.Callable;
 
 public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwareCollector<T> {
 
-    public static final String LIFE_CYCLE_BINDER_FRAGMENT = "_LIFE_CYCLE_BINDER_FRAGMENT_";
+    private static final String LIFE_CYCLE_BINDER_FRAGMENT = "_LIFE_CYCLE_BINDER_FRAGMENT_";
     private static final String OBJECT_BINDER_CLASS = "objectBinderClass";
     private static final int LOADER_ID = 123;
 
@@ -45,12 +45,12 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
 
     private final List<ViewLifeCycleAware<? super T>> listeners = new ArrayList<>();
 
-    public static <T> LifeCycleBinderFragment<T> get(FragmentManager fragmentManager) {
+    static <T> LifeCycleBinderFragment<T> get(FragmentManager fragmentManager) {
         return (LifeCycleBinderFragment<T>) fragmentManager.findFragmentByTag(LIFE_CYCLE_BINDER_FRAGMENT);
     }
 
     @NonNull
-    public static <T> LifeCycleBinderFragment<T> create(Class<ObjectBinder<T, T>> objectBinderClass) {
+    private static <T> LifeCycleBinderFragment<T> create(Class<ObjectBinder<T, T>> objectBinderClass) {
         LifeCycleBinderFragment<T> fragment = new LifeCycleBinderFragment<>();
         Bundle args = new Bundle();
         args.putSerializable(OBJECT_BINDER_CLASS, objectBinderClass);
@@ -58,36 +58,44 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
         return fragment;
     }
 
+    private static <T> void add(FragmentManager fragmentManager, LifeCycleBinderFragment<T> fragment) {
+        fragmentManager.beginTransaction().add(fragment, LIFE_CYCLE_BINDER_FRAGMENT).commitNow();
+    }
+
+    static <T> void createAndAdd(FragmentManager fragmentManager, Class<ObjectBinder<T, T>> c) {
+        LifeCycleBinderFragment<T> fragment = create(c);
+        add(fragmentManager, fragment);
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initRetainedObjects();
+        retainedObjects = initRetainedObjects();
 
-        viewParam = (T) getParentFragment();
-        if (viewParam == null) {
-            viewParam = (T) getActivity();
-        }
+        viewParam = initViewParam();
 
-        invokeBinder();
+        invokeBindMethod();
 
         for (ViewLifeCycleAware<? super T> listener : listeners) {
             listener.onCreate(viewParam, savedInstanceState);
         }
     }
 
-    private void invokeBinder() {
-        Class<ObjectBinder<T, T>> objectBinderClass = (Class<ObjectBinder<T, T>>) getArguments().getSerializable(OBJECT_BINDER_CLASS);
-        try {
-            ObjectBinder<T, T> objectBinder = objectBinderClass.newInstance();
-            objectBinder.bind(this, viewParam);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Illegal access exception instantiating class " + objectBinderClass.getName(), e);
-        } catch (Exception e) {
-            throw new RuntimeException("Error invoking binding", e);
+    private T initViewParam() {
+        T viewParam = (T) getParentFragment();
+        if (viewParam == null) {
+            return (T) getActivity();
+        } else {
+            return viewParam;
         }
     }
 
-    private void initRetainedObjects() {
+    private void invokeBindMethod() {
+        Class<ObjectBinder<T, T>> objectBinderClass = (Class<ObjectBinder<T, T>>) getArguments().getSerializable(OBJECT_BINDER_CLASS);
+        ReflectionUtils.invokeBindMethod(objectBinderClass, this, viewParam);
+    }
+
+    private Map<String, ViewLifeCycleAware<?>> initRetainedObjects() {
         getLoaderManager().initLoader(LOADER_ID, null, new LoaderManager.LoaderCallbacks<Map<String, ViewLifeCycleAware<?>>>() {
             @Override
             public Loader<Map<String, ViewLifeCycleAware<?>>> onCreateLoader(int id, Bundle args) {
@@ -103,7 +111,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
             }
         });
 
-        retainedObjects = ((RetainedObjectsLoader) (Loader) getLoaderManager().getLoader(LOADER_ID)).retainedObjects;
+        return ((RetainedObjectsLoader) (Loader) getLoaderManager().getLoader(LOADER_ID)).retainedObjects;
     }
 
     @Override
