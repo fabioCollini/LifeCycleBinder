@@ -18,10 +18,11 @@ package com.test.objectWithBaseClass;
 
 import com.test.MyView;
 
+import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class MyObjectWithBaseClass$LifeCycleBinder extends ObjectBinder<MyObjectWithBaseClass, MyView> {
-    public void bind(final MyObjectWithBaseClass view) {
-        listeners.add(view.myObject);
+    public void bind(LifeCycleAwareCollector<? extends MyView> collector, final MyObjectWithBaseClass view) {
+        collector.addLifeCycleAware(view.myObject);
     }
 }

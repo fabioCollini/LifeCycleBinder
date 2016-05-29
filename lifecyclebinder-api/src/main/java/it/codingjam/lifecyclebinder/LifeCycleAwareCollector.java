@@ -18,6 +18,8 @@ package it.codingjam.lifecyclebinder;
 
 import java.util.concurrent.Callable;
 
-public interface RetainedObjectsFactory {
-    <T> ViewLifeCycleAware<? super T> init(String key, Callable<? extends ViewLifeCycleAware<? super T>> factory);
+public interface LifeCycleAwareCollector<T> {
+    <R extends ViewLifeCycleAware<? super T>> R addRetainedFactory(String key, Callable<R> factory);
+
+    void addLifeCycleAware(ViewLifeCycleAware<? super T> lifeCycleAware);
 }

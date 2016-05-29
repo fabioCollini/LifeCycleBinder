@@ -28,10 +28,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-public class LifeCycleBinderFragment<T> extends Fragment {
+public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwareCollector<T> {
 
     public static final String LIFE_CYCLE_BINDER_FRAGMENT = "_LIFE_CYCLE_BINDER_FRAGMENT_";
     private static final String OBJECT_BINDER_CLASS = "objectBinderClass";
@@ -39,11 +41,9 @@ public class LifeCycleBinderFragment<T> extends Fragment {
 
     private T viewParam;
 
-    private ObjectBinder<T, T> objectBinder;
-
-    private Class<ObjectBinder<T, T>> objectBinderClass;
-
     private Map<String, ViewLifeCycleAware<?>> retainedObjects;
+
+    private final List<ViewLifeCycleAware<? super T>> listeners = new ArrayList<>();
 
     public static <T> LifeCycleBinderFragment<T> get(FragmentManager fragmentManager) {
         return (LifeCycleBinderFragment<T>) fragmentManager.findFragmentByTag(LIFE_CYCLE_BINDER_FRAGMENT);
@@ -61,6 +61,33 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        initRetainedObjects();
+
+        viewParam = (T) getParentFragment();
+        if (viewParam == null) {
+            viewParam = (T) getActivity();
+        }
+
+        invokeBinder();
+
+        for (ViewLifeCycleAware<? super T> listener : listeners) {
+            listener.onCreate(viewParam, savedInstanceState);
+        }
+    }
+
+    private void invokeBinder() {
+        Class<ObjectBinder<T, T>> objectBinderClass = (Class<ObjectBinder<T, T>>) getArguments().getSerializable(OBJECT_BINDER_CLASS);
+        try {
+            ObjectBinder<T, T> objectBinder = objectBinderClass.newInstance();
+            objectBinder.bind(this, viewParam);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Illegal access exception instantiating class " + objectBinderClass.getName(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error invoking binding", e);
+        }
+    }
+
+    private void initRetainedObjects() {
         getLoaderManager().initLoader(LOADER_ID, null, new LoaderManager.LoaderCallbacks<Map<String, ViewLifeCycleAware<?>>>() {
             @Override
             public Loader<Map<String, ViewLifeCycleAware<?>>> onCreateLoader(int id, Bundle args) {
@@ -77,54 +104,12 @@ public class LifeCycleBinderFragment<T> extends Fragment {
         });
 
         retainedObjects = ((RetainedObjectsLoader) (Loader) getLoaderManager().getLoader(LOADER_ID)).retainedObjects;
-
-        objectBinderClass = (Class<ObjectBinder<T, T>>) getArguments().getSerializable(OBJECT_BINDER_CLASS);
-        viewParam = (T) getParentFragment();
-        if (viewParam == null) {
-            viewParam = (T) getActivity();
-        }
-
-        try {
-            objectBinder = createObjectBinder();
-            objectBinder.setRetainedObjectsFactory(new RetainedObjectsFactory() {
-                @Override
-                public <T> ViewLifeCycleAware<? super T> init(String key, Callable<? extends ViewLifeCycleAware<? super T>> factory) {
-                    ViewLifeCycleAware<? super T> listener = (ViewLifeCycleAware<? super T>) retainedObjects.get(key);
-                    if (listener == null) {
-                        try {
-                            listener = factory.call();
-                            retainedObjects.put(key, listener);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    return listener;
-                }
-            });
-            objectBinder.bind(viewParam);
-        } catch (Exception e) {
-            throw new RuntimeException("Error invoking binding", e);
-        }
-
-        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
-            listener.onCreate(viewParam, savedInstanceState);
-        }
-    }
-
-    private ObjectBinder<T, T> createObjectBinder() {
-        try {
-            return objectBinderClass.newInstance();
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Illegal access exception instantiating class " + objectBinderClass.getName(), e);
-        } catch (Exception e) {
-            throw new RuntimeException("Error instantiating class " + objectBinderClass.getName(), e);
-        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+        for (ViewLifeCycleAware<? super T> listener : listeners) {
             listener.onStart(viewParam);
         }
     }
@@ -133,7 +118,7 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     public void onResume() {
         super.onResume();
         boolean hasMenu = false;
-        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+        for (ViewLifeCycleAware<? super T> listener : listeners) {
             listener.onResume(viewParam);
             hasMenu = hasMenu || listener.hasOptionsMenu();
         }
@@ -145,14 +130,14 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+        for (ViewLifeCycleAware<? super T> listener : listeners) {
             listener.onCreateOptionsMenu(menu, inflater);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+        for (ViewLifeCycleAware<? super T> listener : listeners) {
             boolean ret = listener.onOptionsItemSelected(viewParam, item);
             if (ret) {
                 return ret;
@@ -164,7 +149,7 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+        for (ViewLifeCycleAware<? super T> listener : listeners) {
             listener.onPause(viewParam);
         }
     }
@@ -172,7 +157,7 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+        for (ViewLifeCycleAware<? super T> listener : listeners) {
             listener.onStop(viewParam);
         }
     }
@@ -180,14 +165,14 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+        for (ViewLifeCycleAware<? super T> listener : listeners) {
             listener.onSaveInstanceState(viewParam, outState);
         }
     }
 
     @Override
     public void onDestroy() {
-        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+        for (ViewLifeCycleAware<? super T> listener : listeners) {
             listener.onDestroy(viewParam);
         }
         super.onDestroy();
@@ -196,8 +181,28 @@ public class LifeCycleBinderFragment<T> extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        for (ViewLifeCycleAware<? super T> listener : objectBinder.getListeners()) {
+        for (ViewLifeCycleAware<? super T> listener : listeners) {
             listener.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    public <R extends ViewLifeCycleAware<? super T>> R addRetainedFactory(String key, Callable<R> factory) {
+        R listener = (R) retainedObjects.get(key);
+        if (listener == null) {
+            try {
+                listener = factory.call();
+                retainedObjects.put(key, listener);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        addLifeCycleAware(listener);
+        return listener;
+    }
+
+    @Override
+    public void addLifeCycleAware(ViewLifeCycleAware<? super T> lifeCycleAware) {
+        listeners.add(lifeCycleAware);
     }
 }

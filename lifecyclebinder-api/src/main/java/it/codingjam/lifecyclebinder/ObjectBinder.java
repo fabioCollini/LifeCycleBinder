@@ -16,33 +16,6 @@
 
 package it.codingjam.lifecyclebinder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-
 public abstract class ObjectBinder<T, V> {
-
-    protected List<ViewLifeCycleAware<? super V>> listeners = new ArrayList<>();
-
-    private RetainedObjectsFactory retainedObjectsFactory;
-
-    public abstract void bind(T view);
-
-    public List<ViewLifeCycleAware<? super V>> getListeners() {
-        return listeners;
-    }
-
-    public void addListener(ViewLifeCycleAware<? super V> listener) {
-        listeners.add(listener);
-    }
-
-    public void setRetainedObjectsFactory(RetainedObjectsFactory retainedObjectsFactory) {
-        this.retainedObjectsFactory = retainedObjectsFactory;
-    }
-
-    protected <O extends ViewLifeCycleAware<? super V>> O initRetainedObject(String key, Callable<? extends ViewLifeCycleAware<? super V>> factory) {
-        ViewLifeCycleAware<? super V> retainedObject = retainedObjectsFactory.init(key, factory);
-        addListener(retainedObject);
-        return (O) retainedObject;
-    }
+    public abstract void bind(LifeCycleAwareCollector<? extends V> collector, T view);
 }

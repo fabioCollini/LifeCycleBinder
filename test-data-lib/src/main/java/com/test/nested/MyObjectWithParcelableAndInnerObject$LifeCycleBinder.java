@@ -18,11 +18,12 @@ package com.test.nested;
 
 import com.test.MyView;
 
+import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class MyObjectWithParcelableAndInnerObject$LifeCycleBinder extends ObjectBinder<MyObjectWithParcelableAndInnerObject, MyView> {
-    public void bind(final MyObjectWithParcelableAndInnerObject view) {
-        listeners.add(view.myObject);
-        view.myObject2 = initRetainedObject("myObject2Provider", view.myObject2Provider);
+    public void bind(LifeCycleAwareCollector<? extends MyView> collector, final MyObjectWithParcelableAndInnerObject view) {
+        collector.addLifeCycleAware(view.myObject);
+        view.myObject2 = collector.addRetainedFactory("myObject2Provider", view.myObject2Provider);
     }
 }

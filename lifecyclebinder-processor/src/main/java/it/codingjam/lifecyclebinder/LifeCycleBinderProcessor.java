@@ -25,6 +25,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import com.squareup.javapoet.WildcardTypeName;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -54,6 +55,7 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
+import static javafx.scene.input.KeyCode.V;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -225,9 +227,13 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     }
 
     private MethodSpec generateBindMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeName objectGenericType) {
+        ParameterizedTypeName collectorType = ParameterizedTypeName.get(
+                ClassName.get(LifeCycleAwareCollector.class),
+                WildcardTypeName.subtypeOf(getObjectBinderGenericTypeName(lifeCycleAwareInfo.element)));
         return MethodSpec.methodBuilder("bind")
                 .addModifiers(PUBLIC)
                 .returns(void.class)
+                .addParameter(collectorType, "collector")
                 .addParameter(objectGenericType, "view", FINAL)
                 .addCode(generateBindMethodBody(lifeCycleAwareInfo))
                 .build();
@@ -274,7 +280,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     private CodeBlock generateBindMethodBody(LifeCycleAwareInfo lifeCycleAwareInfo) {
         CodeBlock.Builder builder = CodeBlock.builder();
         for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
-            builder.addStatement("listeners.add(view.$L)", element);
+            builder.addStatement("collector.addLifeCycleAware(view.$L)", element);
         }
         for (RetainedObjectInfo entry : lifeCycleAwareInfo.retainedObjects) {
             TypeName typeName = ParameterizedTypeName.get(entry.field.asType());
@@ -302,24 +308,21 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
                         .build();
             }
             if (entry.fieldToPopulate != null && entry.fieldToPopulate.length() > 0) {
-                builder.addStatement("view.$L = initRetainedObject($S, $L)", entry.fieldToPopulate, entry.name, argument);
+                builder.addStatement("view.$L = collector.addRetainedFactory($S, $L)", entry.fieldToPopulate, entry.name, argument);
                 if (lifeCycleAwareInfo.isNested(entry)) {
-                    builder.addStatement("$L.bind(view.$L)", entry.name, entry.fieldToPopulate);
-                    builder.addStatement("listeners.addAll($L.getListeners())", entry.name);
+                    builder.addStatement("$L.bind(collector, view.$L)", entry.name, entry.fieldToPopulate);
                 }
             } else {
                 if (lifeCycleAwareInfo.isNested(entry)) {
-                    builder.addStatement("$L.bind(($T) initRetainedObject($S, $L))", entry.name, entry.typeName, entry.name, argument);
-                    builder.addStatement("listeners.addAll($L.getListeners())", entry.name);
+                    builder.addStatement("$L.bind(collector, collector.addRetainedFactory($S, $L))", entry.name, entry.name, argument);
                 } else {
-                    builder.addStatement("initRetainedObject($S, $L)", entry.name, argument);
+                    builder.addStatement("collector.addRetainedFactory($S, $L)", entry.name, argument);
                 }
             }
         }
         for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
             if (info.retained == null) {
-                builder.addStatement("$L.bind($L)", info.getFieldName(), info.getBindMethodParameter());
-                builder.addStatement("listeners.addAll($L.getListeners())", info.getFieldName());
+                builder.addStatement("$L.bind(collector, $L)", info.getFieldName(), info.getBindMethodParameter());
             }
         }
 

@@ -16,10 +16,11 @@
 
 package com.test.myActivity;
 
+import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity, MyActivity> {
-    public void bind(final MyActivity view) {
-        listeners.add(view.myObject);
+    public void bind(LifeCycleAwareCollector<? extends MyActivity> collector, final MyActivity view) {
+        collector.addLifeCycleAware(view.myObject);
     }
 }

@@ -16,11 +16,12 @@
 
 package com.test.retained;
 
+import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class ActivityWithRetained2$LifeCycleBinder extends ObjectBinder<ActivityWithRetained2, ActivityWithRetained2> {
-    public void bind(final ActivityWithRetained2 view) {
-        initRetainedObject("myObject", view.myObject);
-        initRetainedObject("myObject2", view.myObject2);
+    public void bind(LifeCycleAwareCollector<? extends ActivityWithRetained2> collector, final ActivityWithRetained2 view) {
+        collector.addRetainedFactory("myObject", view.myObject);
+        collector.addRetainedFactory("myObject2", view.myObject2);
     }
 }
