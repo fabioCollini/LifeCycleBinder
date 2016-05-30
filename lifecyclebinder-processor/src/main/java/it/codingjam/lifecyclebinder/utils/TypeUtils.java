@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package it.codingjam.lifecyclebinder;
+package it.codingjam.lifecyclebinder.utils;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;

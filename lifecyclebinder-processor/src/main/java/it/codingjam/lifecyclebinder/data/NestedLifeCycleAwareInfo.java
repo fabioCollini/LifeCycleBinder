@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package it.codingjam.lifecyclebinder;
+package it.codingjam.lifecyclebinder.data;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -24,6 +24,8 @@ import java.util.List;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+
+import it.codingjam.lifecyclebinder.BinderGenerator;
 
 public class NestedLifeCycleAwareInfo {
 
@@ -39,12 +41,12 @@ public class NestedLifeCycleAwareInfo {
         this.retained = retained;
         this.fieldName = fieldName;
         this.bindMethodParameter = bindMethodParameter;
-        List<TypeName> typeArguments = TypeUtils.getTypeArguments(targetClassName);
+        List<TypeName> typeArguments = it.codingjam.lifecyclebinder.utils.TypeUtils.getTypeArguments(targetClassName);
         if (typeArguments.isEmpty()) {
-            this.binderClassName = ClassName.bestGuess(targetClassName + LifeCycleBinderProcessor.LIFE_CYCLE_BINDER_SUFFIX);
+            this.binderClassName = ClassName.bestGuess(targetClassName + BinderGenerator.LIFE_CYCLE_BINDER_SUFFIX);
         } else {
             this.binderClassName = ParameterizedTypeName.get(
-                    ClassName.bestGuess(TypeUtils.getRawType(targetClassName) + LifeCycleBinderProcessor.LIFE_CYCLE_BINDER_SUFFIX),
+                    ClassName.bestGuess(it.codingjam.lifecyclebinder.utils.TypeUtils.getRawType(targetClassName) + BinderGenerator.LIFE_CYCLE_BINDER_SUFFIX),
                     typeArguments.toArray(new TypeName[typeArguments.size()]));
         }
     }

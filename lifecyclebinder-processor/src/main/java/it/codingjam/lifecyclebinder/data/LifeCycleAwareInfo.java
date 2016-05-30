@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package it.codingjam.lifecyclebinder;
+package it.codingjam.lifecyclebinder.data;
 
 import java.util.ArrayList;
 import java.util.List;
