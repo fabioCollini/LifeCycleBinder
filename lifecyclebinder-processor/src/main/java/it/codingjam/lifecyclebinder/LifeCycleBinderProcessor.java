@@ -16,22 +16,8 @@
 
 package it.codingjam.lifecyclebinder;
 
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.TypeVariableName;
-import com.squareup.javapoet.WildcardTypeName;
-
-import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -41,22 +27,11 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
 
 import it.codingjam.lifecyclebinder.data.*;
-import it.codingjam.lifecyclebinder.data.NestedLifeCycleAwareInfo;
-import it.codingjam.lifecyclebinder.data.RetainedObjectInfo;
-
-import static javax.lang.model.element.Modifier.FINAL;
-import static javax.lang.model.element.Modifier.PRIVATE;
-import static javax.lang.model.element.Modifier.PUBLIC;
 
 @SupportedAnnotationTypes({
         "it.codingjam.lifecyclebinder.LifeCycleAware",
@@ -65,8 +40,8 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class LifeCycleBinderProcessor extends AbstractProcessor {
 
-    private Types typeUtils;
-    private Elements elementUtils;
+    private Types types;
+    private Elements elements;
     private Filer filer;
     private Messager messager;
 
@@ -77,12 +52,12 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        typeUtils = processingEnv.getTypeUtils();
-        elementUtils = processingEnv.getElementUtils();
+        types = processingEnv.getTypeUtils();
+        elements = processingEnv.getElementUtils();
         filer = processingEnv.getFiler();
         messager = processingEnv.getMessager();
-        elementsCollector = new ElementsCollector(messager);
-        binderGenerator = new BinderGenerator(processingEnv, typeUtils, messager);
+        elementsCollector = new ElementsCollector(messager, types, elements);
+        binderGenerator = new BinderGenerator(processingEnv, types, messager);
     }
 
     @Override

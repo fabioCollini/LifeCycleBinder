@@ -31,22 +31,30 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
 import it.codingjam.lifecyclebinder.data.LifeCycleAwareInfo;
 import it.codingjam.lifecyclebinder.data.NestedLifeCycleAwareInfo;
 import it.codingjam.lifecyclebinder.data.RetainedObjectInfo;
+import it.codingjam.lifecyclebinder.utils.TypeUtils;
 
 public class ElementsCollector {
 
     private Messager messager;
+    private Types types;
+    private Elements elements;
 
-    public ElementsCollector(Messager messager) {
+    public ElementsCollector(Messager messager, Types types, Elements elements) {
         this.messager = messager;
+        this.types = types;
+        this.elements = elements;
     }
 
     List<LifeCycleAwareInfo> createLifeCycleAwareElements(Set<? extends Element> lifeCycleAwareElements, Set<? extends Element> retainedObjectElements) {
         Map<Element, LifeCycleAwareInfo> elementsByClass = new HashMap<>();
+        TypeName lifeCycleAwareType = TypeName.get(ViewLifeCycleAware.class);
 
         for (Element element : lifeCycleAwareElements) {
             if (element.getKind() != ElementKind.FIELD) {
@@ -55,6 +63,11 @@ public class ElementsCollector {
             }
 
             VariableElement variable = (VariableElement) element;
+            TypeName variableType = TypeName.get(variable.asType());
+            if (!TypeUtils.isAssignable(elements, variableType, lifeCycleAwareType)) {
+                error(element, "Class %s is annotated with %s, it must implement %s",
+                        variableType, LifeCycleAware.class.getSimpleName(), ViewLifeCycleAware.class.getSimpleName());
+            }
 
             TypeElement enclosingElement = (TypeElement) variable.getEnclosingElement();
 

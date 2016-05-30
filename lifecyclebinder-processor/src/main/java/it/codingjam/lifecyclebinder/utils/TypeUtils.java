@@ -23,7 +23,9 @@ import com.squareup.javapoet.TypeName;
 import java.util.Collections;
 import java.util.List;
 
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 
 public class TypeUtils {
     public static boolean isRawTypeEquals(TypeMirror type1, TypeMirror type2) {
@@ -53,6 +55,22 @@ public class TypeUtils {
             return ((ParameterizedTypeName) typeName).typeArguments;
         } else {
             return Collections.emptyList();
+        }
+    }
+
+    public static boolean isAssignable(Elements elements, TypeName t1, TypeName t2) {
+        TypeElement e1 = elements.getTypeElement(getRawType(t1).toString());
+        List<? extends TypeMirror> interfaces = e1.getInterfaces();
+        for (TypeMirror anInterface : interfaces) {
+            if (getRawType(anInterface).equals(getRawType(t2))) {
+                return true;
+            }
+        }
+        TypeMirror superclass = e1.getSuperclass();
+        if (TypeName.get(superclass).equals(TypeName.get(Object.class))) {
+            return false;
+        } else {
+            return isAssignable(elements, getRawType(superclass), t2);
         }
     }
 }

@@ -16,7 +16,15 @@
 
 package it.codingjam.lifecyclebinder.test;
 
+import com.google.testing.compile.JavaSourceSubjectFactory;
+
 import org.junit.Test;
+import org.truth0.Truth;
+
+import javax.tools.JavaFileObject;
+
+import it.codingjam.lifecyclebinder.LifeCycleBinderProcessor;
+import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 
 import static it.codingjam.lifecyclebinder.test.FileLoader.check;
 
@@ -86,5 +94,15 @@ public class ProcessorTest {
     @Test
     public void testObjectWithNestedGenericBaseClass() throws Exception {
         check("com.test.objectWithNestedGenericBaseClass.MyObjectWithGenericBaseClass");
+    }
+
+    @Test
+    public void testActivityObjectNotExtendsLifeCycleAware() throws Exception {
+        JavaFileObject target = FileLoader.loadClass("com.test.errors.ActivityObjectNotExtendsLifeCycleAware");
+        Truth.ASSERT.about(JavaSourceSubjectFactory.javaSource())
+                .that(target)
+                .processedWith(new LifeCycleBinderProcessor())
+                .failsToCompile()
+                .withErrorContaining("must implement " + ViewLifeCycleAware.class.getSimpleName());
     }
 }

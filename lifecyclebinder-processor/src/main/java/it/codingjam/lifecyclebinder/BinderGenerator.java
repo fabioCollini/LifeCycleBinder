@@ -45,6 +45,7 @@ import javax.tools.JavaFileObject;
 import it.codingjam.lifecyclebinder.data.LifeCycleAwareInfo;
 import it.codingjam.lifecyclebinder.data.NestedLifeCycleAwareInfo;
 import it.codingjam.lifecyclebinder.data.RetainedObjectInfo;
+import it.codingjam.lifecyclebinder.utils.TypeUtils;
 
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -81,7 +82,7 @@ public class BinderGenerator {
                     .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType))
                     .addMethod(generateBindMethod(lifeCycleAwareInfo, objectGenericType));
 
-            List<TypeName> typeArguments = it.codingjam.lifecyclebinder.utils.TypeUtils.getTypeArguments(hostElement.asType());
+            List<TypeName> typeArguments = TypeUtils.getTypeArguments(hostElement.asType());
             for (TypeName argument : typeArguments) {
                 builder.addTypeVariable((TypeVariableName) argument);
             }
@@ -142,7 +143,7 @@ public class BinderGenerator {
             if (typeName instanceof ParameterizedTypeName) {
                 ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
                 if (parameterizedTypeName.typeArguments.size() == 1 && parameterizedTypeName.rawType.equals(TypeName.get(ViewLifeCycleAware.class))) {
-                    List<TypeName> formalTypeArguments = it.codingjam.lifecyclebinder.utils.TypeUtils.getTypeArguments(hostElement.asType());
+                    List<TypeName> formalTypeArguments = TypeUtils.getTypeArguments(hostElement.asType());
                     TypeName ret = parameterizedTypeName.typeArguments.get(0);
                     for (int i = 0; i < formalTypeArguments.size(); i++) {
                         if (formalTypeArguments.get(i).equals(ret)) {
@@ -159,7 +160,7 @@ public class BinderGenerator {
         if (TypeName.get(superclass).equals(TypeName.get(Object.class))) {
             return null;
         } else {
-            List<TypeName> superClassTypeElements = it.codingjam.lifecyclebinder.utils.TypeUtils.getTypeArguments(superclass);
+            List<TypeName> superClassTypeElements = TypeUtils.getTypeArguments(superclass);
             return searchObjectBinderGenericTypeName((TypeElement) typeUtils.asElement(superclass), superClassTypeElements);
         }
     }
