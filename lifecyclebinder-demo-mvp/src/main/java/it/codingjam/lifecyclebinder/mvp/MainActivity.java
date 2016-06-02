@@ -19,11 +19,11 @@ package it.codingjam.lifecyclebinder.mvp;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 
 public class MainActivity extends AppCompatActivity {
 
-    @LifeCycleAware
+    @BindLifeCycle
     Logger logger = new Logger();
 
     @Override

@@ -41,9 +41,9 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
 
     private T viewParam;
 
-    private Map<String, ViewLifeCycleAware<?>> retainedObjects;
+    private Map<String, LifeCycleAware<?>> retainedObjects;
 
-    private final List<ViewLifeCycleAware<? super T>> listeners = new ArrayList<>();
+    private final List<LifeCycleAware<? super T>> listeners = new ArrayList<>();
 
     static <T> LifeCycleBinderFragment<T> get(FragmentManager fragmentManager) {
         return (LifeCycleBinderFragment<T>) fragmentManager.findFragmentByTag(LIFE_CYCLE_BINDER_FRAGMENT);
@@ -76,7 +76,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
 
         invokeBindMethod();
 
-        for (ViewLifeCycleAware<? super T> listener : listeners) {
+        for (LifeCycleAware<? super T> listener : listeners) {
             listener.onCreate(viewParam, savedInstanceState);
         }
     }
@@ -95,19 +95,19 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
         ReflectionUtils.invokeBindMethod(objectBinderClass, this, viewParam);
     }
 
-    private Map<String, ViewLifeCycleAware<?>> initRetainedObjects() {
-        getLoaderManager().initLoader(LOADER_ID, null, new LoaderManager.LoaderCallbacks<Map<String, ViewLifeCycleAware<?>>>() {
+    private Map<String, LifeCycleAware<?>> initRetainedObjects() {
+        getLoaderManager().initLoader(LOADER_ID, null, new LoaderManager.LoaderCallbacks<Map<String, LifeCycleAware<?>>>() {
             @Override
-            public Loader<Map<String, ViewLifeCycleAware<?>>> onCreateLoader(int id, Bundle args) {
+            public Loader<Map<String, LifeCycleAware<?>>> onCreateLoader(int id, Bundle args) {
                 return new RetainedObjectsLoader(getActivity());
             }
 
             @Override
-            public void onLoadFinished(Loader<Map<String, ViewLifeCycleAware<?>>> loader, Map<String, ViewLifeCycleAware<?>> data) {
+            public void onLoadFinished(Loader<Map<String, LifeCycleAware<?>>> loader, Map<String, LifeCycleAware<?>> data) {
             }
 
             @Override
-            public void onLoaderReset(Loader<Map<String, ViewLifeCycleAware<?>>> loader) {
+            public void onLoaderReset(Loader<Map<String, LifeCycleAware<?>>> loader) {
             }
         });
 
@@ -117,7 +117,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     @Override
     public void onStart() {
         super.onStart();
-        for (ViewLifeCycleAware<? super T> listener : listeners) {
+        for (LifeCycleAware<? super T> listener : listeners) {
             listener.onStart(viewParam);
         }
     }
@@ -126,7 +126,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     public void onResume() {
         super.onResume();
         boolean hasMenu = false;
-        for (ViewLifeCycleAware<? super T> listener : listeners) {
+        for (LifeCycleAware<? super T> listener : listeners) {
             listener.onResume(viewParam);
             hasMenu = hasMenu || listener.hasOptionsMenu();
         }
@@ -138,14 +138,14 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        for (ViewLifeCycleAware<? super T> listener : listeners) {
+        for (LifeCycleAware<? super T> listener : listeners) {
             listener.onCreateOptionsMenu(menu, inflater);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        for (ViewLifeCycleAware<? super T> listener : listeners) {
+        for (LifeCycleAware<? super T> listener : listeners) {
             boolean ret = listener.onOptionsItemSelected(viewParam, item);
             if (ret) {
                 return ret;
@@ -157,7 +157,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     @Override
     public void onPause() {
         super.onPause();
-        for (ViewLifeCycleAware<? super T> listener : listeners) {
+        for (LifeCycleAware<? super T> listener : listeners) {
             listener.onPause(viewParam);
         }
     }
@@ -165,7 +165,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     @Override
     public void onStop() {
         super.onStop();
-        for (ViewLifeCycleAware<? super T> listener : listeners) {
+        for (LifeCycleAware<? super T> listener : listeners) {
             listener.onStop(viewParam);
         }
     }
@@ -173,14 +173,14 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        for (ViewLifeCycleAware<? super T> listener : listeners) {
+        for (LifeCycleAware<? super T> listener : listeners) {
             listener.onSaveInstanceState(viewParam, outState);
         }
     }
 
     @Override
     public void onDestroy() {
-        for (ViewLifeCycleAware<? super T> listener : listeners) {
+        for (LifeCycleAware<? super T> listener : listeners) {
             listener.onDestroy(viewParam);
         }
         super.onDestroy();
@@ -189,13 +189,13 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        for (ViewLifeCycleAware<? super T> listener : listeners) {
+        for (LifeCycleAware<? super T> listener : listeners) {
             listener.onActivityResult(requestCode, resultCode, data);
         }
     }
 
     @Override
-    public <R extends ViewLifeCycleAware<? super T>> R addRetainedFactory(String key, Callable<R> factory) {
+    public <R extends LifeCycleAware<? super T>> R addRetainedFactory(String key, Callable<R> factory) {
         R listener = (R) retainedObjects.get(key);
         if (listener == null) {
             try {
@@ -210,7 +210,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     }
 
     @Override
-    public void addLifeCycleAware(ViewLifeCycleAware<? super T> lifeCycleAware) {
+    public void addLifeCycleAware(LifeCycleAware<? super T> lifeCycleAware) {
         listeners.add(lifeCycleAware);
     }
 }

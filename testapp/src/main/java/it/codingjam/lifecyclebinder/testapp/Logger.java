@@ -27,10 +27,10 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
-import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
+import it.codingjam.lifecyclebinder.LifeCycleAware;
 
 
-public class Logger implements ViewLifeCycleAware<Object> {
+public class Logger implements LifeCycleAware<Object> {
 
     private String name;
 

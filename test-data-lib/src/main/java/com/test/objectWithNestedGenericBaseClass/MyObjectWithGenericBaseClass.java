@@ -25,12 +25,12 @@ import android.view.MenuItem;
 import com.test.MyObject;
 import com.test.MyView;
 
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
-import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 
-class MyGenericBaseClass<T extends MyView> implements ViewLifeCycleAware<T> {
+class MyGenericBaseClass<T extends MyView> implements LifeCycleAware<T> {
 
-    @LifeCycleAware
+    @BindLifeCycle
     MyObject myBaseObject;
 
     @Override
@@ -91,6 +91,6 @@ class MyGenericBaseClass<T extends MyView> implements ViewLifeCycleAware<T> {
 
 public class MyObjectWithGenericBaseClass extends MyGenericBaseClass<MyView> {
 
-    @LifeCycleAware
+    @BindLifeCycle
     MyObject myObject;
 }

@@ -25,11 +25,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
 
 public class MyFragment2 extends Fragment {
-    @LifeCycleAware FragmentLogger fragmentLogger = new FragmentLogger("MyFragment2");
+    @BindLifeCycle FragmentLogger fragmentLogger = new FragmentLogger("MyFragment2");
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

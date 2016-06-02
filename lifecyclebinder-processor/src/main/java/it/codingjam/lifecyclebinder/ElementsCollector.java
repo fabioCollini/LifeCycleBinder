@@ -54,11 +54,11 @@ public class ElementsCollector {
 
     List<LifeCycleAwareInfo> createLifeCycleAwareElements(Set<? extends Element> lifeCycleAwareElements, Set<? extends Element> retainedObjectElements) {
         Map<Element, LifeCycleAwareInfo> elementsByClass = new HashMap<>();
-        TypeName lifeCycleAwareType = TypeName.get(ViewLifeCycleAware.class);
+        TypeName lifeCycleAwareType = TypeName.get(LifeCycleAware.class);
 
         for (Element element : lifeCycleAwareElements) {
             if (element.getKind() != ElementKind.FIELD) {
-                error(element, "Only fields can be annotated with @%s", LifeCycleAware.class);
+                error(element, "Only fields can be annotated with @%s", BindLifeCycle.class);
                 return null;
             }
 
@@ -66,7 +66,7 @@ public class ElementsCollector {
             TypeName variableType = TypeName.get(variable.asType());
             if (!TypeUtils.isAssignable(elements, variableType, lifeCycleAwareType)) {
                 error(element, "Class %s is annotated with %s, it must implement %s",
-                        variableType, LifeCycleAware.class.getSimpleName(), ViewLifeCycleAware.class.getSimpleName());
+                        variableType, BindLifeCycle.class.getSimpleName(), LifeCycleAware.class.getSimpleName());
             }
 
             TypeElement enclosingElement = (TypeElement) variable.getEnclosingElement();

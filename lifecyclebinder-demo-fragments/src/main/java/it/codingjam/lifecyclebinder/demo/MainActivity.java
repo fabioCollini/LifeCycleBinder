@@ -22,12 +22,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
 
 public class MainActivity extends AppCompatActivity {
 
-    @LifeCycleAware ActivityLogger activityLogger = new ActivityLogger();
+    @BindLifeCycle ActivityLogger activityLogger = new ActivityLogger();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

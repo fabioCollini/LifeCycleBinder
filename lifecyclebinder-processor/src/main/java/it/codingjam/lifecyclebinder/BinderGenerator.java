@@ -142,7 +142,7 @@ public class BinderGenerator {
             TypeName typeName = TypeName.get(type);
             if (typeName instanceof ParameterizedTypeName) {
                 ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
-                if (parameterizedTypeName.typeArguments.size() == 1 && parameterizedTypeName.rawType.equals(TypeName.get(ViewLifeCycleAware.class))) {
+                if (parameterizedTypeName.typeArguments.size() == 1 && parameterizedTypeName.rawType.equals(TypeName.get(LifeCycleAware.class))) {
                     List<TypeName> formalTypeArguments = TypeUtils.getTypeArguments(hostElement.asType());
                     TypeName ret = parameterizedTypeName.typeArguments.get(0);
                     for (int i = 0; i < formalTypeArguments.size(); i++) {

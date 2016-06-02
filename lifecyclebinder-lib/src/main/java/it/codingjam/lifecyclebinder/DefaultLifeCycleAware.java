@@ -22,7 +22,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-public class DefaultViewLifeCycleAware<T> implements ViewLifeCycleAware<T> {
+public class DefaultLifeCycleAware<T> implements LifeCycleAware<T> {
     @Override
     public void onCreate(T view, Bundle bundle) {
     }

@@ -21,10 +21,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import it.codingjam.lifecyclebinder.DefaultViewLifeCycleAware;
+import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
 
 
-public class ActivityLogger extends DefaultViewLifeCycleAware<AppCompatActivity> {
+public class ActivityLogger extends DefaultLifeCycleAware<AppCompatActivity> {
 
     private static final String TAG = "ACTIVITY_LOG";
 

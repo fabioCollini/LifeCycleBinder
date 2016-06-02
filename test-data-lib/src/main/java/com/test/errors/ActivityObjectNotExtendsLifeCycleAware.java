@@ -17,12 +17,8 @@
 package com.test.errors;
 
 import android.support.v4.app.FragmentActivity;
-import android.widget.TextView;
 
-import com.test.MyObject;
-import com.test.MyView;
-
-import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 
 class MyGenericBaseClass<T> {
 
@@ -32,6 +28,6 @@ class MyChildClass extends MyGenericBaseClass<String> {
 }
 
 public class ActivityObjectNotExtendsLifeCycleAware extends FragmentActivity {
-    @LifeCycleAware
+    @BindLifeCycle
     MyChildClass myChildClass;
 }

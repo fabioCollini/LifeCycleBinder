@@ -20,14 +20,14 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final String LAYOUT = "layout";
 
-    @LifeCycleAware
+    @BindLifeCycle
     public Logger logger = new Logger("MainActivity");
 
     @Override

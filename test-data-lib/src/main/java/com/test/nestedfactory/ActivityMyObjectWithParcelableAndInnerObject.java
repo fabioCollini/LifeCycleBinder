@@ -28,13 +28,13 @@ import com.test.MyView;
 
 import java.util.concurrent.Callable;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 import it.codingjam.lifecyclebinder.RetainedObjectProvider;
-import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
+import it.codingjam.lifecyclebinder.LifeCycleAware;
 
-class MyObjectWithParcelableAndInnerObject implements ViewLifeCycleAware<MyView> {
+class MyObjectWithParcelableAndInnerObject implements LifeCycleAware<MyView> {
 
-    @LifeCycleAware
+    @BindLifeCycle
     MyObject myObject;
 
     MyObject myObject2;

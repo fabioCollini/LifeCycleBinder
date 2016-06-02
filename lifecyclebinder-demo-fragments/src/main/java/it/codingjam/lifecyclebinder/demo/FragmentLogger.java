@@ -21,10 +21,10 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
-import it.codingjam.lifecyclebinder.DefaultViewLifeCycleAware;
+import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
 
 
-public class FragmentLogger extends DefaultViewLifeCycleAware<Fragment> {
+public class FragmentLogger extends DefaultLifeCycleAware<Fragment> {
 
     public static final String TAG = "ACTIVITY_LOG";
 

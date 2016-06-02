@@ -25,14 +25,14 @@ import android.view.MenuItem;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import it.codingjam.lifecyclebinder.DefaultViewLifeCycleAware;
+import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
-import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
-public class Presenter extends DefaultViewLifeCycleAware<MvpView> implements ViewLifeCycleAware<MvpView> {
+public class Presenter extends DefaultLifeCycleAware<MvpView> implements LifeCycleAware<MvpView> {
 
     public static final int SHARE_REQUEST_CODE = 123;
 
@@ -42,7 +42,7 @@ public class Presenter extends DefaultViewLifeCycleAware<MvpView> implements Vie
 
     private Model model;
 
-    @LifeCycleAware
+    @BindLifeCycle
     Logger logger = new Logger();
 
     private boolean loading;

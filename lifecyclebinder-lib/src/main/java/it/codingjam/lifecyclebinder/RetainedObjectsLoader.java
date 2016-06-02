@@ -6,9 +6,9 @@ import android.support.v4.content.Loader;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RetainedObjectsLoader extends Loader<Map<String, ViewLifeCycleAware<?>>> {
+public class RetainedObjectsLoader extends Loader<Map<String, LifeCycleAware<?>>> {
 
-    public Map<String, ViewLifeCycleAware<?>> retainedObjects = new HashMap<>();
+    public Map<String, LifeCycleAware<?>> retainedObjects = new HashMap<>();
 
     public RetainedObjectsLoader(Context context) {
         super(context);

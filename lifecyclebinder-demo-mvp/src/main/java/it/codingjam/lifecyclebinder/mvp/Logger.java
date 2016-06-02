@@ -20,10 +20,10 @@ package it.codingjam.lifecyclebinder.mvp;
 import android.os.Bundle;
 import android.util.Log;
 
-import it.codingjam.lifecyclebinder.DefaultViewLifeCycleAware;
+import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
 
 
-public class Logger extends DefaultViewLifeCycleAware<Object> {
+public class Logger extends DefaultLifeCycleAware<Object> {
 
     private static final String TAG = "ACTIVITY_LOG";
 

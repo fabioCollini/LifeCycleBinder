@@ -24,7 +24,7 @@ import android.widget.TextView;
 
 import java.util.concurrent.Callable;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
 import it.codingjam.lifecyclebinder.RetainedObjectProvider;
 
@@ -37,7 +37,7 @@ public class MainActivity2 extends AppCompatActivity implements MvpView {
     private TextView title;
     private TextView description;
 
-    @LifeCycleAware
+    @BindLifeCycle
     Logger logger = new Logger();
 
     @RetainedObjectProvider("presenter")

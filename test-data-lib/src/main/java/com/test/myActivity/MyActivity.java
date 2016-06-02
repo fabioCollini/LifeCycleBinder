@@ -21,9 +21,9 @@ import android.support.v4.app.FragmentActivity;
 import com.test.MyObject;
 import com.test.MyView;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 
 public class MyActivity extends FragmentActivity implements MyView {
-    @LifeCycleAware
+    @BindLifeCycle
     MyObject myObject;
 }

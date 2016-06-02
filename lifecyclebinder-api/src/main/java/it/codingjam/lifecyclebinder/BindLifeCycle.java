@@ -16,32 +16,10 @@
 
 package it.codingjam.lifecyclebinder;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
-public interface ViewLifeCycleAware<T> {
-    void onCreate(T view, Bundle bundle);
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 
-    void onStart(T view);
-
-    void onResume(T view);
-
-    boolean hasOptionsMenu();
-
-    void onCreateOptionsMenu(Menu menu, MenuInflater inflater);
-
-    boolean onOptionsItemSelected(T view, MenuItem item);
-
-    void onPause(T view);
-
-    void onStop(T view);
-
-    void onSaveInstanceState(T view, Bundle bundle);
-
-    void onDestroy(T view);
-
-    void onActivityResult(int requestCode, int resultCode, Intent data);
+@Target(ElementType.FIELD)
+public @interface BindLifeCycle {
 }

@@ -24,7 +24,7 @@ import org.truth0.Truth;
 import javax.tools.JavaFileObject;
 
 import it.codingjam.lifecyclebinder.LifeCycleBinderProcessor;
-import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
+import it.codingjam.lifecyclebinder.LifeCycleAware;
 
 import static it.codingjam.lifecyclebinder.test.FileLoader.check;
 
@@ -103,6 +103,6 @@ public class ProcessorTest {
                 .that(target)
                 .processedWith(new LifeCycleBinderProcessor())
                 .failsToCompile()
-                .withErrorContaining("must implement " + ViewLifeCycleAware.class.getSimpleName());
+                .withErrorContaining("must implement " + LifeCycleAware.class.getSimpleName());
     }
 }

@@ -23,7 +23,6 @@ import com.test.MyView;
 
 import java.util.concurrent.Callable;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.RetainedObjectProvider;
 
 public class ActivityWithRetained extends FragmentActivity implements MyView {

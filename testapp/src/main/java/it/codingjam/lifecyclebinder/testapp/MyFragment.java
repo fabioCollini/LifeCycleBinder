@@ -24,12 +24,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
 
 public class MyFragment extends Fragment {
 
-    @LifeCycleAware
+    @BindLifeCycle
     public Logger logger = new Logger("MyFragment");
 
     @Override

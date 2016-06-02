@@ -22,9 +22,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import it.codingjam.lifecyclebinder.ViewLifeCycleAware;
+import it.codingjam.lifecyclebinder.LifeCycleAware;
 
-public class MyObject implements ViewLifeCycleAware<MyView> {
+public class MyObject implements LifeCycleAware<MyView> {
     @Override
     public void onCreate(MyView view, Bundle bundle) {
 
