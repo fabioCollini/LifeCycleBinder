@@ -88,7 +88,7 @@ public class ElementsCollector {
             TypeElement enclosingElement = (TypeElement) variable.getEnclosingElement();
 
             LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, enclosingElement);
-            TypeName typeName = it.codingjam.lifecyclebinder.utils.TypeUtils.getTypeArguments(variable.asType()).get(0);
+            TypeName typeName = TypeUtils.getTypeArguments(variable.asType()).get(0);
             info.retainedObjects.add(new RetainedObjectInfo(variable.getSimpleName().toString(), variable, typeName, annotation.value()));
         }
         return new ArrayList<>(elementsByClass.values());
@@ -106,7 +106,7 @@ public class ElementsCollector {
             }
             TypeMirror superclass = lifeCycleAwareInfo.element.getSuperclass();
             for (LifeCycleAwareInfo entry : elementsByClass) {
-                if (it.codingjam.lifecyclebinder.utils.TypeUtils.isRawTypeEquals(superclass, entry.element.asType())) {
+                if (TypeUtils.isRawTypeEquals(superclass, entry.element.asType())) {
                     lifeCycleAwareInfo.nestedElements.add(NestedLifeCycleAwareInfo.createSuperclass(lifeCycleAwareInfo.element));
                     break;
                 }
