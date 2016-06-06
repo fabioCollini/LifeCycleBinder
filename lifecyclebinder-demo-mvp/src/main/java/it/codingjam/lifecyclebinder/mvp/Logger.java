@@ -17,6 +17,7 @@
 package it.codingjam.lifecyclebinder.mvp;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -28,7 +29,7 @@ public class Logger extends DefaultLifeCycleAware<Object> {
     private static final String TAG = "ACTIVITY_LOG";
 
     @Override
-    public void onCreate(Object activity, Bundle bundle) {
+    public void onCreate(Object activity, Bundle savedInstanceState, Intent intent, Bundle arguments) {
         Log.i(TAG, "Creating:" + activity);
     }
 
@@ -53,7 +54,7 @@ public class Logger extends DefaultLifeCycleAware<Object> {
     }
 
     @Override
-    public void onDestroy(Object activity) {
+    public void onDestroy(Object activity, boolean changingConfigurations) {
         Log.i(TAG, "Destroying:" + activity);
     }
 }

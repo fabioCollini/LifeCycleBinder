@@ -51,7 +51,7 @@ public class Logger implements LifeCycleAware<Object> {
     }
 
     @Override
-    public void onCreate(Object view, Bundle bundle) {
+    public void onCreate(Object view, Bundle savedInstanceState, Intent intent, Bundle arguments) {
         log(name + ": " + "onCreate");
     }
 
@@ -103,7 +103,7 @@ public class Logger implements LifeCycleAware<Object> {
     }
 
     @Override
-    public void onDestroy(Object view) {
+    public void onDestroy(Object view, boolean changingConfigurations) {
         log(name + ": " + "onDestroy");
     }
 

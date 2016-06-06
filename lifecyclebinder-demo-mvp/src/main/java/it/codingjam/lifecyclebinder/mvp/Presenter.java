@@ -25,8 +25,8 @@ import android.view.MenuItem;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
 import it.codingjam.lifecyclebinder.BindLifeCycle;
+import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -34,9 +34,9 @@ import rx.functions.Action1;
 
 public class Presenter extends DefaultLifeCycleAware<MvpView> implements LifeCycleAware<MvpView> {
 
-    public static final int SHARE_REQUEST_CODE = 123;
+    private static final int SHARE_REQUEST_CODE = 123;
 
-    public static final String MODEL = "MODEL";
+    private static final String MODEL = "MODEL";
 
     private MvpView view;
 
@@ -48,13 +48,20 @@ public class Presenter extends DefaultLifeCycleAware<MvpView> implements LifeCyc
     private boolean loading;
 
     @Override
-    public void onCreate(MvpView view, Bundle bundle) {
-        if (bundle != null) {
-            model = bundle.getParcelable(MODEL);
-        }
+    public void onCreate(MvpView view, Bundle savedInstanceState, Intent intent, Bundle arguments) {
         if (model == null) {
-            model = new Model();
+            if (savedInstanceState != null) {
+                model = savedInstanceState.getParcelable(MODEL);
+            }
+            if (model == null) {
+                model = new Model();
+            }
         }
+    }
+
+    @Override
+    public void onDestroy(MvpView view, boolean changingConfigurations) {
+        super.onDestroy(view, changingConfigurations);
     }
 
     @Override

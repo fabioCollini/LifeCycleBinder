@@ -34,7 +34,7 @@ class MyGenericBaseClass<T extends MyView> implements LifeCycleAware<T> {
     MyObject myBaseObject;
 
     @Override
-    public void onCreate(T view, Bundle bundle) {
+    public void onCreate(T view, Bundle savedInstanceState, Intent intent, Bundle arguments) {
 
     }
 
@@ -79,7 +79,7 @@ class MyGenericBaseClass<T extends MyView> implements LifeCycleAware<T> {
     }
 
     @Override
-    public void onDestroy(T view) {
+    public void onDestroy(T view, boolean changingConfigurations) {
 
     }
 

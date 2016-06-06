@@ -23,7 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 public interface LifeCycleAware<T> {
-    void onCreate(T view, Bundle bundle);
+    void onCreate(T view, Bundle savedInstanceState, Intent intent, Bundle arguments);
 
     void onStart(T view);
 
@@ -41,7 +41,7 @@ public interface LifeCycleAware<T> {
 
     void onSaveInstanceState(T view, Bundle bundle);
 
-    void onDestroy(T view);
+    void onDestroy(T view, boolean changingConfigurations);
 
     void onActivityResult(int requestCode, int resultCode, Intent data);
 }

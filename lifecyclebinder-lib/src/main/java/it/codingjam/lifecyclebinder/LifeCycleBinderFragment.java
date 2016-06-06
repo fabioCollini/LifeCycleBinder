@@ -72,21 +72,22 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
         super.onCreate(savedInstanceState);
         retainedObjects = initRetainedObjects();
 
-        viewParam = initViewParam();
+        T result;
+        Bundle arguments;
+        T parentFragment = (T) getParentFragment();
+        if (parentFragment == null) {
+            result = (T) getActivity();
+            arguments = getActivity().getIntent().getExtras();
+        } else {
+            result = parentFragment;
+            arguments = ((Fragment) parentFragment).getArguments();
+        }
+        viewParam = result;
 
         invokeBindMethod();
 
         for (LifeCycleAware<? super T> listener : listeners) {
-            listener.onCreate(viewParam, savedInstanceState);
-        }
-    }
-
-    private T initViewParam() {
-        T viewParam = (T) getParentFragment();
-        if (viewParam == null) {
-            return (T) getActivity();
-        } else {
-            return viewParam;
+            listener.onCreate(viewParam, savedInstanceState, getActivity().getIntent(), arguments);
         }
     }
 
@@ -180,8 +181,9 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
 
     @Override
     public void onDestroy() {
+        boolean changingConfigurations = getActivity().isChangingConfigurations();
         for (LifeCycleAware<? super T> listener : listeners) {
-            listener.onDestroy(viewParam);
+            listener.onDestroy(viewParam, changingConfigurations);
         }
         super.onDestroy();
     }

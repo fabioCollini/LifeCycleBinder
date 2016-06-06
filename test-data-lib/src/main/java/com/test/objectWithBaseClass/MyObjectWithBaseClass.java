@@ -31,7 +31,7 @@ import it.codingjam.lifecyclebinder.LifeCycleAware;
 class MyBaseClass implements LifeCycleAware<MyView> {
 
     @Override
-    public void onCreate(MyView view, Bundle bundle) {
+    public void onCreate(MyView view, Bundle savedInstanceState, Intent intent, Bundle arguments) {
 
     }
 
@@ -76,7 +76,7 @@ class MyBaseClass implements LifeCycleAware<MyView> {
     }
 
     @Override
-    public void onDestroy(MyView view) {
+    public void onDestroy(MyView view, boolean changingConfigurations) {
 
     }
 

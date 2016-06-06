@@ -17,6 +17,7 @@
 package it.codingjam.lifecyclebinder.demo;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -37,7 +38,7 @@ public class FragmentLogger extends DefaultLifeCycleAware<Fragment> {
     }
 
     @Override
-    public void onCreate(Fragment activity, Bundle bundle) {
+    public void onCreate(Fragment activity, Bundle savedInstanceState, Intent intent, Bundle arguments) {
         Log.i(TAG, name + " Creating activity:" + activity);
     }
 
@@ -62,7 +63,7 @@ public class FragmentLogger extends DefaultLifeCycleAware<Fragment> {
     }
 
     @Override
-    public void onDestroy(Fragment activity) {
+    public void onDestroy(Fragment activity, boolean changingConfigurations) {
         Log.i(TAG, name + " Destroying activity:" + activity);
     }
 }
