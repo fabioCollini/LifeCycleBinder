@@ -71,13 +71,13 @@ public class Logger implements LifeCycleAware<Object> {
     }
 
     @Override
-    public boolean hasOptionsMenu() {
+    public boolean hasOptionsMenu(Object view) {
         log(name + ": " + "hasOptionsMenu");
         return false;
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(Object view, Menu menu, MenuInflater inflater) {
         log(name + ": " + "onCreateOptionsMenu");
     }
 
@@ -108,7 +108,7 @@ public class Logger implements LifeCycleAware<Object> {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(Object view, int requestCode, int resultCode, Intent data) {
         log(name + ": " + "onActivityResult");
     }
 }

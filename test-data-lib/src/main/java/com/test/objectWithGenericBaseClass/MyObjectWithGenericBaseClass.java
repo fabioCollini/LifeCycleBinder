@@ -46,12 +46,12 @@ class MyGenericBaseClass<T> implements LifeCycleAware<T> {
     }
 
     @Override
-    public boolean hasOptionsMenu() {
+    public boolean hasOptionsMenu(T view) {
         return false;
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(T view, Menu menu, MenuInflater inflater) {
 
     }
 
@@ -81,7 +81,7 @@ class MyGenericBaseClass<T> implements LifeCycleAware<T> {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(T view, int requestCode, int resultCode, Intent data) {
 
     }
 }

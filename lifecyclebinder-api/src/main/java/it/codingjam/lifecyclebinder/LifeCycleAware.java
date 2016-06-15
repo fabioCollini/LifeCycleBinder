@@ -29,9 +29,9 @@ public interface LifeCycleAware<T> {
 
     void onResume(T view);
 
-    boolean hasOptionsMenu();
+    boolean hasOptionsMenu(T view);
 
-    void onCreateOptionsMenu(Menu menu, MenuInflater inflater);
+    void onCreateOptionsMenu(T view, Menu menu, MenuInflater inflater);
 
     boolean onOptionsItemSelected(T view, MenuItem item);
 
@@ -43,5 +43,5 @@ public interface LifeCycleAware<T> {
 
     void onDestroy(T view, boolean changingConfigurations);
 
-    void onActivityResult(int requestCode, int resultCode, Intent data);
+    void onActivityResult(T view, int requestCode, int resultCode, Intent data);
 }

@@ -111,19 +111,19 @@ public class Presenter extends DefaultLifeCycleAware<MvpView> implements LifeCyc
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(MvpView view, int requestCode, int resultCode, Intent data) {
         if (requestCode == SHARE_REQUEST_CODE) {
             //...
         }
     }
 
     @Override
-    public boolean hasOptionsMenu() {
+    public boolean hasOptionsMenu(MvpView view) {
         return true;
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(MvpView view, Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.share_menu, menu);
     }
 

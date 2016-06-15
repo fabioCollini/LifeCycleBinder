@@ -46,12 +46,12 @@ class MyBaseClass implements LifeCycleAware<MyView> {
     }
 
     @Override
-    public boolean hasOptionsMenu() {
+    public boolean hasOptionsMenu(MyView view) {
         return false;
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(MyView view, Menu menu, MenuInflater inflater) {
 
     }
 
@@ -81,7 +81,7 @@ class MyBaseClass implements LifeCycleAware<MyView> {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(MyView view, int requestCode, int resultCode, Intent data) {
 
     }
 }

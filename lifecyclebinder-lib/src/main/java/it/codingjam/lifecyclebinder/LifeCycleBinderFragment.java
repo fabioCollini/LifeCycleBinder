@@ -129,7 +129,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
         boolean hasMenu = false;
         for (LifeCycleAware<? super T> listener : listeners) {
             listener.onResume(viewParam);
-            hasMenu = hasMenu || listener.hasOptionsMenu();
+            hasMenu = hasMenu || listener.hasOptionsMenu(viewParam);
         }
         if (hasMenu) {
             setHasOptionsMenu(true);
@@ -140,7 +140,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         for (LifeCycleAware<? super T> listener : listeners) {
-            listener.onCreateOptionsMenu(menu, inflater);
+            listener.onCreateOptionsMenu(viewParam, menu, inflater);
         }
     }
 
@@ -192,7 +192,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         for (LifeCycleAware<? super T> listener : listeners) {
-            listener.onActivityResult(requestCode, resultCode, data);
+            listener.onActivityResult(viewParam, requestCode, resultCode, data);
         }
     }
 
