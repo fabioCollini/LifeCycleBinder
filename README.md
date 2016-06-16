@@ -88,9 +88,12 @@ Callable<MyRetainedLifeCycleAware> myFactory = () -> new MyRetainedLifeCycleAwar
 - void onCreateOptionsMenu(T view, Menu menu, MenuInflater inflater)
 - boolean onOptionsItemSelected(T view, MenuItem item)
 
-<!--
-onActivityResult
+Activity navigation can be managed using LifeCycleBinder, `LifeCycleAware` interface contains 
+`onActivityResult` method that it's invoked when an Activity returns.
+`LifeCycleBinder` contains a static method `startActivityForResult`, you need to use
+this method passing the Activity/Fragment to receive the callback.
 
+<!--
 ## Why another lib?
 
 There are other library available similar to LifeCycleBinder (for example
