@@ -1,7 +1,5 @@
 # LifeCycleBinder
 
-Move code to standard testable Java classes
-
 [![](https://jitpack.io/v/fabioCollini/LifeCycleBinder.svg)](https://jitpack.io/#fabioCollini/LifeCycleBinder)
 
 Using LifeCycleBinder you can create Java classes connected to the lifecycle of an Activity or a Fragment.
@@ -9,12 +7,12 @@ Using LifeCycleBinder you can create Java classes connected to the lifecycle of 
 The usage is simple, you just need to create a class that implements `LifeCycleAware`, add a field annotated with `@BindLifeCycle`
 and invoke `LifeCycleBinder.bind(this)` in onCreate method.
 
-If you want to create an object that survives on orientation change you can use `@RetainedObjectProvider`
-on a Callable or a Provider field.
+If you want to create an object that survives on configuration changes you can annotate 
+a Callable or a Provider field using `@RetainedObjectProvider` annotation.
 
 ## Usage
 
-In this example we are using a field annotated with `@BindLifeCycle`; we don't need to extend
+In this example we are using a field annotated with `@BindLifeCycle`. We don't need to extend
 a custom base class, we just invoke the `LifeCycleBinder.bind` static method:
 
 
@@ -40,7 +38,7 @@ public class MyActivity extends AppCompatActivity {
 }
 ```
 
-The `MyLifeCycleAware` must implement `LifeCycleAware` interface, the class 
+The `MyLifeCycleAware` class must implement `LifeCycleAware` interface, the class 
 `DefaultLifeCycleAware` can be used to override only some methods:
 
 ```java
@@ -52,17 +50,18 @@ public class MyLifeCycleAware extends DefaultLifeCycleAware<MyActivity> {
 }
 ```
 
-The first parameter of the methods of LifeCycleAware interface is always the
-Activity or the Fragment, an interface or a base class can be used.
+The first parameter of `LifeCycleAware` methods is always the
+Activity or the Fragment. An interface or a base class can be used to avoid
+dependency to Android classes.
 The other parameters are usually the same parameters of the corresponding Activity/Fragment method,
 there are two exceptions:
 
-- `onCreate` method contains the Activity intent and a Bundle that contains
- the Activity intent bundle or the Fragment arguments;
+- `onCreate` method contains the Activity intent and a Bundle (it can be
+ the Activity intent bundle or the Fragment arguments);
 - `onDestroy` method contains a changingConfigurations parameters.
 
-Using LifeCycleBinder it's easy to manage retained objects, for example we 
-can create an Activity with a Callable field annotated with `@RetainedObjectProvider`: 
+Using LifeCycleBinder it's easy to manage retained objects, we 
+can create an Activity with a `Callable` field annotated with `@RetainedObjectProvider`: 
 
 ```java
 @RetainedObjectProvider
@@ -71,7 +70,7 @@ Callable<MyRetainedLifeCycleAware> myFactory = () -> new MyRetainedLifeCycleAwar
 
 In this example a `MyRetainedLifeCycleAware` object is created on the first start, all
 the callbacks are invoked on this object. If the Activity/Fragment is destroyed
-for a configuration change the object is not destroyed.
+for a configuration change the object is retained.
 In case we need to use this object directly we can create a field and add
 the field name as parameter to the `@RetainedObjectProvider` annotation:
 
@@ -90,7 +89,7 @@ Callable<MyRetainedLifeCycleAware> myFactory = () -> new MyRetainedLifeCycleAwar
 
 Activity navigation can be managed using LifeCycleBinder, `LifeCycleAware` interface contains 
 `onActivityResult` method that it's invoked when an Activity returns.
-`LifeCycleBinder` contains a static method `startActivityForResult`, you need to use
+`LifeCycleBinder` class contains a static method `startActivityForResult`, you need to use
 this method passing the Activity/Fragment to receive the callback.
 
 <!--
@@ -110,25 +109,39 @@ Annotated objects are collected using an annotation processor.
 
 Retained objects are managed using a Loader associated to the Fragment.
 
-LifeCycleBinder depends on support-v4 v24, it uses the new method commitNow
+LifeCycleBinder depends on support-v4 v24, it uses the new method `commitNow`
 to dynamically add the Fragment.
 
 ## Dagger support
 
-LifeCycleBinder can be easily used together with Dagger 2. `@BindLifeCycle`
-can be used on field populated using `@Inject` annotation. `@RetainedObjectProvider`
-can be used on `Provider` fields.
+LifeCycleBinder can be easily used on objects managed by Dagger 2. `@BindLifeCycle`
+works on fields populated using `@Inject` annotation, `@RetainedObjectProvider`
+can be used on `Provider` fields. The previous examples can be rewritten using Dagger:
+
+```java
+@Inject
+@BindLifeCycle
+MyLifeCycleAware myLifeCycleAware;
+
+MyRetainedLifeCycleAware myRetainedLifeCycleAware;
+
+@Inject
+@RetainedObjectProvider("myRetainedLifeCycleAware")
+Provider<MyRetainedLifeCycleAware> myFactory;
+```
 
 ## JitPack configuration
 
 LifeCycleBinder is available on [JitPack](https://jitpack.io/#fabioCollini/LifeCycleBinder),
 add the JitPack repository in your build.gradle (in top level dir):
+
 ```gradle
 repositories {
     jcenter()
     maven { url "https://jitpack.io" }
 }
 ```
+
 and the dependency in the build.gradle of the module:
 
 ```gradle
