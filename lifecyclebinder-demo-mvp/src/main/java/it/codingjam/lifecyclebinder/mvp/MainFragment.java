@@ -96,6 +96,6 @@ public class MainFragment extends Fragment implements MvpView {
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_TEXT, message);
         sendIntent.setType("text/plain");
-        LifeCycleBinder.startActivityForResult(getActivity(), Intent.createChooser(sendIntent, getResources().getText(R.string.share)), requestCode);
+        LifeCycleBinder.startActivityForResult(this, Intent.createChooser(sendIntent, getResources().getText(R.string.share)), requestCode);
     }
 }
