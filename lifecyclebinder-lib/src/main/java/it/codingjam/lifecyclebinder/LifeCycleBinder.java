@@ -56,6 +56,6 @@ public class LifeCycleBinder {
     }
 
     public static void startActivityForResult(Fragment fragment, Intent intent, int requestCode) {
-        LifeCycleBinderFragment.get(fragment.getFragmentManager()).startActivityForResult(intent, requestCode);
+        LifeCycleBinderFragment.get(fragment.getChildFragmentManager()).startActivityForResult(intent, requestCode);
     }
 }
