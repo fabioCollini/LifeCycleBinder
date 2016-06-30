@@ -155,8 +155,8 @@ buildscript {
 apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
-    apt 'com.github.fabioCollini.lifecyclebinder:lifecyclebinder-processor:0.3.1'
-    compile 'com.github.fabioCollini.lifecyclebinder:lifecyclebinder-lib:0.3.1'
+    apt 'com.github.fabioCollini.lifecyclebinder:lifecyclebinder-processor:0.3.2'
+    compile 'com.github.fabioCollini.lifecyclebinder:lifecyclebinder-lib:0.3.2'
 }
 ```
 
