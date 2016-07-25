@@ -24,9 +24,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +122,21 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
         });
 
         return ((RetainedObjectsLoader) (Loader) getLoaderManager().getLoader(LOADER_ID)).retainedObjects;
+    }
+
+    @Nullable @Override public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View ret = super.onCreateView(inflater, container, savedInstanceState);
+        for (LifeCycleAware<? super T> listener : listeners) {
+            listener.onViewCreated(viewParam, savedInstanceState);
+        }
+        return ret;
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        for (LifeCycleAware<? super T> listener : listeners) {
+            listener.onDestroyView(viewParam);
+        }
     }
 
     @Override

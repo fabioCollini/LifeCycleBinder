@@ -44,4 +44,8 @@ public interface LifeCycleAware<T> {
     void onDestroy(T view, boolean changingConfigurations);
 
     void onActivityResult(T view, int requestCode, int resultCode, Intent data);
+
+    void onViewCreated(T view, Bundle savedInstanceState);
+
+    void onDestroyView(T view);
 }

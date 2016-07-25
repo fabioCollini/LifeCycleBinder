@@ -68,4 +68,10 @@ public class DefaultLifeCycleAware<T> implements LifeCycleAware<T> {
     @Override
     public void onActivityResult(T view, int requestCode, int resultCode, Intent data) {
     }
+
+    @Override public void onViewCreated(T view, Bundle savedInstanceState) {
+    }
+
+    @Override public void onDestroyView(T view) {
+    }
 }
