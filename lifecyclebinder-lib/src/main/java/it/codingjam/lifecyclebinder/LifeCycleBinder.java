@@ -39,16 +39,20 @@ public class LifeCycleBinder {
     }
 
     private static <T> void bind(T obj, FragmentManager fragmentManager) {
-        if (LifeCycleBinderFragment.get(fragmentManager) == null) {
+        LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.get(fragmentManager);
+        if (fragment == null) {
             Class<ObjectBinder<T, T>> c = ReflectionUtils.getObjectBinderClass(obj);
-            LifeCycleBinderFragment.createAndAdd(fragmentManager, c);
+            fragment = LifeCycleBinderFragment.createAndAdd(fragmentManager, c);
         }
+        fragment.invokeOnCreate();
     }
 
     private static <T> void bind(FragmentManager fragmentManager, Class<ObjectBinder<T, T>> objectBinderClass) {
-        if (LifeCycleBinderFragment.get(fragmentManager) == null) {
-            LifeCycleBinderFragment.createAndAdd(fragmentManager, objectBinderClass);
+        LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.get(fragmentManager);
+        if (fragment == null) {
+            fragment = LifeCycleBinderFragment.createAndAdd(fragmentManager, objectBinderClass);
         }
+        fragment.invokeOnCreate();
     }
 
     public static void startActivityForResult(FragmentActivity activity, Intent intent, int requestCode) {

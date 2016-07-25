@@ -27,7 +27,6 @@ import android.support.v4.content.Loader;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +43,8 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     private Map<String, LifeCycleAware<?>> retainedObjects;
 
     private final List<LifeCycleAware<? super T>> listeners = new ArrayList<>();
+
+    @Nullable private Bundle savedInstanceStateOnCreate;
 
     static <T> LifeCycleBinderFragment<T> get(FragmentManager fragmentManager) {
         return (LifeCycleBinderFragment<T>) fragmentManager.findFragmentByTag(LIFE_CYCLE_BINDER_FRAGMENT);
@@ -62,33 +63,38 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
         fragmentManager.beginTransaction().add(fragment, LIFE_CYCLE_BINDER_FRAGMENT).commitNow();
     }
 
-    static <T> void createAndAdd(FragmentManager fragmentManager, Class<ObjectBinder<T, T>> c) {
+    static <T> LifeCycleBinderFragment<T> createAndAdd(FragmentManager fragmentManager, Class<ObjectBinder<T, T>> c) {
         LifeCycleBinderFragment<T> fragment = create(c);
         add(fragmentManager, fragment);
+        return fragment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        this.savedInstanceStateOnCreate = savedInstanceState;
         super.onCreate(savedInstanceState);
         retainedObjects = initRetainedObjects();
 
-        T result;
-        Bundle arguments;
         T parentFragment = (T) getParentFragment();
         if (parentFragment == null) {
-            result = (T) getActivity();
+            viewParam = (T) getActivity();
+        } else {
+            viewParam = parentFragment;
+        }
+    }
+
+    void invokeOnCreate() {
+        invokeBindMethod();
+        Bundle arguments;
+        if (getParentFragment() == null) {
             arguments = getActivity().getIntent().getExtras();
         } else {
-            result = parentFragment;
-            arguments = ((Fragment) parentFragment).getArguments();
+            arguments = getParentFragment().getArguments();
         }
-        viewParam = result;
-
-        invokeBindMethod();
-
         for (LifeCycleAware<? super T> listener : listeners) {
-            listener.onCreate(viewParam, savedInstanceState, getActivity().getIntent(), arguments);
+            listener.onCreate(viewParam, savedInstanceStateOnCreate, getActivity().getIntent(), arguments);
         }
+        savedInstanceStateOnCreate = null;
     }
 
     private void invokeBindMethod() {
