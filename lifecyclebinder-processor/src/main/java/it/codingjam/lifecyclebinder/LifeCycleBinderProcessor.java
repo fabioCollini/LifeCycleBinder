@@ -16,28 +16,24 @@
 
 package it.codingjam.lifecyclebinder;
 
+import it.codingjam.lifecyclebinder.data.LifeCycleAwareInfo;
 import java.util.List;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
-import it.codingjam.lifecyclebinder.data.*;
-
 @SupportedAnnotationTypes({
         "it.codingjam.lifecyclebinder.BindLifeCycle",
         "it.codingjam.lifecyclebinder.RetainedObjectProvider"
 })
-@SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class LifeCycleBinderProcessor extends AbstractProcessor {
 
     private Types types;
@@ -77,5 +73,9 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
             binderGenerator.generateBinder(entry);
         }
         return false;
+    }
+
+    @Override public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
     }
 }
