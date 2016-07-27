@@ -23,7 +23,7 @@ group='com.github.fabioCollini.lifecyclebinder'
 dependencies {
     compile project(':lifecyclebinder-api')
 
-    compile 'com.squareup:javapoet:1.6.1'
+    compile 'com.squareup:javapoet:1.7.0'
 
     testCompile 'junit:junit:4.12'
     compile 'com.google.android:android:4.1.1.4'
