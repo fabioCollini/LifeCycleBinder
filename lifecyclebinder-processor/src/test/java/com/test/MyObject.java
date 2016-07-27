@@ -79,4 +79,12 @@ public class MyObject implements LifeCycleAware<MyView> {
     public void onActivityResult(MyView view, int requestCode, int resultCode, Intent data) {
 
     }
+
+    @Override public void onViewCreated(MyView view, Bundle savedInstanceState) {
+
+    }
+
+    @Override public void onDestroyView(MyView view) {
+
+    }
 }

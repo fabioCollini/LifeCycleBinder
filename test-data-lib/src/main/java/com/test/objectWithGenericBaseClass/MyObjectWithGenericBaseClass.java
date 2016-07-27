@@ -84,6 +84,14 @@ class MyGenericBaseClass<T> implements LifeCycleAware<T> {
     public void onActivityResult(T view, int requestCode, int resultCode, Intent data) {
 
     }
+
+    @Override public void onViewCreated(T view, Bundle savedInstanceState) {
+
+    }
+
+    @Override public void onDestroyView(T view) {
+
+    }
 }
 
 public class MyObjectWithGenericBaseClass extends MyGenericBaseClass<MyView> {
