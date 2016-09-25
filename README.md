@@ -4,11 +4,11 @@
 
 Using LifeCycleBinder you can create Java classes connected to the lifecycle of an Activity or a Fragment.
 
-The usage is simple, you just need to create a class that implements `LifeCycleAware`, add a field annotated with `@BindLifeCycle`
-and invoke `LifeCycleBinder.bind(this)` in onCreate method.
+The usage is simple, you just need to create a class that implements `LifeCycleAware` and modify your Activity/Fragment 
+adding a field annotated with `@BindLifeCycle` and invoking `LifeCycleBinder.bind(this)` in onCreate method.
 
 If you want to create an object that survives on configuration changes you can annotate 
-a Callable or a Provider field using `@RetainedObjectProvider` annotation.
+a `Callable` or a `Provider` field using `@RetainedObjectProvider` annotation.
 
 ## Usage
 
@@ -91,15 +91,6 @@ Activity navigation can be managed using LifeCycleBinder, `LifeCycleAware` inter
 `onActivityResult` method that it's invoked when an Activity returns.
 `LifeCycleBinder` class contains a static method `startActivityForResult`, you need to use
 this method passing the Activity/Fragment to receive the callback.
-
-<!--
-## Why another lib?
-
-There are other library available similar to LifeCycleBinder (for example
-[LighCycle](https://github.com/soundcloud/lightcycle) and [Navi](https://github.com/trello/navi)).
-Using other libraries you need to LifeCycleBinder... 
-
--->
 
 ## How does it work under the hood?
 
