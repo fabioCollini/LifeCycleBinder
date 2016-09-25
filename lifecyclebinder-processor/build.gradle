@@ -29,6 +29,5 @@ dependencies {
     compile 'com.google.android:android:4.1.1.4'
     compile 'com.google.android:support-v4:r7'
     testCompile 'com.google.testing.compile:compile-testing:0.8'
-//    testCompile 'com.android.support:appcompat-v7:23.3.0'
     testCompile files(((URLClassLoader) javax.tools.ToolProvider.getSystemToolClassLoader()).getURLs())
 }
