@@ -41,18 +41,6 @@ public class MyFragment4 extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_main, container, false);
         ((TextView) view.findViewById(R.id.hello)).setText("MyFragment4");
-//        view.findViewById(R.id.container).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                FragmentManager fragmentManager = getChildFragmentManager();
-//                Fragment newFragment = fragmentManager.findFragmentByTag("newFragment");
-//                if (newFragment == null) {
-//                    fragmentManager.beginTransaction().add(R.id.container, new MyFragment4(), "newFragment").commit();
-//                } else {
-//                    fragmentManager.beginTransaction().remove(newFragment).commit();
-//                }
-//            }
-//        });
 
         return view;
     }
