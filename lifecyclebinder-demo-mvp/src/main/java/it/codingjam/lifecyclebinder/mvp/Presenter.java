@@ -21,13 +21,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
 import it.codingjam.lifecyclebinder.BindLifeCycle;
 import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
