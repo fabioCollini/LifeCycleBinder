@@ -138,17 +138,8 @@ repositories {
 and the dependency in the build.gradle of the module:
 
 ```gradle
-
-buildscript {
-    dependencies {
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-    }
-}
-
-apply plugin: 'com.neenbedankt.android-apt'
-
 dependencies {
-    apt 'com.github.fabioCollini.lifecyclebinder:lifecyclebinder-processor:0.3.2'
+    annotationProcessor 'com.github.fabioCollini.lifecyclebinder:lifecyclebinder-processor:0.3.2'
     compile 'com.github.fabioCollini.lifecyclebinder:lifecyclebinder-lib:0.3.2'
 }
 ```

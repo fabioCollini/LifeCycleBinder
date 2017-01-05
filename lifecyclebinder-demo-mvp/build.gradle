@@ -18,14 +18,9 @@ buildscript {
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-    }
 }
 
 apply plugin: 'com.android.application'
-
-apply plugin: 'android-apt'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -50,7 +45,7 @@ android {
 }
 
 dependencies {
-    apt project(":lifecyclebinder-processor")
+    annotationProcessor project(":lifecyclebinder-processor")
 
     compile project(':lifecyclebinder-lib')
     compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
