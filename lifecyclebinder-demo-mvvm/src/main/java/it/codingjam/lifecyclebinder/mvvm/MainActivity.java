@@ -28,7 +28,7 @@ import java.util.concurrent.Callable;
 public class MainActivity extends AppCompatActivity {
 
     @RetainedObjectProvider("viewModel")
-    Callable<ViewModel> presenterFactory = new Callable<ViewModel>() {
+    Callable<ViewModel> viewModelFactory = new Callable<ViewModel>() {
         @Override
         public ViewModel call() throws Exception {
             return new ViewModel();
