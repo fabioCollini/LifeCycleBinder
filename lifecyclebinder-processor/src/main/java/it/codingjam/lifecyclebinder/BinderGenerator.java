@@ -70,7 +70,6 @@ public class BinderGenerator {
         final String qualifiedClassName = packageElement.getQualifiedName() + "." + simpleClassName;
 
         try {
-            message(Diagnostic.Kind.NOTE, "writing class " + qualifiedClassName);
             JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(
                     qualifiedClassName, lifeCycleAwareInfo.getLifeCycleAwareElementsArray());
 
@@ -196,6 +195,9 @@ public class BinderGenerator {
                         .build();
             }
             if (entry.fieldToPopulate != null && entry.fieldToPopulate.length() > 0) {
+                if (!lifeCycleAwareInfo.containsField(entry.fieldToPopulate)) {
+                    error(entry.field, "Field %s not found, it's referenced in field %s", entry.fieldToPopulate, entry.field);
+                }
                 builder.addStatement("view.$L = collector.addRetainedFactory($S, $L)", entry.fieldToPopulate, entry.name, argument);
                 if (lifeCycleAwareInfo.isNested(entry)) {
                     builder.addStatement("$L.bind(collector, view.$L)", entry.name, entry.fieldToPopulate);

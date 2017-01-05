@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 
 public class LifeCycleAwareInfo {
@@ -52,6 +53,16 @@ public class LifeCycleAwareInfo {
     public boolean isNested(RetainedObjectInfo entry) {
         for (NestedLifeCycleAwareInfo nestedElement : nestedElements) {
             if (nestedElement.getFieldName().equals(entry.name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsField(String field) {
+        List<? extends Element> enclosedElements = element.getEnclosedElements();
+        for (Element e : enclosedElements) {
+            if (e.getKind() == ElementKind.FIELD && e.getSimpleName().toString().equals(field)) {
                 return true;
             }
         }
