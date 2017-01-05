@@ -14,4 +14,4 @@
  *  limitations under the License.
  */
 
-include ':lifecyclebinder-demo-fragments', ':lifecyclebinder-lib', ':lifecyclebinder-demo-mvp', ':lifecyclebinder-processor', ':lifecyclebinder-api', ':testapp', ':test-data-lib'
+include ':lifecyclebinder-demo-fragments', ':lifecyclebinder-lib', ':lifecyclebinder-demo-mvp', ':lifecyclebinder-demo-mvvm', ':lifecyclebinder-processor', ':lifecyclebinder-api', ':testapp', ':test-data-lib'
