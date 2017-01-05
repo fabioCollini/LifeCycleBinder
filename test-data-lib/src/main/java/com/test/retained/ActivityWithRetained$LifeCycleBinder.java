@@ -21,6 +21,6 @@ import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class ActivityWithRetained$LifeCycleBinder extends ObjectBinder<ActivityWithRetained, ActivityWithRetained> {
     public void bind(LifeCycleAwareCollector<? extends ActivityWithRetained> collector, final ActivityWithRetained view) {
-        collector.addRetainedFactory("myObjectProvider", view.myObjectProvider);
+        collector.addRetainedFactory("myObjectProvider", view.myObjectProvider, true);
     }
 }

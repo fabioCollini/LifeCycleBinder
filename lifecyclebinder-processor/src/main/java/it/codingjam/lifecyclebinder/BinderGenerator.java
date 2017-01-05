@@ -198,15 +198,16 @@ public class BinderGenerator {
                 if (!lifeCycleAwareInfo.containsField(entry.fieldToPopulate)) {
                     error(entry.field, "Field %s not found, it's referenced in field %s", entry.fieldToPopulate, entry.field);
                 }
-                builder.addStatement("view.$L = collector.addRetainedFactory($S, $L)", entry.fieldToPopulate, entry.name, argument);
+                builder.addStatement("view.$L = collector.addRetainedFactory($S, $L, false)", entry.fieldToPopulate, entry.name, argument);
                 if (lifeCycleAwareInfo.isNested(entry)) {
                     builder.addStatement("$L.bind(collector, view.$L)", entry.name, entry.fieldToPopulate);
                 }
+                builder.addStatement("collector.addLifeCycleAware(view.$L)", entry.fieldToPopulate);
             } else {
                 if (lifeCycleAwareInfo.isNested(entry)) {
-                    builder.addStatement("$L.bind(collector, collector.addRetainedFactory($S, $L))", entry.name, entry.name, argument);
+                    builder.addStatement("$L.bind(collector, collector.addRetainedFactory($S, $L, true))", entry.name, entry.name, argument);
                 } else {
-                    builder.addStatement("collector.addRetainedFactory($S, $L)", entry.name, argument);
+                    builder.addStatement("collector.addRetainedFactory($S, $L, true)", entry.name, argument);
                 }
             }
         }

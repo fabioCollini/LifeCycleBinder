@@ -24,8 +24,9 @@ public class ActivityMyObjectWithParcelableAndInnerObject$LifeCycleBinder extend
     private MyObjectWithParcelableAndInnerObject$LifeCycleBinder myObjectFactoryNoField = new MyObjectWithParcelableAndInnerObject$LifeCycleBinder();
 
     public void bind(LifeCycleAwareCollector<? extends ActivityMyObjectWithParcelableAndInnerObject> collector, final ActivityMyObjectWithParcelableAndInnerObject view) {
-        view.myObject = collector.addRetainedFactory("myObjectFactory", view.myObjectFactory);
+        view.myObject = collector.addRetainedFactory("myObjectFactory", view.myObjectFactory, false);
         myObjectFactory.bind(collector, view.myObject);
-        myObjectFactoryNoField.bind(collector, collector.addRetainedFactory("myObjectFactoryNoField", view.myObjectFactoryNoField));
+        collector.addLifeCycleAware(view.myObject);
+        myObjectFactoryNoField.bind(collector, collector.addRetainedFactory("myObjectFactoryNoField", view.myObjectFactoryNoField, true));
     }
 }

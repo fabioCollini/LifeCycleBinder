@@ -221,7 +221,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     }
 
     @Override
-    public <R extends LifeCycleAware<? super T>> R addRetainedFactory(String key, Callable<R> factory) {
+    public <R extends LifeCycleAware<? super T>> R addRetainedFactory(String key, Callable<R> factory, boolean addInLifeCycleAwareList) {
         R listener = (R) retainedObjects.get(key);
         if (listener == null) {
             try {
@@ -231,7 +231,9 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
                 throw new RuntimeException(e);
             }
         }
-        addLifeCycleAware(listener);
+        if (addInLifeCycleAwareList) {
+            addLifeCycleAware(listener);
+        }
         return listener;
     }
 

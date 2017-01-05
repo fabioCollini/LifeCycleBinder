@@ -31,6 +31,6 @@ public class ActivityWithRetainedProvider$LifeCycleBinder extends ObjectBinder<A
             public MyObject call() throws Exception {
                 return view.myObject.get();
             }
-        });
+        }, true);
     }
 }
