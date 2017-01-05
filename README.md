@@ -1,5 +1,7 @@
 # LifeCycleBinder
 
+[![Build Status](https://travis-ci.org/fabioCollini/LifeCycleBinder.svg?branch=master)](https://travis-ci.org/fabioCollini/LifeCycleBinder)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-LifeCycleBinder-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/3807)
 [![](https://jitpack.io/v/fabioCollini/LifeCycleBinder.svg)](https://jitpack.io/#fabioCollini/LifeCycleBinder)
 
 Using LifeCycleBinder you can create Java classes connected to the lifecycle of an Activity or a Fragment.
