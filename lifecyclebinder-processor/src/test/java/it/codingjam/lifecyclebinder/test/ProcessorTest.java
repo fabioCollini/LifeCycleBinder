@@ -105,4 +105,14 @@ public class ProcessorTest {
                 .failsToCompile()
                 .withErrorContaining("must implement " + LifeCycleAware.class.getSimpleName());
     }
+
+    @Test
+    public void testWrongFieldName() throws Exception {
+        JavaFileObject target = FileLoader.loadClass("com.test.errors.WrongFieldName");
+        Truth.ASSERT.about(JavaSourceSubjectFactory.javaSource())
+                .that(target)
+                .processedWith(new LifeCycleBinderProcessor())
+                .failsToCompile()
+                .withErrorContaining("Field wrong not found, it's referenced in field myObjectProvider");
+    }
 }
