@@ -18,10 +18,11 @@ package it.codingjam.lifecyclebinder.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 
 public class LifeCycleAwareInfo {
     public final TypeElement element;
@@ -59,11 +60,20 @@ public class LifeCycleAwareInfo {
         return false;
     }
 
-    public boolean containsField(String field) {
-        List<? extends Element> enclosedElements = element.getEnclosedElements();
-        for (Element e : enclosedElements) {
-            if (e.getKind() == ElementKind.FIELD && e.getSimpleName().toString().equals(field)) {
-                return true;
+    public boolean containsField(String field, Types typeUtils) {
+        TypeElement currentElement = this.element;
+        while (currentElement != null) {
+            List<? extends Element> enclosedElements = currentElement.getEnclosedElements();
+            for (Element e : enclosedElements) {
+                if (e.getKind() == ElementKind.FIELD && e.getSimpleName().toString().equals(field)) {
+                    return true;
+                }
+            }
+            TypeMirror superclass = currentElement.getSuperclass();
+            if (!superclass.toString().equals("java.lang.Object")) {
+                currentElement = (TypeElement) typeUtils.asElement(superclass);
+            } else {
+                return false;
             }
         }
         return false;

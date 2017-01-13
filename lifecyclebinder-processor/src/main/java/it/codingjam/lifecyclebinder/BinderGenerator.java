@@ -195,7 +195,7 @@ public class BinderGenerator {
                         .build();
             }
             if (entry.fieldToPopulate != null && entry.fieldToPopulate.length() > 0) {
-                if (!lifeCycleAwareInfo.containsField(entry.fieldToPopulate)) {
+                if (!lifeCycleAwareInfo.containsField(entry.fieldToPopulate, typeUtils)) {
                     error(entry.field, "Field %s not found, it's referenced in field %s", entry.fieldToPopulate, entry.field);
                 }
                 builder.addStatement("view.$L = collector.addRetainedFactory($S, $L, false)", entry.fieldToPopulate, entry.name, argument);

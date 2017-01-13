@@ -111,4 +111,10 @@ public class Logger implements LifeCycleAware<Object> {
     public void onActivityResult(Object view, int requestCode, int resultCode, Intent data) {
         log(name + ": " + "onActivityResult");
     }
+
+    @Override public void onViewCreated(Object view, Bundle savedInstanceState) {
+    }
+
+    @Override public void onDestroyView(Object view) {
+    }
 }
