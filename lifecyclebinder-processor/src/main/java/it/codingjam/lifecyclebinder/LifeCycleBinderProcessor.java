@@ -32,7 +32,8 @@ import javax.lang.model.util.Types;
 
 @SupportedAnnotationTypes({
         "it.codingjam.lifecyclebinder.BindLifeCycle",
-        "it.codingjam.lifecyclebinder.RetainedObjectProvider"
+        "it.codingjam.lifecyclebinder.RetainedObjectProvider",
+        "it.codingjam.lifecyclebinder.BindEvent"
 })
 public class LifeCycleBinderProcessor extends AbstractProcessor {
 
@@ -60,7 +61,8 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         List<LifeCycleAwareInfo> elementsByClass = elementsCollector.createLifeCycleAwareElements(
                 roundEnv.getElementsAnnotatedWith(BindLifeCycle.class),
-                roundEnv.getElementsAnnotatedWith(RetainedObjectProvider.class)
+                roundEnv.getElementsAnnotatedWith(RetainedObjectProvider.class),
+                roundEnv.getElementsAnnotatedWith(BindEvent.class)
         );
 
         if (elementsByClass == null) {

@@ -17,22 +17,23 @@
 package it.codingjam.lifecyclebinder.data;
 
 import com.squareup.javapoet.TypeName;
-
-import javax.lang.model.element.Element;
+import it.codingjam.lifecyclebinder.RetainedObjectProvider;
+import it.codingjam.lifecyclebinder.utils.TypeUtils;
+import javax.lang.model.element.VariableElement;
 
 public class RetainedObjectInfo {
     public final String name;
 
-    public final Element field;
+    public final VariableElement field;
 
     public final TypeName typeName;
 
     public final String fieldToPopulate;
 
-    public RetainedObjectInfo(String name, Element field, TypeName typeName, String fieldToPopulate) {
-        this.name = name;
+    public RetainedObjectInfo(VariableElement field) {
+        this.name = field.getSimpleName().toString();
         this.field = field;
-        this.typeName = typeName;
-        this.fieldToPopulate = fieldToPopulate;
+        this.typeName = TypeUtils.getTypeArguments(field.asType()).get(0);
+        this.fieldToPopulate = field.getAnnotation(RetainedObjectProvider.class).value();
     }
 }

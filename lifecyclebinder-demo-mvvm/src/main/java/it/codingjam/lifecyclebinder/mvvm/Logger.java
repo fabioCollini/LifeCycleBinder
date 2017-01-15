@@ -16,45 +16,24 @@
 
 package it.codingjam.lifecyclebinder.mvvm;
 
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-
+import android.support.v4.app.FragmentActivity;
+import it.codingjam.lifecyclebinder.BindEvent;
 import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
 
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.CREATE;
 
 public class Logger extends DefaultLifeCycleAware<Object> {
 
     private static final String TAG = "ACTIVITY_LOG";
 
-    @Override
-    public void onCreate(Object activity, Bundle savedInstanceState, Intent intent, Bundle arguments) {
-        Log.i(TAG, "Creating:" + activity);
+    @BindEvent(CREATE) public void onCreate(FragmentActivity activity) {
     }
 
-    @Override
-    public void onStart(Object activity) {
-        Log.i(TAG, "Starting:" + activity);
-    }
-
-    @Override
-    public void onResume(Object activity) {
-        Log.i(TAG, "Resuming:" + activity);
-    }
-
-    @Override
-    public void onPause(Object activity) {
-        Log.i(TAG, "Pausing:" + activity);
-    }
-
-    @Override
-    public void onStop(Object activity) {
-        Log.i(TAG, "Stopping:" + activity);
-    }
-
-    @Override
-    public void onDestroy(Object activity, boolean changingConfigurations) {
-        Log.i(TAG, "Destroying:" + activity);
-    }
+    //@BindEvent({
+    //        CREATE, START, RESUME, PAUSE, STOP, DESTROY, SAVE_INSTANCE_STATE, ACTIVITY_RESULT, HAS_OPTION_MENU, CREATE_OPTION_MENU,
+    //        OPTION_ITEM_SELECTED
+    //})
+    //public void log(Object activity, LifeCycleEvent event) {
+    //    Log.i(TAG, "Event " + event + ": " + activity);
+    //}
 }

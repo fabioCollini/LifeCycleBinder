@@ -18,16 +18,18 @@ package it.codingjam.lifecyclebinder;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
-
+import it.codingjam.lifecyclebinder.data.LifeCycleAwareInfo;
+import it.codingjam.lifecyclebinder.data.NestedLifeCycleAwareInfo;
+import it.codingjam.lifecyclebinder.data.RetainedObjectInfo;
+import it.codingjam.lifecyclebinder.utils.TypeUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -35,16 +37,13 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
-import it.codingjam.lifecyclebinder.data.LifeCycleAwareInfo;
-import it.codingjam.lifecyclebinder.data.NestedLifeCycleAwareInfo;
-import it.codingjam.lifecyclebinder.data.RetainedObjectInfo;
-import it.codingjam.lifecyclebinder.utils.TypeUtils;
-
 public class ElementsCollector {
 
     private Messager messager;
     private Types types;
     private Elements elements;
+
+    private static final TypeName LIFE_CYCLE_AWARE_TYPE = TypeName.get(LifeCycleAware.class);
 
     public ElementsCollector(Messager messager, Types types, Elements elements) {
         this.messager = messager;
@@ -52,48 +51,35 @@ public class ElementsCollector {
         this.elements = elements;
     }
 
-    List<LifeCycleAwareInfo> createLifeCycleAwareElements(Set<? extends Element> lifeCycleAwareElements, Set<? extends Element> retainedObjectElements) {
+    List<LifeCycleAwareInfo> createLifeCycleAwareElements(Set<? extends Element> lifeCycleAwareElements, Set<? extends Element> retainedObjectElements,
+            Set<? extends Element> eventsElements) {
         Map<Element, LifeCycleAwareInfo> elementsByClass = new HashMap<>();
-        TypeName lifeCycleAwareType = TypeName.get(LifeCycleAware.class);
 
         for (Element element : lifeCycleAwareElements) {
-            if (element.getKind() != ElementKind.FIELD) {
-                error(element, "Only fields can be annotated with @%s", BindLifeCycle.class);
-                return null;
-            }
-
-            VariableElement variable = (VariableElement) element;
-            TypeName variableType = TypeName.get(variable.asType());
-            if (!TypeUtils.isAssignable(elements, variableType, lifeCycleAwareType)) {
-                error(element, "Class %s is annotated with %s, it must implement %s",
-                        variableType, BindLifeCycle.class.getSimpleName(), LifeCycleAware.class.getSimpleName());
-            }
-
-            TypeElement enclosingElement = (TypeElement) variable.getEnclosingElement();
-
-            LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, enclosingElement);
-            info.lifeCycleAwareElements.add(variable);
+            //checkElementTypeIsLifeCycleAware(element);
+            LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, element);
+            info.lifeCycleAwareElements.add((VariableElement) element);
         }
 
         for (Element element : retainedObjectElements) {
-            if (element.getKind() != ElementKind.FIELD) {
-                error(element, "Only fields can be annotated with @%s", RetainedObjectProvider.class);
-                return null;
-            }
+            LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, element);
+            info.retainedObjects.add(new RetainedObjectInfo((VariableElement) element));
+        }
 
-            VariableElement variable = (VariableElement) element;
-
-            RetainedObjectProvider annotation = variable.getAnnotation(RetainedObjectProvider.class);
-
-            TypeElement enclosingElement = (TypeElement) variable.getEnclosingElement();
-
-            LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, enclosingElement);
-            TypeName typeName = TypeUtils.getTypeArguments(variable.asType()).get(0);
-            info.retainedObjects.add(new RetainedObjectInfo(variable.getSimpleName().toString(), variable, typeName, annotation.value()));
+        for (Element element : eventsElements) {
+            LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, element);
+            info.eventsElements.add((ExecutableElement) element);
         }
         return new ArrayList<>(elementsByClass.values());
     }
 
+    private void checkElementTypeIsLifeCycleAware(Element element) {
+        TypeName variableType = TypeName.get(element.asType());
+        if (!TypeUtils.isAssignable(elements, variableType, LIFE_CYCLE_AWARE_TYPE)) {
+            error(element, "Class %s is annotated with %s, it must implement %s",
+                    variableType, BindLifeCycle.class.getSimpleName(), LifeCycleAware.class.getSimpleName());
+        }
+    }
 
     public void calculateNestedElements(List<LifeCycleAwareInfo> elementsByClass) {
         for (LifeCycleAwareInfo lifeCycleAwareInfo : elementsByClass) {
@@ -122,8 +108,8 @@ public class ElementsCollector {
         }
     }
 
-
-    private LifeCycleAwareInfo getLifeCycleAwareInfo(Map<Element, LifeCycleAwareInfo> elementsByClass, TypeElement enclosingElement) {
+    private LifeCycleAwareInfo getLifeCycleAwareInfo(Map<Element, LifeCycleAwareInfo> elementsByClass, Element element) {
+        TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
         LifeCycleAwareInfo info = elementsByClass.get(enclosingElement);
         if (info == null) {
             info = new LifeCycleAwareInfo(enclosingElement);

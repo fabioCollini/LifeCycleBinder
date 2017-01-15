@@ -16,6 +16,68 @@
 
 package it.codingjam.lifecyclebinder;
 
-public abstract class ObjectBinder<T, V> {
-    public abstract void bind(LifeCycleAwareCollector<? extends V> collector, T view);
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+
+public abstract class ObjectBinder<T, V> implements LifeCycleAware<V> {
+    public void bind(LifeCycleAwareCollector<? extends V> collector, T view) {
+
+    }
+
+    @Override
+    public void onCreate(V view, Bundle savedInstanceState, Intent intent, Bundle arguments) {
+    }
+
+    @Override
+    public void onStart(V view) {
+    }
+
+    @Override
+    public void onResume(V view) {
+    }
+
+    @Override
+    public boolean hasOptionsMenu(V view) {
+        return false;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(V view, Menu menu, MenuInflater inflater) {
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(V view, MenuItem item) {
+        return false;
+    }
+
+    @Override
+    public void onPause(V view) {
+    }
+
+    @Override
+    public void onStop(V view) {
+    }
+
+    @Override
+    public void onSaveInstanceState(V view, Bundle bundle) {
+    }
+
+    @Override
+    public void onDestroy(V view, boolean changingConfigurations) {
+    }
+
+    @Override
+    public void onActivityResult(V view, int requestCode, int resultCode, Intent data) {
+    }
+
+    @Override
+    public void onViewCreated(V view, Bundle savedInstanceState) {
+    }
+
+    @Override
+    public void onDestroyView(V view) {
+    }
 }

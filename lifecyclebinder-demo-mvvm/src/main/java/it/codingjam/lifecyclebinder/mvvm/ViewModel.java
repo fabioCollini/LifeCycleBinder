@@ -22,9 +22,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import it.codingjam.lifecyclebinder.BindEvent;
 import it.codingjam.lifecyclebinder.BindLifeCycle;
-import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
-import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.mvp.R;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +31,15 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
-public class ViewModel extends DefaultLifeCycleAware<MainActivity> implements LifeCycleAware<MainActivity> {
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.ACTIVITY_RESULT;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.CREATE;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.CREATE_OPTION_MENU;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.HAS_OPTION_MENU;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.OPTION_ITEM_SELECTED;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.RESUME;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.SAVE_INSTANCE_STATE;
+
+public class ViewModel {
 
     private static final int SHARE_REQUEST_CODE = 123;
 
@@ -40,13 +47,13 @@ public class ViewModel extends DefaultLifeCycleAware<MainActivity> implements Li
 
     private Model model;
 
-    @BindLifeCycle Logger logger = new Logger();
+    //@BindLifeCycle Logger logger = new Logger();
 
     @BindLifeCycle Navigator navigator = new Navigator();
 
     public final ObservableBoolean loading = new ObservableBoolean();
 
-    @Override
+    @BindEvent(CREATE)
     public void onCreate(MainActivity view, Bundle savedInstanceState, Intent intent, Bundle arguments) {
         if (model == null) {
             if (savedInstanceState != null) {
@@ -58,12 +65,12 @@ public class ViewModel extends DefaultLifeCycleAware<MainActivity> implements Li
         }
     }
 
-    @Override
+    @BindEvent(SAVE_INSTANCE_STATE)
     public void onSaveInstanceState(MainActivity view, Bundle bundle) {
         bundle.putParcelable(MODEL, model);
     }
 
-    @Override
+    @BindEvent(RESUME)
     public void onResume(MainActivity view) {
         if (!loading.get() && model.note.get() == null) {
             reloadData();
@@ -88,30 +95,30 @@ public class ViewModel extends DefaultLifeCycleAware<MainActivity> implements Li
         navigator.share(model.note.get().getTitle(), SHARE_REQUEST_CODE);
     }
 
-    @Override
+    @BindEvent(ACTIVITY_RESULT)
     public void onActivityResult(MainActivity view, int requestCode, int resultCode, Intent data) {
         if (requestCode == SHARE_REQUEST_CODE) {
             //...
         }
     }
 
-    @Override
+    @BindEvent(HAS_OPTION_MENU)
     public boolean hasOptionsMenu(MainActivity view) {
         return true;
     }
 
-    @Override
+    @BindEvent(CREATE_OPTION_MENU)
     public void onCreateOptionsMenu(MainActivity view, Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.share_menu, menu);
     }
 
-    @Override
+    @BindEvent(OPTION_ITEM_SELECTED)
     public boolean onOptionsItemSelected(MainActivity view, MenuItem item) {
         if (item.getItemId() == R.id.share_item) {
             share();
             return true;
         }
-        return super.onOptionsItemSelected(view, item);
+        return false;
     }
 
     public Model getModel() {

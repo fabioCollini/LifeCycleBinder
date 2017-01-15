@@ -3,15 +3,17 @@ package it.codingjam.lifecyclebinder.mvvm;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
+import it.codingjam.lifecyclebinder.BindEvent;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
 import it.codingjam.lifecyclebinder.mvp.R;
 
-public class Navigator extends DefaultLifeCycleAware<FragmentActivity> {
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.CREATE;
+
+public class Navigator {
 
     private FragmentActivity activity;
 
-    @Override public void onCreate(FragmentActivity activity, Bundle savedInstanceState, Intent intent, Bundle arguments) {
+    @BindEvent(CREATE) public void onCreate(FragmentActivity activity, Bundle arg0, Intent arg1, Bundle arg2) {
         this.activity = activity;
     }
 

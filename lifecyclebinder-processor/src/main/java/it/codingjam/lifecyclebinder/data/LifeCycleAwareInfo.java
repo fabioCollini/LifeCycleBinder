@@ -20,14 +20,18 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
 public class LifeCycleAwareInfo {
     public final TypeElement element;
 
-    public final List<Element> lifeCycleAwareElements = new ArrayList<>();
+    public final List<VariableElement> lifeCycleAwareElements = new ArrayList<>();
+
+    public final List<ExecutableElement> eventsElements = new ArrayList<>();
 
     public final List<NestedLifeCycleAwareInfo> nestedElements = new ArrayList<>();
 
