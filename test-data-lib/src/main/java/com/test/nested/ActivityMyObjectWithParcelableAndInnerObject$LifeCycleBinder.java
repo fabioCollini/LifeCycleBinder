@@ -17,13 +17,11 @@
 package com.test.nested;
 
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
-import it.codingjam.lifecyclebinder.ObjectBinder;
 
-public class ActivityMyObjectWithParcelableAndInnerObject$LifeCycleBinder extends ObjectBinder<ActivityMyObjectWithParcelableAndInnerObject, ActivityMyObjectWithParcelableAndInnerObject> {
-    private MyObjectWithParcelableAndInnerObject$LifeCycleBinder myObject = new MyObjectWithParcelableAndInnerObject$LifeCycleBinder();
+public class ActivityMyObjectWithParcelableAndInnerObject$LifeCycleBinder {
 
-    public void bind(LifeCycleAwareCollector<? extends ActivityMyObjectWithParcelableAndInnerObject> collector, final ActivityMyObjectWithParcelableAndInnerObject view) {
+    public static void bind(LifeCycleAwareCollector<? extends ActivityMyObjectWithParcelableAndInnerObject> collector, final ActivityMyObjectWithParcelableAndInnerObject view) {
         collector.addLifeCycleAware(view.myObject);
-        myObject.bind(collector, view.myObject);
+        MyObjectWithParcelableAndInnerObject$LifeCycleBinder.bind(collector, view.myObject);
     }
 }

@@ -16,6 +16,7 @@
 
 package it.codingjam.lifecyclebinder.data;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import it.codingjam.lifecyclebinder.RetainedObjectProvider;
 import it.codingjam.lifecyclebinder.utils.TypeUtils;
@@ -28,12 +29,15 @@ public class RetainedObjectInfo {
 
     public final TypeName typeName;
 
+    public final TypeName binderClassName;
+
     public final String fieldToPopulate;
 
     public RetainedObjectInfo(VariableElement field) {
         this.name = field.getSimpleName().toString();
         this.field = field;
         this.typeName = TypeUtils.getTypeArguments(field.asType()).get(0);
+        this.binderClassName = ClassName.bestGuess(typeName.toString() + "$LifeCycleBinder");
         this.fieldToPopulate = field.getAnnotation(RetainedObjectProvider.class).value();
     }
 }

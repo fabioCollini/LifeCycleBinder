@@ -17,14 +17,11 @@
 package com.test.activityWithBaseClass;
 
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
-import it.codingjam.lifecyclebinder.ObjectBinder;
 
-public class MyActivityWithBaseClass$LifeCycleBinder extends ObjectBinder<MyActivityWithBaseClass, MyActivityWithBaseClass> {
+public class MyActivityWithBaseClass$LifeCycleBinder {
 
-    private BaseClass$LifeCycleBinder superClass$lifeCycleBinder = new BaseClass$LifeCycleBinder();
-
-    public void bind(LifeCycleAwareCollector<? extends MyActivityWithBaseClass> collector, final MyActivityWithBaseClass view) {
+    public static void bind(LifeCycleAwareCollector<? extends MyActivityWithBaseClass> collector, final MyActivityWithBaseClass view) {
         collector.addLifeCycleAware(view.myObject);
-        superClass$lifeCycleBinder.bind(collector, view);
+        BaseClass$LifeCycleBinder.bind(collector, view);
     }
 }

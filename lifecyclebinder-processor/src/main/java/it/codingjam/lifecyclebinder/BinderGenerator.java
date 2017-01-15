@@ -40,6 +40,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
@@ -48,6 +49,7 @@ import javax.tools.JavaFileObject;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
+import static javax.lang.model.element.Modifier.STATIC;
 
 public class BinderGenerator {
     public static final String LIFE_CYCLE_BINDER_SUFFIX = "$LifeCycleBinder";
@@ -77,16 +79,11 @@ public class BinderGenerator {
 
             TypeSpec.Builder builder = TypeSpec.classBuilder(simpleClassName)
                     .addModifiers(PUBLIC)
-                    .superclass(ParameterizedTypeName.get(ClassName.get(ObjectBinder.class), objectGenericType, viewGenericType))
                     .addMethod(generateBindMethod(lifeCycleAwareInfo, objectGenericType));
 
             List<TypeName> typeArguments = TypeUtils.getTypeArguments(hostElement.asType());
             for (TypeName argument : typeArguments) {
                 builder.addTypeVariable((TypeVariableName) argument);
-            }
-
-            for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
-                builder.addField(generateNestedBinderField(info));
             }
 
             manageEventsMethods(builder, lifeCycleAwareInfo, viewGenericType);
@@ -142,26 +139,26 @@ public class BinderGenerator {
         writer.close();
     }
 
-    private FieldSpec generateNestedBinderField(NestedLifeCycleAwareInfo info) {
-        TypeName className = info.getBinderClassName();
-        return FieldSpec.builder(
-                className,
-                info.getFieldName(),
-                PRIVATE
-        ).initializer("new $T()", info.getBinderClassName()).build();
-    }
-
     private MethodSpec generateBindMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeName objectGenericType) {
         ParameterizedTypeName collectorType = ParameterizedTypeName.get(
                 ClassName.get(LifeCycleAwareCollector.class),
                 WildcardTypeName.subtypeOf(getObjectBinderGenericTypeName(lifeCycleAwareInfo)));
-        return MethodSpec.methodBuilder("bind")
-                .addModifiers(PUBLIC)
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("bind")
+                .addModifiers(PUBLIC, STATIC)
                 .returns(void.class)
                 .addParameter(collectorType, "collector")
                 .addParameter(objectGenericType, "view", FINAL)
-                .addCode(generateBindMethodBody(lifeCycleAwareInfo))
-                .build();
+                .addCode(generateBindMethodBody(lifeCycleAwareInfo));
+
+        for (TypeParameterElement typeParameterElement : lifeCycleAwareInfo.element.getTypeParameters()) {
+            List<? extends TypeMirror> boundsElements = typeParameterElement.getBounds();
+            TypeName[] bounds = new TypeName[boundsElements.size()];
+            for (int i = 0; i < boundsElements.size(); i++) {
+                bounds[i] = TypeName.get(boundsElements.get(i));
+            }
+            builder.addTypeVariable(TypeVariableName.get(typeParameterElement.getSimpleName().toString(), bounds));
+        }
+        return builder.build();
     }
 
     private TypeName getObjectBinderGenericTypeName(LifeCycleAwareInfo lifeCycleAwareInfo) {
@@ -214,11 +211,8 @@ public class BinderGenerator {
     private CodeBlock generateBindMethodBody(LifeCycleAwareInfo lifeCycleAwareInfo) {
         CodeBlock.Builder builder = CodeBlock.builder();
         for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
-            ClassName lifeCyclAwareClassName = ClassName.get(LifeCycleAware.class);
             builder = builder
-                    .beginControlFlow("if (view.$L instanceof $T)", element, lifeCyclAwareClassName)
-                    .addStatement("collector.addLifeCycleAware(($T) view.$L)", lifeCyclAwareClassName, element)
-                    .endControlFlow();
+                    .addStatement("collector.addLifeCycleAware(view.$L)", element);
         }
         for (RetainedObjectInfo entry : lifeCycleAwareInfo.retainedObjects) {
             TypeName typeName = ParameterizedTypeName.get(entry.field.asType());
@@ -251,12 +245,13 @@ public class BinderGenerator {
                 }
                 builder.addStatement("view.$L = collector.addRetainedFactory($S, $L, false)", entry.fieldToPopulate, entry.name, argument);
                 if (lifeCycleAwareInfo.isNested(entry)) {
-                    builder.addStatement("$L.bind(collector, view.$L)", entry.name, entry.fieldToPopulate);
+                    builder.addStatement("$T.bind(collector, view.$L)", entry.binderClassName, entry.fieldToPopulate);
                 }
                 builder.addStatement("collector.addLifeCycleAware(view.$L)", entry.fieldToPopulate);
             } else {
                 if (lifeCycleAwareInfo.isNested(entry)) {
-                    builder.addStatement("$L.bind(collector, collector.addRetainedFactory($S, $L, true))", entry.name, entry.name, argument);
+                    builder.addStatement("$T.bind(collector, collector.addRetainedFactory($S, $L, true))", entry.binderClassName, entry.name,
+                            argument);
                 } else {
                     builder.addStatement("collector.addRetainedFactory($S, $L, true)", entry.name, argument);
                 }
@@ -264,7 +259,7 @@ public class BinderGenerator {
         }
         for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
             if (info.retained == null) {
-                builder.addStatement("$L.bind(collector, $L)", info.getFieldName(), info.getBindMethodParameter());
+                builder.addStatement("$T.bind(collector, $L)", info.getBinderClassName(), info.getBindMethodParameter());
             }
         }
 

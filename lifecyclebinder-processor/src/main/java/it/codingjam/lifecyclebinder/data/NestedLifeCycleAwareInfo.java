@@ -17,15 +17,12 @@
 package it.codingjam.lifecyclebinder.data;
 
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
-
+import it.codingjam.lifecyclebinder.BinderGenerator;
+import it.codingjam.lifecyclebinder.utils.TypeUtils;
 import java.util.List;
-
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-
-import it.codingjam.lifecyclebinder.BinderGenerator;
 
 public class NestedLifeCycleAwareInfo {
 
@@ -35,19 +32,21 @@ public class NestedLifeCycleAwareInfo {
     private final String fieldName;
     private final String bindMethodParameter;
     private final TypeName binderClassName;
+    private final List<TypeName> typeArguments;
 
     private NestedLifeCycleAwareInfo(Element field, RetainedObjectInfo retained, String fieldName, String bindMethodParameter, TypeName targetClassName) {
         this.field = field;
         this.retained = retained;
         this.fieldName = fieldName;
         this.bindMethodParameter = bindMethodParameter;
-        List<TypeName> typeArguments = it.codingjam.lifecyclebinder.utils.TypeUtils.getTypeArguments(targetClassName);
+        typeArguments = TypeUtils.getTypeArguments(targetClassName);
         if (typeArguments.isEmpty()) {
             this.binderClassName = ClassName.bestGuess(targetClassName + BinderGenerator.LIFE_CYCLE_BINDER_SUFFIX);
         } else {
-            this.binderClassName = ParameterizedTypeName.get(
-                    ClassName.bestGuess(it.codingjam.lifecyclebinder.utils.TypeUtils.getRawType(targetClassName) + BinderGenerator.LIFE_CYCLE_BINDER_SUFFIX),
-                    typeArguments.toArray(new TypeName[typeArguments.size()]));
+            this.binderClassName = ClassName.bestGuess(TypeUtils.getRawType(targetClassName) + BinderGenerator.LIFE_CYCLE_BINDER_SUFFIX);
+            //this.binderClassName = ParameterizedTypeName.get(
+            //        ClassName.bestGuess(it.codingjam.lifecyclebinder.utils.TypeUtils.getRawType(targetClassName) + BinderGenerator.LIFE_CYCLE_BINDER_SUFFIX),
+            //        typeArguments.toArray(new TypeName[typeArguments.size()]));
         }
     }
 

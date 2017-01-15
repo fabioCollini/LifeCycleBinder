@@ -18,11 +18,10 @@ package com.test.retainedObjectsInBaseClassWithProvider;
 
 import com.test.MyObject;
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
-import it.codingjam.lifecyclebinder.ObjectBinder;
 import java.util.concurrent.Callable;
 
-public class ActivityWithRetainedProvider$LifeCycleBinder extends ObjectBinder<ActivityWithRetainedProvider, ActivityWithRetainedProvider> {
-    public void bind(LifeCycleAwareCollector<? extends ActivityWithRetainedProvider> collector, final ActivityWithRetainedProvider view) {
+public class ActivityWithRetainedProvider$LifeCycleBinder {
+    public static void bind(LifeCycleAwareCollector<? extends ActivityWithRetainedProvider> collector, final ActivityWithRetainedProvider view) {
         view.myObjectInBaseActivity = collector.addRetainedFactory("myObject", new Callable<MyObject>() {
             @Override
             public MyObject call() throws Exception {

@@ -7,7 +7,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import com.test.MyView;
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
-import it.codingjam.lifecyclebinder.ObjectBinder;
 
 public class MyObjectWithEvents$LifeCycleBinder extends ObjectBinder<MyObjectWithEvents, MyView> {
 
