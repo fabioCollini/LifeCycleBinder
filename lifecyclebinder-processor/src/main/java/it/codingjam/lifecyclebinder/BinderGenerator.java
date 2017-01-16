@@ -236,11 +236,14 @@ public class BinderGenerator {
                 if (lifeCycleAwareInfo.isNested(entry.name)) {
                     builder.addStatement("$T.bind(collector, view.$L)", entry.binderClassName, entry.fieldToPopulate);
                 }
-                builder.addStatement("collector.addLifeCycleAware(view.$L)", entry.fieldToPopulate);
+                if (implementsLifeCycleAware(entry.typeName)) {
+                    builder.addStatement("collector.addLifeCycleAware(view.$L)", entry.fieldToPopulate);
+                }
             } else {
                 if (lifeCycleAwareInfo.isNested(entry.name)) {
-                    builder.addStatement("$T.bind(collector, collector.addRetainedFactory($S, $L, true))", entry.binderClassName, entry.name,
-                            argument);
+                    boolean addInLifeCycleAwareList = implementsLifeCycleAware(entry.typeName);
+                    builder.addStatement("$T.bind(collector, collector.addRetainedFactory($S, $L, $L))", entry.binderClassName, entry.name,
+                            argument, addInLifeCycleAwareList);
                 } else {
                     builder.addStatement("collector.addRetainedFactory($S, $L, true)", entry.name, argument);
                 }
@@ -263,11 +266,16 @@ public class BinderGenerator {
         }
 
         for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
-            builder = builder
-                    .addStatement("collector.addLifeCycleAware(view.$L)", element);
+            if (implementsLifeCycleAware(ClassName.get(element.asType()))) {
+                builder = builder.addStatement("collector.addLifeCycleAware(view.$L)", element);
+            }
         }
 
         return builder.build();
+    }
+
+    private boolean implementsLifeCycleAware(TypeName t1) {
+        return TypeUtils.isAssignable(elements, t1, ElementsCollector.LIFE_CYCLE_AWARE_TYPE);
     }
 
     private void error(Element e, String msg, Object... args) {

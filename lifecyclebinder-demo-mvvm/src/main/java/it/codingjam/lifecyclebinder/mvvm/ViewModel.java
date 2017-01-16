@@ -47,7 +47,7 @@ public class ViewModel {
 
     private Model model;
 
-    //@BindLifeCycle Logger logger = new Logger();
+    @BindLifeCycle Logger logger = new Logger();
 
     @BindLifeCycle Navigator navigator = new Navigator();
 

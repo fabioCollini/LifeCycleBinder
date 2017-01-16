@@ -28,4 +28,12 @@ public class ProcessorEventsTest {
     @Test public void testMyActivityWithEvents() throws Exception {
         check("com.test.myActivityEvents.MyActivity");
     }
+
+    @Test public void testRetained() throws Exception {
+        check("com.test.retainedEvents.ActivityWithRetained");
+    }
+
+    @Test public void testRetainedWithField() throws Exception {
+        check("com.test.retainedEvents.ActivityWithRetainedAndField");
+    }
 }

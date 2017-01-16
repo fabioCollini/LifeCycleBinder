@@ -43,7 +43,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
 
     private T viewParam;
 
-    private Map<String, LifeCycleAware<?>> retainedObjects;
+    private Map<String, Object> retainedObjects;
 
     private final List<LifeCycleAware<? super T>> listeners = new ArrayList<>();
 
@@ -105,19 +105,19 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
         ReflectionUtils.invokeBindMethod(objectBinderClass, this, viewParam);
     }
 
-    private Map<String, LifeCycleAware<?>> initRetainedObjects() {
-        getLoaderManager().initLoader(LOADER_ID, null, new LoaderManager.LoaderCallbacks<Map<String, LifeCycleAware<?>>>() {
+    private Map<String, Object> initRetainedObjects() {
+        getLoaderManager().initLoader(LOADER_ID, null, new LoaderManager.LoaderCallbacks<Map<String, Object>>() {
             @Override
-            public Loader<Map<String, LifeCycleAware<?>>> onCreateLoader(int id, Bundle args) {
+            public Loader<Map<String, Object>> onCreateLoader(int id, Bundle args) {
                 return new RetainedObjectsLoader(getActivity());
             }
 
             @Override
-            public void onLoadFinished(Loader<Map<String, LifeCycleAware<?>>> loader, Map<String, LifeCycleAware<?>> data) {
+            public void onLoadFinished(Loader<Map<String, Object>> loader, Map<String, Object> data) {
             }
 
             @Override
-            public void onLoaderReset(Loader<Map<String, LifeCycleAware<?>>> loader) {
+            public void onLoaderReset(Loader<Map<String, Object>> loader) {
             }
         });
 
@@ -221,7 +221,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     }
 
     @Override
-    public <R extends LifeCycleAware<? super T>> R addRetainedFactory(String key, Callable<R> factory, boolean addInLifeCycleAwareList) {
+    public <R> R addRetainedFactory(String key, Callable<R> factory, boolean addInLifeCycleAwareList) {
         R listener = (R) retainedObjects.get(key);
         if (listener == null) {
             try {
@@ -232,7 +232,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
             }
         }
         if (addInLifeCycleAwareList) {
-            addLifeCycleAware(listener);
+            addLifeCycleAware((LifeCycleAware<? super T>) listener);
         }
         return listener;
     }
