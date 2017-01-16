@@ -5,66 +5,64 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 
-public class MyObjectWithEvents$LifeCycleBinder extends ObjectBinder<MyObjectWithEvents, MyView> {
+public class MyObjectWithEvents$LifeCycleBinder {
 
-    private MyObjectWithEvents delegate;
+    public static void bind(LifeCycleAwareCollector<? extends MyView> collector, final MyObjectWithEvents view) {
+        collector.addLifeCycleAware(new DefaultLifeCycleAware<MyView>() {
+            public void onCreate(MyView argView, Bundle arg0, Intent arg1, Bundle arg2) {
+                view.myOnCreate(argView, arg0, arg1, arg2);
+            }
 
-    public void bind(LifeCycleAwareCollector<? extends MyView> collector, final MyObjectWithEvents view) {
-        this.delegate = view;
-        collector.addLifeCycleAware(this);
-    }
+            public void onStart(MyView argView) {
+                view.myOnStart(argView);
+            }
 
-    public void onCreate(MyView view, Bundle arg0, Intent arg1, Bundle arg2) {
-        delegate.myOnCreate(view, arg0, arg1, arg2);
-    }
+            public void onResume(MyView argView) {
+                view.myOnResume(argView);
+            }
 
-    public void onStart(MyView view) {
-        delegate.myOnStart(view);
-    }
+            public boolean hasOptionsMenu(MyView argView) {
+                return view.myHasOptionsMenu(argView);
+            }
 
-    public void onResume(MyView view) {
-        delegate.myOnResume(view);
-    }
+            public void onCreateOptionsMenu(MyView argView, Menu arg0, MenuInflater arg1) {
+                view.myOnCreateOptionsMenu(argView, arg0, arg1);
+            }
 
-    public boolean hasOptionsMenu(MyView view) {
-        return delegate.myHasOptionsMenu(view);
-    }
+            public boolean onOptionsItemSelected(MyView argView, MenuItem arg0) {
+                return view.myOnOptionsItemSelected(argView, arg0);
+            }
 
-    public void onCreateOptionsMenu(MyView view, Menu arg0, MenuInflater arg1) {
-        delegate.myOnCreateOptionsMenu(view, arg0, arg1);
-    }
+            public void onPause(MyView argView) {
+                view.myOnPause(argView);
+            }
 
-    public boolean onOptionsItemSelected(MyView view, MenuItem arg0) {
-        return delegate.myOnOptionsItemSelected(view, arg0);
-    }
+            public void onStop(MyView argView) {
+                view.myOnStop(argView);
+            }
 
-    public void onPause(MyView view) {
-        delegate.myOnPause(view);
-    }
+            public void onSaveInstanceState(MyView argView, Bundle arg0) {
+                view.myOnSaveInstanceState(argView, arg0);
+            }
 
-    public void onStop(MyView view) {
-        delegate.myOnStop(view);
-    }
+            public void onDestroy(MyView argView, boolean arg0) {
+                view.myOnDestroy(argView, arg0);
+            }
 
-    public void onSaveInstanceState(MyView view, Bundle arg0) {
-        delegate.myOnSaveInstanceState(view, arg0);
-    }
+            public void onActivityResult(MyView argView, int arg0, int arg1, Intent arg2) {
+                view.myOnActivityResult(argView, arg0, arg1, arg2);
+            }
 
-    public void onDestroy(MyView view, boolean arg0) {
-        delegate.myOnDestroy(view, arg0);
-    }
+            public void onViewCreated(MyView argView, Bundle arg0) {
+                view.myOnViewCreated(argView, arg0);
+            }
 
-    public void onActivityResult(MyView view, int arg0, int arg1, Intent arg2) {
-        delegate.myOnActivityResult(view, arg0, arg1, arg2);
-    }
-
-    public void onViewCreated(MyView view, Bundle arg0) {
-        delegate.myOnViewCreated(view, arg0);
-    }
-
-    public void onDestroyView(MyView view) {
-        delegate.myOnDestroyView(view);
+            public void onDestroyView(MyView argView) {
+                view.myOnDestroyView(argView);
+            }
+        });
     }
 }

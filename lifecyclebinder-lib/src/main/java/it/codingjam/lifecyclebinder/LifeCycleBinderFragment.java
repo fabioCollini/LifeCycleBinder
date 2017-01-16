@@ -54,7 +54,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     }
 
     @NonNull
-    private static <T> LifeCycleBinderFragment<T> create(Class<ObjectBinder<T, T>> objectBinderClass) {
+    private static <T> LifeCycleBinderFragment<T> create(Class<?> objectBinderClass) {
         LifeCycleBinderFragment<T> fragment = new LifeCycleBinderFragment<>();
         Bundle args = new Bundle();
         args.putSerializable(OBJECT_BINDER_CLASS, objectBinderClass);
@@ -66,7 +66,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
         fragmentManager.beginTransaction().add(fragment, LIFE_CYCLE_BINDER_FRAGMENT).commitNow();
     }
 
-    static <T> LifeCycleBinderFragment<T> createAndAdd(FragmentManager fragmentManager, Class<ObjectBinder<T, T>> c) {
+    static <T> LifeCycleBinderFragment<T> createAndAdd(FragmentManager fragmentManager, Class<?> c) {
         LifeCycleBinderFragment<T> fragment = create(c);
         add(fragmentManager, fragment);
         return fragment;
@@ -101,7 +101,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     }
 
     private void invokeBindMethod() {
-        Class<ObjectBinder<T, T>> objectBinderClass = (Class<ObjectBinder<T, T>>) getArguments().getSerializable(OBJECT_BINDER_CLASS);
+        Class<?> objectBinderClass = (Class<?>) getArguments().getSerializable(OBJECT_BINDER_CLASS);
         ReflectionUtils.invokeBindMethod(objectBinderClass, this, viewParam);
     }
 

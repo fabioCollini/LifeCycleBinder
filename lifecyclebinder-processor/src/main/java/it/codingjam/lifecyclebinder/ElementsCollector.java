@@ -43,7 +43,7 @@ public class ElementsCollector {
     private Types types;
     private Elements elements;
 
-    private static final TypeName LIFE_CYCLE_AWARE_TYPE = TypeName.get(LifeCycleAware.class);
+    public static final TypeName LIFE_CYCLE_AWARE_TYPE = TypeName.get(LifeCycleAware.class);
 
     public ElementsCollector(Messager messager, Types types, Elements elements) {
         this.messager = messager;

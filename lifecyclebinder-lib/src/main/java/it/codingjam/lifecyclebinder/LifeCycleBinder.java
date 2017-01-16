@@ -30,24 +30,24 @@ public class LifeCycleBinder {
         bind(activity, activity.getSupportFragmentManager());
     }
 
-    public static <T extends Fragment> void bind(T fragment, Class<ObjectBinder<T, T>> objectBinderClass) {
+    public static <T extends Fragment> void bind(T fragment, Class<?> objectBinderClass) {
         bind(fragment.getChildFragmentManager(), objectBinderClass);
     }
 
-    public static <T extends FragmentActivity> void bind(T activity, Class<ObjectBinder<T, T>> objectBinderClass) {
+    public static <T extends FragmentActivity> void bind(T activity, Class<?> objectBinderClass) {
         bind(activity.getSupportFragmentManager(), objectBinderClass);
     }
 
     private static <T> void bind(T obj, FragmentManager fragmentManager) {
         LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.get(fragmentManager);
         if (fragment == null) {
-            Class<ObjectBinder<T, T>> c = ReflectionUtils.getObjectBinderClass(obj);
+            Class<?> c = ReflectionUtils.getObjectBinderClass(obj);
             fragment = LifeCycleBinderFragment.createAndAdd(fragmentManager, c);
         }
         fragment.invokeOnCreate();
     }
 
-    private static <T> void bind(FragmentManager fragmentManager, Class<ObjectBinder<T, T>> objectBinderClass) {
+    private static <T> void bind(FragmentManager fragmentManager, Class<?> objectBinderClass) {
         LifeCycleBinderFragment<T> fragment = LifeCycleBinderFragment.get(fragmentManager);
         if (fragment == null) {
             fragment = LifeCycleBinderFragment.createAndAdd(fragmentManager, objectBinderClass);

@@ -55,9 +55,9 @@ public class LifeCycleAwareInfo {
         return lifeCycleAwareElements.toArray(new Element[lifeCycleAwareElements.size()]);
     }
 
-    public boolean isNested(RetainedObjectInfo entry) {
+    public boolean isNested(String name) {
         for (NestedLifeCycleAwareInfo nestedElement : nestedElements) {
-            if (nestedElement.getFieldName().equals(entry.name)) {
+            if (nestedElement.getFieldName().equals(name)) {
                 return true;
             }
         }

@@ -54,7 +54,7 @@ public class LifeCycleBinderProcessor extends AbstractProcessor {
         filer = processingEnv.getFiler();
         messager = processingEnv.getMessager();
         elementsCollector = new ElementsCollector(messager, types, elements);
-        binderGenerator = new BinderGenerator(processingEnv, types, messager);
+        binderGenerator = new BinderGenerator(processingEnv, types, messager, elements);
     }
 
     @Override

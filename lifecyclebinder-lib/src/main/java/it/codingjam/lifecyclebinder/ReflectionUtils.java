@@ -17,12 +17,13 @@
 package it.codingjam.lifecyclebinder;
 
 import android.support.annotation.NonNull;
+import java.lang.reflect.Method;
 
 class ReflectionUtils {
-    static <T> void invokeBindMethod(Class<ObjectBinder<T, T>> objectBinderClass, LifeCycleBinderFragment<T> collector, T viewParam) {
+    static <T> void invokeBindMethod(Class<?> objectBinderClass, LifeCycleBinderFragment<T> collector, T viewParam) {
         try {
-            ObjectBinder<T, T> objectBinder = objectBinderClass.newInstance();
-            objectBinder.bind(collector, viewParam);
+            Method method = objectBinderClass.getMethod("bind", LifeCycleAwareCollector.class, viewParam.getClass());
+            method.invoke(null, collector, viewParam);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Illegal access exception instantiating class " + objectBinderClass.getName(), e);
         } catch (Exception e) {
@@ -31,10 +32,10 @@ class ReflectionUtils {
     }
 
     @NonNull
-    static <T> Class<ObjectBinder<T, T>> getObjectBinderClass(T obj) {
+    static <T> Class<?> getObjectBinderClass(T obj) {
         String className = obj.getClass().getName() + "$LifeCycleBinder";
         try {
-            return (Class<ObjectBinder<T, T>>) Class.forName(className);
+            return Class.forName(className);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Error searching class " + className, e);
         }

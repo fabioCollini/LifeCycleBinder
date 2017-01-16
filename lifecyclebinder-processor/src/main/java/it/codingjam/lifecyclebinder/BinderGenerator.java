@@ -18,7 +18,6 @@ package it.codingjam.lifecyclebinder;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -42,26 +41,27 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 import static javax.lang.model.element.Modifier.FINAL;
-import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 public class BinderGenerator {
     public static final String LIFE_CYCLE_BINDER_SUFFIX = "$LifeCycleBinder";
-    private static final String DELEGATE = "delegate";
     private ProcessingEnvironment processingEnv;
     private final Types typeUtils;
     private final Messager messager;
+    private Elements elements;
 
-    public BinderGenerator(ProcessingEnvironment processingEnv, Types typeUtils, Messager messager) {
+    public BinderGenerator(ProcessingEnvironment processingEnv, Types typeUtils, Messager messager, Elements elements) {
         this.processingEnv = processingEnv;
         this.typeUtils = typeUtils;
         this.messager = messager;
+        this.elements = elements;
     }
 
     public void generateBinder(LifeCycleAwareInfo lifeCycleAwareInfo) {
@@ -75,7 +75,6 @@ public class BinderGenerator {
                     qualifiedClassName, lifeCycleAwareInfo.getLifeCycleAwareElementsArray());
 
             TypeName objectGenericType = TypeName.get(hostElement.asType());
-            TypeName viewGenericType = getObjectBinderGenericTypeName(lifeCycleAwareInfo);
 
             TypeSpec.Builder builder = TypeSpec.classBuilder(simpleClassName)
                     .addModifiers(PUBLIC)
@@ -86,8 +85,6 @@ public class BinderGenerator {
                 builder.addTypeVariable((TypeVariableName) argument);
             }
 
-            manageEventsMethods(builder, lifeCycleAwareInfo, viewGenericType);
-
             writeFile(packageElement, sourceFile, builder.build());
         } catch (IOException e) {
             throw new RuntimeException("Failed writing class file " + qualifiedClassName, e);
@@ -95,14 +92,10 @@ public class BinderGenerator {
     }
 
     private void manageEventsMethods(TypeSpec.Builder builder, LifeCycleAwareInfo lifeCycleAwareInfo, TypeName viewGenericType) {
-        if (!lifeCycleAwareInfo.eventsElements.isEmpty()) {
-            builder.addField(FieldSpec.builder(TypeName.get(lifeCycleAwareInfo.element.asType()), DELEGATE, PRIVATE).build());
-
-            for (ExecutableElement method : lifeCycleAwareInfo.eventsElements) {
-                LifeCycleEvent[] events = method.getAnnotation(BindEvent.class).value();
-                for (LifeCycleEvent event : events) {
-                    generateEventDelegateMethod(builder, event, viewGenericType, method);
-                }
+        for (ExecutableElement method : lifeCycleAwareInfo.eventsElements) {
+            LifeCycleEvent[] events = method.getAnnotation(BindEvent.class).value();
+            for (LifeCycleEvent event : events) {
+                generateEventDelegateMethod(builder, event, viewGenericType, method);
             }
         }
     }
@@ -111,14 +104,14 @@ public class BinderGenerator {
         EventMethod eventMethod = EventMethod.EVENTS.get(event);
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(eventMethod.name)
                 .addModifiers(PUBLIC)
-                .addParameter(viewGenericType, "view");
+                .addParameter(viewGenericType, "argView");
 
         StringBuilder body = new StringBuilder();
         if (eventMethod.returnType != null) {
             methodBuilder.returns(eventMethod.returnType);
             body.append("return ");
         }
-        body.append("delegate.$L(view");
+        body.append("view.$L(argView");
 
         for (int i = 0; i < eventMethod.parameterTypes.length; i++) {
             TypeName parameterType = eventMethod.parameterTypes[i];
@@ -239,17 +232,17 @@ public class BinderGenerator {
                                 .build())
                         .build();
             }
-            if (entry.fieldToPopulate != null && entry.fieldToPopulate.length() > 0) {
+            if (entry.fieldToPopulate.length() > 0) {
                 if (!lifeCycleAwareInfo.containsField(entry.fieldToPopulate, typeUtils)) {
                     error(entry.field, "Field %s not found, it's referenced in field %s", entry.fieldToPopulate, entry.field);
                 }
                 builder.addStatement("view.$L = collector.addRetainedFactory($S, $L, false)", entry.fieldToPopulate, entry.name, argument);
-                if (lifeCycleAwareInfo.isNested(entry)) {
+                if (lifeCycleAwareInfo.isNested(entry.name)) {
                     builder.addStatement("$T.bind(collector, view.$L)", entry.binderClassName, entry.fieldToPopulate);
                 }
                 builder.addStatement("collector.addLifeCycleAware(view.$L)", entry.fieldToPopulate);
             } else {
-                if (lifeCycleAwareInfo.isNested(entry)) {
+                if (lifeCycleAwareInfo.isNested(entry.name)) {
                     builder.addStatement("$T.bind(collector, collector.addRetainedFactory($S, $L, true))", entry.binderClassName, entry.name,
                             argument);
                 } else {
@@ -264,8 +257,13 @@ public class BinderGenerator {
         }
 
         if (!lifeCycleAwareInfo.eventsElements.isEmpty()) {
-            builder.addStatement("this.delegate = view");
-            builder.addStatement("collector.addLifeCycleAware(this)");
+            TypeName viewGenericType = getObjectBinderGenericTypeName(lifeCycleAwareInfo);
+            TypeName superinterface = ParameterizedTypeName.get(ClassName.get(DefaultLifeCycleAware.class), viewGenericType);
+            TypeSpec.Builder anonimBuilder = TypeSpec.anonymousClassBuilder("").addSuperinterface(superinterface);
+
+            manageEventsMethods(anonimBuilder, lifeCycleAwareInfo, viewGenericType);
+
+            builder.addStatement("collector.addLifeCycleAware($L)", anonimBuilder.build());
         }
 
         return builder.build();

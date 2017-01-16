@@ -2,10 +2,9 @@ package com.test.myActivityEvents;
 
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 
-public class MyActivity$LifeCycleBinder extends ObjectBinder<MyActivity, MyActivity> {
-    private MyObjectWithEvents$LifeCycleBinder myObject = new MyObjectWithEvents$LifeCycleBinder();
+public class MyActivity$LifeCycleBinder {
 
-    public void bind(LifeCycleAwareCollector<? extends MyActivity> collector, final MyActivity view) {
-        myObject.bind(collector, view.myObject);
+    public static void bind(LifeCycleAwareCollector<? extends MyActivity> collector, final MyActivity view) {
+        MyObjectWithEvents$LifeCycleBinder.bind(collector, view.myObject);
     }
 }
