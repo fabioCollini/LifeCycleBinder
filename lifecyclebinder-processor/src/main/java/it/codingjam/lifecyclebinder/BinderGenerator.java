@@ -203,10 +203,6 @@ public class BinderGenerator {
 
     private CodeBlock generateBindMethodBody(LifeCycleAwareInfo lifeCycleAwareInfo) {
         CodeBlock.Builder builder = CodeBlock.builder();
-        for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
-            builder = builder
-                    .addStatement("collector.addLifeCycleAware(view.$L)", element);
-        }
         for (RetainedObjectInfo entry : lifeCycleAwareInfo.retainedObjects) {
             TypeName typeName = ParameterizedTypeName.get(entry.field.asType());
             if (!(typeName instanceof ParameterizedTypeName)) {
@@ -264,6 +260,11 @@ public class BinderGenerator {
             manageEventsMethods(anonimBuilder, lifeCycleAwareInfo, viewGenericType);
 
             builder.addStatement("collector.addLifeCycleAware($L)", anonimBuilder.build());
+        }
+
+        for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
+            builder = builder
+                    .addStatement("collector.addLifeCycleAware(view.$L)", element);
         }
 
         return builder.build();

@@ -22,8 +22,8 @@ import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 
 public class MyObjectWithParcelableAndInnerObject$LifeCycleBinder {
     public static void bind(LifeCycleAwareCollector<? extends MyView> collector, final MyObjectWithParcelableAndInnerObject view) {
-        collector.addLifeCycleAware(view.myObject);
         view.myObject2 = collector.addRetainedFactory("myObject2Provider", view.myObject2Provider, false);
         collector.addLifeCycleAware(view.myObject2);
+        collector.addLifeCycleAware(view.myObject);
     }
 }

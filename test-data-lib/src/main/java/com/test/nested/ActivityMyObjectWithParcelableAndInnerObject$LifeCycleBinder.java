@@ -21,7 +21,7 @@ import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 public class ActivityMyObjectWithParcelableAndInnerObject$LifeCycleBinder {
 
     public static void bind(LifeCycleAwareCollector<? extends ActivityMyObjectWithParcelableAndInnerObject> collector, final ActivityMyObjectWithParcelableAndInnerObject view) {
-        collector.addLifeCycleAware(view.myObject);
         MyObjectWithParcelableAndInnerObject$LifeCycleBinder.bind(collector, view.myObject);
+        collector.addLifeCycleAware(view.myObject);
     }
 }

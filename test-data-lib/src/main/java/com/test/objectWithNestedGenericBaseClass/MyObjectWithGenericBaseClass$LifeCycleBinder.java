@@ -22,7 +22,7 @@ import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 
 public class MyObjectWithGenericBaseClass$LifeCycleBinder {
     public static void bind(LifeCycleAwareCollector<? extends MyView> collector, final MyObjectWithGenericBaseClass view) {
-        collector.addLifeCycleAware(view.myObject);
         MyGenericBaseClass$LifeCycleBinder.bind(collector, view);
+        collector.addLifeCycleAware(view.myObject);
     }
 }
