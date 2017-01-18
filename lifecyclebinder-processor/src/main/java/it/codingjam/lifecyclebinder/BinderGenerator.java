@@ -24,7 +24,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.squareup.javapoet.WildcardTypeName;
 import it.codingjam.lifecyclebinder.data.EventMethodElement;
 import it.codingjam.lifecyclebinder.data.LifeCycleAwareInfo;
 import it.codingjam.lifecyclebinder.data.NestedLifeCycleAwareInfo;
@@ -148,13 +147,10 @@ public class BinderGenerator {
     }
 
     private MethodSpec generateBindMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeName objectGenericType) {
-        ParameterizedTypeName collectorType = ParameterizedTypeName.get(
-                ClassName.get(LifeCycleAwareCollector.class),
-                WildcardTypeName.subtypeOf(getObjectBinderGenericTypeName(lifeCycleAwareInfo)));
         MethodSpec.Builder builder = MethodSpec.methodBuilder("bind")
                 .addModifiers(PUBLIC, STATIC)
                 .returns(void.class)
-                .addParameter(collectorType, "collector")
+                .addParameter(ClassName.get(LifeCycleAwareCollector.class), "collector")
                 .addParameter(objectGenericType, "view", FINAL)
                 .addCode(generateBindMethodBody(lifeCycleAwareInfo));
 

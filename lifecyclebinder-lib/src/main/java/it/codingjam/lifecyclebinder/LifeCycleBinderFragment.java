@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwareCollector<T> {
+public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwareCollector {
 
     private static final String LIFE_CYCLE_BINDER_FRAGMENT = "_LIFE_CYCLE_BINDER_FRAGMENT_";
     private static final String OBJECT_BINDER_CLASS = "objectBinderClass";
@@ -238,7 +238,7 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     }
 
     @Override
-    public void addLifeCycleAware(LifeCycleAware<? super T> lifeCycleAware) {
-        listeners.add(lifeCycleAware);
+    public void addLifeCycleAware(LifeCycleAware<?> lifeCycleAware) {
+        listeners.add((LifeCycleAware<? super T>) lifeCycleAware);
     }
 }

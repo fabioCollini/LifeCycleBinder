@@ -22,17 +22,14 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
 import com.test.MyObject;
 import com.test.MyView;
-
+import it.codingjam.lifecyclebinder.BindLifeCycle;
+import it.codingjam.lifecyclebinder.LifeCycleAware;
+import it.codingjam.lifecyclebinder.RetainedObjectProvider;
 import java.util.concurrent.Callable;
 
-import it.codingjam.lifecyclebinder.BindLifeCycle;
-import it.codingjam.lifecyclebinder.RetainedObjectProvider;
-import it.codingjam.lifecyclebinder.LifeCycleAware;
-
-class MyObjectWithParcelableAndInnerObject implements LifeCycleAware<MyView> {
+class MyObjectWithParcelableAndInnerObject implements LifeCycleAware<Object> {
 
     @BindLifeCycle
     MyObject myObject;
@@ -48,65 +45,65 @@ class MyObjectWithParcelableAndInnerObject implements LifeCycleAware<MyView> {
     };
 
     @Override
-    public void onCreate(MyView view, Bundle savedInstanceState, Intent intent, Bundle arguments) {
+    public void onCreate(Object view, Bundle savedInstanceState, Intent intent, Bundle arguments) {
 
     }
 
     @Override
-    public void onStart(MyView view) {
+    public void onStart(Object view) {
 
     }
 
     @Override
-    public void onResume(MyView view) {
+    public void onResume(Object view) {
 
     }
 
     @Override
-    public boolean hasOptionsMenu(MyView view) {
+    public boolean hasOptionsMenu(Object view) {
         return false;
     }
 
     @Override
-    public void onCreateOptionsMenu(MyView view, Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(Object view, Menu menu, MenuInflater inflater) {
 
     }
 
     @Override
-    public boolean onOptionsItemSelected(MyView view, MenuItem item) {
+    public boolean onOptionsItemSelected(Object view, MenuItem item) {
         return false;
     }
 
     @Override
-    public void onPause(MyView view) {
+    public void onPause(Object view) {
 
     }
 
     @Override
-    public void onStop(MyView view) {
+    public void onStop(Object view) {
 
     }
 
     @Override
-    public void onSaveInstanceState(MyView view, Bundle bundle) {
+    public void onSaveInstanceState(Object view, Bundle bundle) {
 
     }
 
     @Override
-    public void onDestroy(MyView view, boolean changingConfigurations) {
+    public void onDestroy(Object view, boolean changingConfigurations) {
 
     }
 
     @Override
-    public void onActivityResult(MyView view, int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(Object view, int requestCode, int resultCode, Intent data) {
 
     }
 
-    @Override public void onViewCreated(MyView view, Bundle savedInstanceState) {
+    @Override public void onViewCreated(Object view, Bundle savedInstanceState) {
 
     }
 
-    @Override public void onDestroyView(MyView view) {
+    @Override public void onDestroyView(Object view) {
 
     }
 }

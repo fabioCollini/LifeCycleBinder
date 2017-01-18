@@ -18,8 +18,8 @@ package it.codingjam.lifecyclebinder;
 
 import java.util.concurrent.Callable;
 
-public interface LifeCycleAwareCollector<T> {
+public interface LifeCycleAwareCollector {
     <R> R addRetainedFactory(String key, Callable<R> factory, boolean addInLifeCycleAwareList);
 
-    void addLifeCycleAware(LifeCycleAware<? super T> lifeCycleAware);
+    void addLifeCycleAware(LifeCycleAware<?> lifeCycleAware);
 }

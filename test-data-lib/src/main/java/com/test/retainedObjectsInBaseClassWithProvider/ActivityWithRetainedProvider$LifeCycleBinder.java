@@ -21,7 +21,7 @@ import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 import java.util.concurrent.Callable;
 
 public class ActivityWithRetainedProvider$LifeCycleBinder {
-    public static void bind(LifeCycleAwareCollector<? extends ActivityWithRetainedProvider> collector, final ActivityWithRetainedProvider view) {
+    public static void bind(LifeCycleAwareCollector collector, final ActivityWithRetainedProvider view) {
         view.myObjectInBaseActivity = collector.addRetainedFactory("myObject", new Callable<MyObject>() {
             @Override
             public MyObject call() throws Exception {

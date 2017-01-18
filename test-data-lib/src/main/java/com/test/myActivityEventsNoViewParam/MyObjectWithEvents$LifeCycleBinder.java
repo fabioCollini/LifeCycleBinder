@@ -10,7 +10,7 @@ import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 
 public class MyObjectWithEvents$LifeCycleBinder {
 
-    public static void bind(LifeCycleAwareCollector<? extends Object> collector, final MyObjectWithEvents view) {
+    public static void bind(LifeCycleAwareCollector collector, final MyObjectWithEvents view) {
         collector.addLifeCycleAware(new DefaultLifeCycleAware<Object>() {
             public void onCreate(Object argView, Bundle arg0, Intent arg1, Bundle arg2) {
                 view.myOnCreate(arg0, arg1, arg2);

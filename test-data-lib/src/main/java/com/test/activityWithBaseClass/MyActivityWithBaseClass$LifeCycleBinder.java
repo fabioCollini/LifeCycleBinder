@@ -20,7 +20,7 @@ import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 
 public class MyActivityWithBaseClass$LifeCycleBinder {
 
-    public static void bind(LifeCycleAwareCollector<? extends MyActivityWithBaseClass> collector, final MyActivityWithBaseClass view) {
+    public static void bind(LifeCycleAwareCollector collector, final MyActivityWithBaseClass view) {
         BaseClass$LifeCycleBinder.bind(collector, view);
         collector.addLifeCycleAware(view.myObject);
     }

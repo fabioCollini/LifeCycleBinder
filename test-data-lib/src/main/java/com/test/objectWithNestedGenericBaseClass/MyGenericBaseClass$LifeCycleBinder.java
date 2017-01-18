@@ -20,7 +20,7 @@ import com.test.MyView;
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 
 public class MyGenericBaseClass$LifeCycleBinder {
-  public static <T extends MyView> void bind(LifeCycleAwareCollector<? extends T> collector, final MyGenericBaseClass<T> view) {
+  public static <T extends MyView> void bind(LifeCycleAwareCollector collector, final MyGenericBaseClass<T> view) {
     collector.addLifeCycleAware(view.myBaseObject);
   }
 }

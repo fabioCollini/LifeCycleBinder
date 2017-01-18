@@ -16,12 +16,10 @@
 
 package com.test.objectWithNestedGenericBaseClass;
 
-import com.test.MyView;
-
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 
 public class MyObjectWithGenericBaseClass$LifeCycleBinder {
-    public static void bind(LifeCycleAwareCollector<? extends MyView> collector, final MyObjectWithGenericBaseClass view) {
+    public static void bind(LifeCycleAwareCollector collector, final MyObjectWithGenericBaseClass view) {
         MyGenericBaseClass$LifeCycleBinder.bind(collector, view);
         collector.addLifeCycleAware(view.myObject);
     }

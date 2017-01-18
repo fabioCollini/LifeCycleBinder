@@ -19,7 +19,7 @@ package com.test.retained;
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 
 public class ActivityWithRetained$LifeCycleBinder {
-    public static void bind(LifeCycleAwareCollector<? extends ActivityWithRetained> collector, final ActivityWithRetained view) {
+    public static void bind(LifeCycleAwareCollector collector, final ActivityWithRetained view) {
         collector.addRetainedFactory("myObjectProvider", view.myObjectProvider, true);
     }
 }
