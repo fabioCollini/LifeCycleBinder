@@ -36,4 +36,8 @@ public class ProcessorEventsTest {
     @Test public void testRetainedWithField() throws Exception {
         check("com.test.retainedEvents.ActivityWithRetainedAndField");
     }
+
+    @Test public void testMyActivityWithEventsNoViewParam() throws Exception {
+        check("com.test.myActivityEventsNoViewParam.MyActivity");
+    }
 }

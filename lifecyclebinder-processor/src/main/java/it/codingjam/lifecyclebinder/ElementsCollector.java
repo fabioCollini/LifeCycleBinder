@@ -18,6 +18,7 @@ package it.codingjam.lifecyclebinder;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
+import it.codingjam.lifecyclebinder.data.EventMethodElement;
 import it.codingjam.lifecyclebinder.data.LifeCycleAwareInfo;
 import it.codingjam.lifecyclebinder.data.NestedLifeCycleAwareInfo;
 import it.codingjam.lifecyclebinder.data.RetainedObjectInfo;
@@ -68,7 +69,7 @@ public class ElementsCollector {
 
         for (Element element : eventsElements) {
             LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, element);
-            info.eventsElements.add((ExecutableElement) element);
+            info.eventsElements.add(new EventMethodElement((ExecutableElement) element));
         }
         return new ArrayList<>(elementsByClass.values());
     }

@@ -16,17 +16,18 @@
 
 package it.codingjam.lifecyclebinder.mvvm;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import it.codingjam.lifecyclebinder.BindEvent;
-import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
 
 import static it.codingjam.lifecyclebinder.LifeCycleEvent.CREATE;
 
-public class Logger extends DefaultLifeCycleAware<Object> {
+public class Logger {
 
     private static final String TAG = "ACTIVITY_LOG";
 
-    @BindEvent(CREATE) public void onCreate(FragmentActivity activity) {
+    @BindEvent(CREATE) public void onCreate(FragmentActivity activity, Bundle savedInstanceState, Intent intent, Bundle arguments) {
     }
 
     //@BindEvent({

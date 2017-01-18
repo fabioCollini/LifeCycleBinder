@@ -54,7 +54,7 @@ public class ViewModel {
     public final ObservableBoolean loading = new ObservableBoolean();
 
     @BindEvent(CREATE)
-    public void onCreate(MainActivity view, Bundle savedInstanceState, Intent intent, Bundle arguments) {
+    public void onCreate(Bundle savedInstanceState, Intent intent, Bundle arguments) {
         if (model == null) {
             if (savedInstanceState != null) {
                 model = savedInstanceState.getParcelable(MODEL);
@@ -66,12 +66,12 @@ public class ViewModel {
     }
 
     @BindEvent(SAVE_INSTANCE_STATE)
-    public void onSaveInstanceState(MainActivity view, Bundle bundle) {
+    public void onSaveInstanceState(Bundle bundle) {
         bundle.putParcelable(MODEL, model);
     }
 
     @BindEvent(RESUME)
-    public void onResume(MainActivity view) {
+    public void onResume() {
         if (!loading.get() && model.note.get() == null) {
             reloadData();
         }
@@ -96,24 +96,24 @@ public class ViewModel {
     }
 
     @BindEvent(ACTIVITY_RESULT)
-    public void onActivityResult(MainActivity view, int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SHARE_REQUEST_CODE) {
             //...
         }
     }
 
     @BindEvent(HAS_OPTION_MENU)
-    public boolean hasOptionsMenu(MainActivity view) {
+    public boolean hasOptionsMenu() {
         return true;
     }
 
     @BindEvent(CREATE_OPTION_MENU)
-    public void onCreateOptionsMenu(MainActivity view, Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.share_menu, menu);
     }
 
     @BindEvent(OPTION_ITEM_SELECTED)
-    public boolean onOptionsItemSelected(MainActivity view, MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.share_item) {
             share();
             return true;

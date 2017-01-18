@@ -21,11 +21,11 @@ import static it.codingjam.lifecyclebinder.LifeCycleEvent.START;
 import static it.codingjam.lifecyclebinder.LifeCycleEvent.STOP;
 import static it.codingjam.lifecyclebinder.LifeCycleEvent.VIEW_CREATED;
 
-public class EventMethod {
-    public static final EnumMap<LifeCycleEvent, EventMethod> EVENTS = createMap();
+public class EventMethodDefinition {
+    public static final EnumMap<LifeCycleEvent, EventMethodDefinition> EVENTS = createMap();
 
-    private static EnumMap<LifeCycleEvent, EventMethod> createMap() {
-        EnumMap<LifeCycleEvent, EventMethod> ret = new EnumMap<>(LifeCycleEvent.class);
+    private static EnumMap<LifeCycleEvent, EventMethodDefinition> createMap() {
+        EnumMap<LifeCycleEvent, EventMethodDefinition> ret = new EnumMap<>(LifeCycleEvent.class);
 
         ClassName bundle = bestGuess("android.os.Bundle");
         ClassName intent = bestGuess("android.content.Intent");
@@ -56,17 +56,17 @@ public class EventMethod {
 
     public final TypeName[] parameterTypes;
 
-    private EventMethod(String name, TypeName returnType, TypeName... parameterTypes) {
+    private EventMethodDefinition(String name, TypeName returnType, TypeName... parameterTypes) {
         this.name = name;
         this.parameterTypes = parameterTypes;
         this.returnType = returnType;
     }
 
-    private static EventMethod voidMethod(String name, TypeName... parameterTypes) {
-        return new EventMethod(name, null, parameterTypes);
+    private static EventMethodDefinition voidMethod(String name, TypeName... parameterTypes) {
+        return new EventMethodDefinition(name, null, parameterTypes);
     }
 
-    private static EventMethod booleanMethod(String name, TypeName... parameterTypes) {
-        return new EventMethod(name, ClassName.BOOLEAN, parameterTypes);
+    private static EventMethodDefinition booleanMethod(String name, TypeName... parameterTypes) {
+        return new EventMethodDefinition(name, ClassName.BOOLEAN, parameterTypes);
     }
 }

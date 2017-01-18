@@ -25,18 +25,19 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.squareup.javapoet.WildcardTypeName;
+import it.codingjam.lifecyclebinder.data.EventMethodElement;
 import it.codingjam.lifecyclebinder.data.LifeCycleAwareInfo;
 import it.codingjam.lifecyclebinder.data.NestedLifeCycleAwareInfo;
 import it.codingjam.lifecyclebinder.data.RetainedObjectInfo;
 import it.codingjam.lifecyclebinder.utils.TypeUtils;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
@@ -92,36 +93,50 @@ public class BinderGenerator {
     }
 
     private void manageEventsMethods(TypeSpec.Builder builder, LifeCycleAwareInfo lifeCycleAwareInfo, TypeName viewGenericType) {
-        for (ExecutableElement method : lifeCycleAwareInfo.eventsElements) {
-            LifeCycleEvent[] events = method.getAnnotation(BindEvent.class).value();
+        for (EventMethodElement method : lifeCycleAwareInfo.eventsElements) {
+            LifeCycleEvent[] events = method.events;
             for (LifeCycleEvent event : events) {
                 generateEventDelegateMethod(builder, event, viewGenericType, method);
             }
         }
     }
 
-    private void generateEventDelegateMethod(TypeSpec.Builder builder, LifeCycleEvent event, TypeName viewGenericType, ExecutableElement method) {
-        EventMethod eventMethod = EventMethod.EVENTS.get(event);
-        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(eventMethod.name)
+    private void generateEventDelegateMethod(TypeSpec.Builder builder, LifeCycleEvent event, TypeName viewGenericType, EventMethodElement method) {
+        EventMethodDefinition eventMethodDefinition = EventMethodDefinition.EVENTS.get(event);
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(eventMethodDefinition.name)
                 .addModifiers(PUBLIC)
                 .addParameter(viewGenericType, "argView");
 
         StringBuilder body = new StringBuilder();
-        if (eventMethod.returnType != null) {
-            methodBuilder.returns(eventMethod.returnType);
+        if (eventMethodDefinition.returnType != null) {
+            methodBuilder.returns(eventMethodDefinition.returnType);
             body.append("return ");
         }
-        body.append("view.$L(argView");
-
-        for (int i = 0; i < eventMethod.parameterTypes.length; i++) {
-            TypeName parameterType = eventMethod.parameterTypes[i];
-            methodBuilder = methodBuilder.addParameter(parameterType, "arg" + i);
-            body.append(", ").append("arg").append(i);
+        List<String> args = new ArrayList<>();
+        if (method.containsViewParameter(viewGenericType)) {
+            args.add("argView");
         }
-        body.append(");");
+
+        for (int i = 0; i < eventMethodDefinition.parameterTypes.length; i++) {
+            TypeName parameterType = eventMethodDefinition.parameterTypes[i];
+            methodBuilder = methodBuilder.addParameter(parameterType, "arg" + i);
+            args.add("arg" + i);
+        }
+        body.append("view.$L(").append(listToString(args)).append(");");
         methodBuilder.addCode(body.toString(), method.getSimpleName());
 
         builder.addMethod(methodBuilder.build());
+    }
+
+    private String listToString(List<String> args) {
+        StringBuilder b = new StringBuilder();
+        for (String arg : args) {
+            if (b.length() > 0) {
+                b.append(", ");
+            }
+            b.append(arg);
+        }
+        return b.toString();
     }
 
     private void writeFile(PackageElement packageElement, JavaFileObject sourceFile, TypeSpec typeSpec) throws IOException {
@@ -163,13 +178,15 @@ public class BinderGenerator {
             if (lifeCycleAwareInfo.eventsElements.isEmpty()) {
                 return TypeName.get(hostElement.asType());
             } else {
-                return getViewTypeFromEventMethods(lifeCycleAwareInfo.eventsElements);
+                for (EventMethodElement eventsElement : lifeCycleAwareInfo.eventsElements) {
+                    TypeName viewType = eventsElement.viewTypeName;
+                    if (viewType != null) {
+                        return viewType;
+                    }
+                }
+                return ClassName.get(Object.class);
             }
         }
-    }
-
-    private TypeName getViewTypeFromEventMethods(List<ExecutableElement> eventsElements) {
-        return TypeName.get(eventsElements.get(0).getParameters().get(0).asType());
     }
 
     private TypeName searchObjectBinderGenericTypeName(TypeElement hostElement, List<TypeName> actualTypeArguments) {
