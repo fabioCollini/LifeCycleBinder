@@ -31,7 +31,6 @@ import it.codingjam.lifecyclebinder.data.RetainedObjectInfo;
 import it.codingjam.lifecyclebinder.utils.TypeUtils;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.processing.Messager;
@@ -109,33 +108,22 @@ public class BinderGenerator {
         StringBuilder body = new StringBuilder();
         if (eventMethodDefinition.returnType != null) {
             methodBuilder.returns(eventMethodDefinition.returnType);
-            body.append("return ");
+            if (!method.isVoidReturn()) {
+                body.append("return ");
+            }
         }
-        List<String> args = new ArrayList<>();
-        if (method.containsViewParameter(viewGenericType)) {
-            args.add("argView");
-        }
-
         for (int i = 0; i < eventMethodDefinition.parameterTypes.length; i++) {
             TypeName parameterType = eventMethodDefinition.parameterTypes[i];
             methodBuilder = methodBuilder.addParameter(parameterType, "arg" + i);
-            args.add("arg" + i);
         }
-        body.append("view.$L(").append(listToString(args)).append(");");
-        methodBuilder.addCode(body.toString(), method.getSimpleName());
+
+        method.createBody(methodBuilder, event, viewGenericType, eventMethodDefinition, body);
+
+        if (eventMethodDefinition.returnType != null && method.isVoidReturn()) {
+            methodBuilder.addStatement("return true");
+        }
 
         builder.addMethod(methodBuilder.build());
-    }
-
-    private String listToString(List<String> args) {
-        StringBuilder b = new StringBuilder();
-        for (String arg : args) {
-            if (b.length() > 0) {
-                b.append(", ");
-            }
-            b.append(arg);
-        }
-        return b.toString();
     }
 
     private void writeFile(PackageElement packageElement, JavaFileObject sourceFile, TypeSpec typeSpec) throws IOException {

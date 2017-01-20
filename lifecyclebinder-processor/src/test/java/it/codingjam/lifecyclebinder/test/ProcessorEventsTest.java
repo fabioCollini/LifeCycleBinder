@@ -38,6 +38,6 @@ public class ProcessorEventsTest {
     }
 
     @Test public void testMyActivityWithEventsNoViewParam() throws Exception {
-        check("com.test.myActivityEventsNoViewParam.MyActivity");
+        check("com.test.myActivityEventsNoViewParam.MyObjectWithEvents");
     }
 }

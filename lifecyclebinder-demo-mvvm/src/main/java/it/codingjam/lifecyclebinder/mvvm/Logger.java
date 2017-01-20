@@ -16,25 +16,31 @@
 
 package it.codingjam.lifecyclebinder.mvvm;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import it.codingjam.lifecyclebinder.BindEvent;
+import it.codingjam.lifecyclebinder.LifeCycleEvent;
 
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.ACTIVITY_RESULT;
 import static it.codingjam.lifecyclebinder.LifeCycleEvent.CREATE;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.CREATE_OPTION_MENU;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.DESTROY;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.HAS_OPTION_MENU;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.OPTION_ITEM_SELECTED;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.PAUSE;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.RESUME;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.SAVE_INSTANCE_STATE;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.START;
+import static it.codingjam.lifecyclebinder.LifeCycleEvent.STOP;
 
 public class Logger {
 
     private static final String TAG = "ACTIVITY_LOG";
 
-    @BindEvent(CREATE) public void onCreate(FragmentActivity activity, Bundle savedInstanceState, Intent intent, Bundle arguments) {
+    @BindEvent({
+            CREATE, START, RESUME, PAUSE, STOP, DESTROY, SAVE_INSTANCE_STATE, ACTIVITY_RESULT, HAS_OPTION_MENU, CREATE_OPTION_MENU,
+            OPTION_ITEM_SELECTED
+    })
+    public void log(Object activity, LifeCycleEvent event) {
+        Log.i(TAG, "Event " + event + ": " + activity);
     }
-
-    //@BindEvent({
-    //        CREATE, START, RESUME, PAUSE, STOP, DESTROY, SAVE_INSTANCE_STATE, ACTIVITY_RESULT, HAS_OPTION_MENU, CREATE_OPTION_MENU,
-    //        OPTION_ITEM_SELECTED
-    //})
-    //public void log(Object activity, LifeCycleEvent event) {
-    //    Log.i(TAG, "Event " + event + ": " + activity);
-    //}
 }

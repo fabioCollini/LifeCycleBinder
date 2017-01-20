@@ -7,17 +7,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
+import it.codingjam.lifecyclebinder.LifeCycleEvent;
 
 public class MyObjectWithEvents$LifeCycleBinder {
 
     public static void bind(LifeCycleAwareCollector collector, final MyObjectWithEvents view) {
         collector.addLifeCycleAware(new DefaultLifeCycleAware<Object>() {
             public void onCreate(Object argView, Bundle arg0, Intent arg1, Bundle arg2) {
-                view.myOnCreate(arg0, arg1, arg2);
+                view.myOnCreate();
             }
 
             public void onStart(Object argView) {
-                view.myOnStart();
+                view.myOnStart(LifeCycleEvent.START);
             }
 
             public void onResume(Object argView) {
@@ -29,11 +30,12 @@ public class MyObjectWithEvents$LifeCycleBinder {
             }
 
             public void onCreateOptionsMenu(Object argView, Menu arg0, MenuInflater arg1) {
-                view.myOnCreateOptionsMenu(arg0, arg1);
+                view.myOnCreateOptionsMenu(LifeCycleEvent.CREATE_OPTION_MENU, arg0, arg1);
             }
 
             public boolean onOptionsItemSelected(Object argView, MenuItem arg0) {
-                return view.myOnOptionsItemSelected(arg0);
+                view.myOnOptionsItemSelected(arg0);
+                return true;
             }
 
             public void onPause(Object argView) {
