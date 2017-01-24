@@ -56,8 +56,13 @@ public class EventMethodElement {
         return ClassName.get(element.getReturnType()).equals(ClassName.VOID);
     }
 
-    public void createBody(MethodSpec.Builder methodBuilder, LifeCycleEvent event, TypeName viewGenericType,
-            EventMethodDefinition eventMethodDefinition, StringBuilder body) {
+    public void createBody(MethodSpec.Builder methodBuilder, LifeCycleEvent event, TypeName viewGenericType, EventMethodDefinition definition) {
+        StringBuilder body = new StringBuilder();
+        if (definition.returnType != null) {
+            if (!isVoidReturn()) {
+                body.append("return ");
+            }
+        }
         List<String> args = new ArrayList<>();
         List<? extends VariableElement> parameters = element.getParameters();
         boolean addEventType = false;
@@ -74,7 +79,7 @@ public class EventMethodElement {
                     pos++;
                 }
                 if (parameters.size() - pos > 0) {
-                    for (int i = 0; i < eventMethodDefinition.parameterTypes.length; i++) {
+                    for (int i = 0; i < definition.parameterTypes.length; i++) {
                         args.add("arg" + i);
                     }
                 }
@@ -85,6 +90,10 @@ public class EventMethodElement {
             methodBuilder.addStatement(body.toString(), element.getSimpleName(), EVENT_CLASS_NAME);
         } else {
             methodBuilder.addStatement(body.toString(), element.getSimpleName());
+        }
+
+        if (definition.returnType != null && isVoidReturn()) {
+            methodBuilder.addStatement("return true");
         }
     }
 

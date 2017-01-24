@@ -105,23 +105,15 @@ public class BinderGenerator {
                 .addModifiers(PUBLIC)
                 .addParameter(viewGenericType, "argView");
 
-        StringBuilder body = new StringBuilder();
         if (eventMethodDefinition.returnType != null) {
             methodBuilder.returns(eventMethodDefinition.returnType);
-            if (!method.isVoidReturn()) {
-                body.append("return ");
-            }
         }
         for (int i = 0; i < eventMethodDefinition.parameterTypes.length; i++) {
             TypeName parameterType = eventMethodDefinition.parameterTypes[i];
             methodBuilder = methodBuilder.addParameter(parameterType, "arg" + i);
         }
 
-        method.createBody(methodBuilder, event, viewGenericType, eventMethodDefinition, body);
-
-        if (eventMethodDefinition.returnType != null && method.isVoidReturn()) {
-            methodBuilder.addStatement("return true");
-        }
+        method.createBody(methodBuilder, event, viewGenericType, eventMethodDefinition);
 
         builder.addMethod(methodBuilder.build());
     }
