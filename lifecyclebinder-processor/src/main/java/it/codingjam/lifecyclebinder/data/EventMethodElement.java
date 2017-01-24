@@ -7,9 +7,9 @@ import it.codingjam.lifecyclebinder.BindEvent;
 import it.codingjam.lifecyclebinder.EventMethodDefinition;
 import it.codingjam.lifecyclebinder.LifeCycleEvent;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.VariableElement;
 
 public class EventMethodElement {
@@ -25,31 +25,31 @@ public class EventMethodElement {
     }
 
     private TypeName retrieveViewTypeName(ExecutableElement element) {
-        List<? extends VariableElement> parameters = element.getParameters();
         for (LifeCycleEvent lifeCycleEvent : events) {
             EventMethodDefinition definition = EventMethodDefinition.EVENTS.get(lifeCycleEvent);
+            LinkedList<VariableElement> parameters = new LinkedList<>(element.getParameters());
             int size = parameters.size();
-            if (size == 0 || size == definition.parameterTypes.length) {
+            if (size == 0) {
                 return null;
-            } else if (size > definition.parameterTypes.length) {
-                TypeName ret = ClassName.get(parameters.get(0).asType());
-                if (!ret.equals(ClassName.get(LifeCycleEvent.class))) {
-                    return ret;
+            } else {
+                if (definition.parameterTypes.length > 0) {
+                    if (ClassName.get(parameters.getLast().asType()).equals(definition.parameterTypes[definition.parameterTypes.length - 1])) {
+                        for (int i = 0; i < definition.parameterTypes.length; i++) {
+                            parameters.removeLast();
+                        }
+                    }
+                }
+                if (!parameters.isEmpty()) {
+                    if (ClassName.get(parameters.getLast().asType()).equals(ClassName.get(LifeCycleEvent.class))) {
+                        parameters.removeLast();
+                    }
+                }
+                if (!parameters.isEmpty()) {
+                    return ClassName.get(parameters.getFirst().asType());
                 }
             }
         }
         return null;
-    }
-
-    public Name getSimpleName() {
-        return element.getSimpleName();
-    }
-
-    public boolean containsLifecycleParameters(LifeCycleEvent event) {
-        EventMethodDefinition definition = EventMethodDefinition.EVENTS.get(event);
-        List<? extends VariableElement> parameters = element.getParameters();
-        int size = parameters.size();
-        return size >= definition.parameterTypes.length;
     }
 
     public boolean isVoidReturn() {

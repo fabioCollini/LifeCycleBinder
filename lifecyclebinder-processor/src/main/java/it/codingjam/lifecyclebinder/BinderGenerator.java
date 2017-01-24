@@ -145,7 +145,7 @@ public class BinderGenerator {
         return builder.build();
     }
 
-    private TypeName getObjectBinderGenericTypeName(LifeCycleAwareInfo lifeCycleAwareInfo) {
+    public TypeName getObjectBinderGenericTypeName(LifeCycleAwareInfo lifeCycleAwareInfo) {
         TypeElement hostElement = lifeCycleAwareInfo.element;
         TypeName typeName = searchObjectBinderGenericTypeName(hostElement, null);
         if (typeName != null) {

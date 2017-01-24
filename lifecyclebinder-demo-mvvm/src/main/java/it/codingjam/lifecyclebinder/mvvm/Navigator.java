@@ -1,7 +1,6 @@
 package it.codingjam.lifecyclebinder.mvvm;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import it.codingjam.lifecyclebinder.BindEvent;
 import it.codingjam.lifecyclebinder.LifeCycleBinder;
@@ -13,7 +12,7 @@ public class Navigator {
 
     private FragmentActivity activity;
 
-    @BindEvent(CREATE) public void onCreate(FragmentActivity activity, Bundle arg0, Intent arg1, Bundle arg2) {
+    @BindEvent(CREATE) public void onCreate(FragmentActivity activity) {
         this.activity = activity;
     }
 
