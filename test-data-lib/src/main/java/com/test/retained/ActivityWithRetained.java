@@ -17,13 +17,10 @@
 package com.test.retained;
 
 import android.support.v4.app.FragmentActivity;
-
 import com.test.MyObject;
 import com.test.MyView;
-
-import java.util.concurrent.Callable;
-
 import it.codingjam.lifecyclebinder.RetainedObjectProvider;
+import java.util.concurrent.Callable;
 
 public class ActivityWithRetained extends FragmentActivity implements MyView {
     @RetainedObjectProvider

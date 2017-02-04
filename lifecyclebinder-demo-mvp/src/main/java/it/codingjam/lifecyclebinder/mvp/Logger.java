@@ -21,9 +21,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 import it.codingjam.lifecyclebinder.DefaultLifeCycleAware;
 
-
+@BindLifeCycle
 public class Logger extends DefaultLifeCycleAware<Object> {
 
     private static final String TAG = "ACTIVITY_LOG";

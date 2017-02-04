@@ -16,10 +16,18 @@
 
 package com.test.objectWithGenericBaseClass;
 
+import com.test.MyObject$LifeCycleBinder;
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
+import java.util.concurrent.Callable;
 
 public class MyObjectWithGenericBaseClass$LifeCycleBinder {
-    public static void bind(LifeCycleAwareCollector collector, final MyObjectWithGenericBaseClass view) {
-        collector.addLifeCycleAware(view.myObject);
+    public static MyObjectWithGenericBaseClass bind(LifeCycleAwareCollector collector, MyObjectWithGenericBaseClass lifeCycleAware, String key,
+            Callable<MyObjectWithGenericBaseClass> factory, boolean addInList) {
+        MyObjectWithGenericBaseClass ret = collector.getOrCreate(lifeCycleAware, key, factory);
+        MyObject$LifeCycleBinder.bind(collector, ret.myObject, null, null, true);
+        if (addInList) {
+            collector.addLifeCycleAware(ret);
+        }
+        return ret;
     }
 }

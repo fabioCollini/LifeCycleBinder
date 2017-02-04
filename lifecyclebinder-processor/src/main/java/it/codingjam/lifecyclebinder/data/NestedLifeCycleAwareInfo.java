@@ -22,44 +22,34 @@ import it.codingjam.lifecyclebinder.BinderGenerator;
 import it.codingjam.lifecyclebinder.utils.TypeUtils;
 import java.util.List;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
 
 public class NestedLifeCycleAwareInfo {
 
-    public final Element field;
-
     public final RetainedObjectInfo retained;
     private final String fieldName;
-    private final String bindMethodParameter;
     private final TypeName binderClassName;
-    private final List<TypeName> typeArguments;
 
-    private NestedLifeCycleAwareInfo(Element field, RetainedObjectInfo retained, String fieldName, String bindMethodParameter, TypeName targetClassName) {
-        this.field = field;
+    private NestedLifeCycleAwareInfo(RetainedObjectInfo retained, String fieldName, TypeName targetClassName) {
         this.retained = retained;
         this.fieldName = fieldName;
-        this.bindMethodParameter = bindMethodParameter;
-        typeArguments = TypeUtils.getTypeArguments(targetClassName);
+        binderClassName = createBinderClassName(targetClassName);
+    }
+
+    public static ClassName createBinderClassName(TypeName targetClassName) {
+        List<TypeName> typeArguments = TypeUtils.getTypeArguments(targetClassName);
         if (typeArguments.isEmpty()) {
-            this.binderClassName = ClassName.bestGuess(targetClassName + BinderGenerator.LIFE_CYCLE_BINDER_SUFFIX);
+            return ClassName.bestGuess(targetClassName + BinderGenerator.LIFE_CYCLE_BINDER_SUFFIX);
         } else {
-            this.binderClassName = ClassName.bestGuess(TypeUtils.getRawType(targetClassName) + BinderGenerator.LIFE_CYCLE_BINDER_SUFFIX);
-            //this.binderClassName = ParameterizedTypeName.get(
-            //        ClassName.bestGuess(it.codingjam.lifecyclebinder.utils.TypeUtils.getRawType(targetClassName) + BinderGenerator.LIFE_CYCLE_BINDER_SUFFIX),
-            //        typeArguments.toArray(new TypeName[typeArguments.size()]));
+            return ClassName.bestGuess(TypeUtils.getRawType(targetClassName) + BinderGenerator.LIFE_CYCLE_BINDER_SUFFIX);
         }
     }
 
     public static NestedLifeCycleAwareInfo createNestedLifeCycleAwareInfo(Element field) {
-        return new NestedLifeCycleAwareInfo(field, null, field.getSimpleName().toString(), "view." + field.getSimpleName().toString(), TypeName.get(field.asType()));
+        return new NestedLifeCycleAwareInfo(null, field.getSimpleName().toString(), TypeName.get(field.asType()));
     }
 
     public static NestedLifeCycleAwareInfo createRetainedObject(Element field, RetainedObjectInfo retained) {
-        return new NestedLifeCycleAwareInfo(field, retained, field.getSimpleName().toString(), "view." + field.getSimpleName().toString(), retained.typeName);
-    }
-
-    public static NestedLifeCycleAwareInfo createSuperclass(TypeElement field) {
-        return new NestedLifeCycleAwareInfo(field, null, "superClass$lifeCycleBinder", "view", TypeName.get(field.getSuperclass()));
+        return new NestedLifeCycleAwareInfo(retained, field.getSimpleName().toString(), retained.typeName);
     }
 
     public TypeName getBinderClassName() {
@@ -68,9 +58,5 @@ public class NestedLifeCycleAwareInfo {
 
     public String getFieldName() {
         return fieldName;
-    }
-
-    public String getBindMethodParameter() {
-        return bindMethodParameter;
     }
 }

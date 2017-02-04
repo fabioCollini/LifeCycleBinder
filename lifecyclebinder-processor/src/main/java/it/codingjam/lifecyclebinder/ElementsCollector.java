@@ -52,14 +52,17 @@ public class ElementsCollector {
         this.elements = elements;
     }
 
-    List<LifeCycleAwareInfo> createLifeCycleAwareElements(Set<? extends Element> lifeCycleAwareElements, Set<? extends Element> retainedObjectElements,
+    List<LifeCycleAwareInfo> createLifeCycleAwareElements(Set<? extends Element> lifeCycleAwareElements,
+            Set<? extends Element> retainedObjectElements,
             Set<? extends Element> eventsElements) {
         Map<Element, LifeCycleAwareInfo> elementsByClass = new HashMap<>();
 
         for (Element element : lifeCycleAwareElements) {
             //checkElementTypeIsLifeCycleAware(element);
             LifeCycleAwareInfo info = getLifeCycleAwareInfo(elementsByClass, element);
-            info.lifeCycleAwareElements.add((VariableElement) element);
+            if (element instanceof VariableElement) {
+                info.lifeCycleAwareElements.add((VariableElement) element);
+            }
         }
 
         for (Element element : retainedObjectElements) {
@@ -85,16 +88,17 @@ public class ElementsCollector {
     public void calculateNestedElements(List<LifeCycleAwareInfo> elementsByClass) {
         for (LifeCycleAwareInfo lifeCycleAwareInfo : elementsByClass) {
             for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
-                for (LifeCycleAwareInfo entry : elementsByClass) {
-                    if (entry.element.asType().equals(element.asType())) {
-                        lifeCycleAwareInfo.nestedElements.add(NestedLifeCycleAwareInfo.createNestedLifeCycleAwareInfo(element));
-                    }
-                }
+                //for (LifeCycleAwareInfo entry : elementsByClass) {
+                //    if (entry.element.asType().equals(element.asType())) {
+                lifeCycleAwareInfo.nestedElements.add(NestedLifeCycleAwareInfo.createNestedLifeCycleAwareInfo(element));
+                //    }
+                //}
             }
             TypeMirror superclass = lifeCycleAwareInfo.element.getSuperclass();
             for (LifeCycleAwareInfo entry : elementsByClass) {
                 if (TypeUtils.isRawTypeEquals(superclass, entry.element.asType())) {
-                    lifeCycleAwareInfo.nestedElements.add(NestedLifeCycleAwareInfo.createSuperclass(lifeCycleAwareInfo.element));
+                    lifeCycleAwareInfo.superClasses.add(
+                            NestedLifeCycleAwareInfo.createBinderClassName(TypeName.get(lifeCycleAwareInfo.element.getSuperclass())));
                     break;
                 }
             }
@@ -110,7 +114,12 @@ public class ElementsCollector {
     }
 
     private LifeCycleAwareInfo getLifeCycleAwareInfo(Map<Element, LifeCycleAwareInfo> elementsByClass, Element element) {
-        TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
+        TypeElement enclosingElement;
+        if (element instanceof TypeElement) {
+            enclosingElement = (TypeElement) element;
+        } else {
+            enclosingElement = (TypeElement) element.getEnclosingElement();
+        }
         LifeCycleAwareInfo info = elementsByClass.get(enclosingElement);
         if (info == null) {
             info = new LifeCycleAwareInfo(enclosingElement);

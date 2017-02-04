@@ -25,8 +25,12 @@ import org.truth0.Truth;
 import static it.codingjam.lifecyclebinder.test.FileLoader.check;
 
 public class ProcessorTest {
+    @Test public void testMyObject() throws Exception {
+        check("com.test.myObject.MyObject");
+    }
+
     @Test public void testMyActivity() throws Exception {
-        check("com.test.myActivity.MyActivity");
+        check("com.test.myActivity.MyActivity", "com.test.myActivity.MyObject");
     }
 
     @Test public void testRetained() throws Exception {
@@ -42,12 +46,12 @@ public class ProcessorTest {
     }
 
     @Test public void testNestedObjects() throws Exception {
-        check("com.test.nested.ActivityMyObjectWithParcelableAndInnerObject");
+        check("com.test.nested.ActivityMyObjectWithInnerObject");
     }
 
     @Test public void testNestedObjects2() throws Exception {
-        check("com.test.nested.ActivityMyObjectWithParcelableAndInnerObject",
-                "com.test.nested.MyObjectWithParcelableAndInnerObject");
+        check("com.test.nested.ActivityMyObjectWithInnerObject",
+                "com.test.nested.MyObjectWithInnerObject");
     }
 
     @Test public void testNestedFactory() throws Exception {

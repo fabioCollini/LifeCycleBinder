@@ -71,7 +71,7 @@ public class BinderGenerator {
 
         try {
             JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(
-                    qualifiedClassName, lifeCycleAwareInfo.getLifeCycleAwareElementsArray());
+                    qualifiedClassName, lifeCycleAwareInfo.element);
 
             TypeName objectGenericType = TypeName.get(hostElement.asType());
 
@@ -127,12 +127,39 @@ public class BinderGenerator {
     }
 
     private MethodSpec generateBindMethod(LifeCycleAwareInfo lifeCycleAwareInfo, TypeName objectGenericType) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("bind")
-                .addModifiers(PUBLIC, STATIC)
-                .returns(void.class)
-                .addParameter(ClassName.get(LifeCycleAwareCollector.class), "collector")
-                .addParameter(objectGenericType, "view", FINAL)
-                .addCode(generateBindMethodBody(lifeCycleAwareInfo));
+        boolean implementsLifeCycleAware = implementsLifeCycleAware(ClassName.get(lifeCycleAwareInfo.element.asType()));
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("bind").addModifiers(PUBLIC, STATIC);
+        String lifeCycleAwareVariableName;
+        boolean nestedObject;
+        if (implementsLifeCycleAware) {
+            builder = builder
+                    .returns(objectGenericType)
+                    .addParameter(ClassName.get(LifeCycleAwareCollector.class), "collector")
+                    .addParameter(objectGenericType, "lifeCycleAware")
+                    .addParameter(String.class, "key")
+                    .addParameter(ParameterizedTypeName.get(ClassName.get(Callable.class), objectGenericType), "factory")
+                    .addParameter(TypeName.BOOLEAN, "addInList");
+            builder.addStatement("$T ret = collector.getOrCreate(lifeCycleAware, key, factory)", objectGenericType);
+            lifeCycleAwareVariableName = "ret";
+            nestedObject = true;
+        } else {
+            builder = builder
+                    .returns(void.class)
+                    .addParameter(ClassName.get(LifeCycleAwareCollector.class), "collector")
+                    .addParameter(objectGenericType, "view", FINAL);
+            lifeCycleAwareVariableName = "view";
+            nestedObject = false;
+        }
+
+        builder = builder.addCode(generateBindMethodBody(lifeCycleAwareVariableName, lifeCycleAwareInfo, nestedObject));
+
+        if (implementsLifeCycleAware) {
+            builder
+                    .beginControlFlow("if (addInList)")
+                    .addStatement("collector.addLifeCycleAware(ret)")
+                    .endControlFlow()
+                    .addStatement("return ret");
+        }
 
         for (TypeParameterElement typeParameterElement : lifeCycleAwareInfo.element.getTypeParameters()) {
             List<? extends TypeMirror> boundsElements = typeParameterElement.getBounds();
@@ -194,8 +221,13 @@ public class BinderGenerator {
         }
     }
 
-    private CodeBlock generateBindMethodBody(LifeCycleAwareInfo lifeCycleAwareInfo) {
+    private CodeBlock generateBindMethodBody(String lifeCycleAwareVariableName, LifeCycleAwareInfo lifeCycleAwareInfo, boolean nestedObject) {
         CodeBlock.Builder builder = CodeBlock.builder();
+        for (TypeName superClassBinder : lifeCycleAwareInfo.superClasses) {
+            String format = nestedObject ? "$T.bind(collector, $L, null, null, false)" : "$T.bind(collector, $L)";
+            builder.addStatement(format, superClassBinder, lifeCycleAwareVariableName);
+        }
+
         for (RetainedObjectInfo entry : lifeCycleAwareInfo.retainedObjects) {
             TypeName typeName = ParameterizedTypeName.get(entry.field.asType());
             if (!(typeName instanceof ParameterizedTypeName)) {
@@ -207,7 +239,7 @@ public class BinderGenerator {
             }
             Object argument;
             if (parameterizedTypeName.rawType.equals(TypeName.get(Callable.class))) {
-                argument = "view." + entry.field;
+                argument = lifeCycleAwareVariableName + "." + entry.field;
             } else {
                 TypeName returnTypeName = parameterizedTypeName.typeArguments.get(0);
                 argument = TypeSpec.anonymousClassBuilder("")
@@ -217,7 +249,7 @@ public class BinderGenerator {
                                 .addModifiers(PUBLIC)
                                 .addException(Exception.class)
                                 .returns(returnTypeName)
-                                .addStatement("return view.$L.get()", entry.field)
+                                .addStatement("return $L.$L.get()", lifeCycleAwareVariableName, entry.field)
                                 .build())
                         .build();
             }
@@ -225,26 +257,22 @@ public class BinderGenerator {
                 if (!lifeCycleAwareInfo.containsField(entry.fieldToPopulate, typeUtils)) {
                     error(entry.field, "Field %s not found, it's referenced in field %s", entry.fieldToPopulate, entry.field);
                 }
-                builder.addStatement("view.$L = collector.addRetainedFactory($S, $L, false)", entry.fieldToPopulate, entry.name, argument);
-                if (lifeCycleAwareInfo.isNested(entry.name)) {
-                    builder.addStatement("$T.bind(collector, view.$L)", entry.binderClassName, entry.fieldToPopulate);
-                }
-                if (implementsLifeCycleAware(entry.typeName)) {
-                    builder.addStatement("collector.addLifeCycleAware(view.$L)", entry.fieldToPopulate);
-                }
+                builder.addStatement("$L.$L = $T.bind(collector, null, $S, $L, true)", lifeCycleAwareVariableName, entry.fieldToPopulate,
+                        entry.binderClassName, entry.name, argument);
             } else {
-                if (lifeCycleAwareInfo.isNested(entry.name)) {
-                    boolean addInLifeCycleAwareList = implementsLifeCycleAware(entry.typeName);
-                    builder.addStatement("$T.bind(collector, collector.addRetainedFactory($S, $L, $L))", entry.binderClassName, entry.name,
-                            argument, addInLifeCycleAwareList);
-                } else {
-                    builder.addStatement("collector.addRetainedFactory($S, $L, true)", entry.name, argument);
-                }
+                //if (lifeCycleAwareInfo.isNested(entry.name)) {
+                //    boolean addInLifeCycleAwareList = implementsLifeCycleAware(entry.typeName);
+                //    builder.addStatement("$T.bind(collector, collector.addRetainedFactory($S, $L, $L))", entry.binderClassName, entry.name,
+                //            argument, addInLifeCycleAwareList);
+                //} else {
+                builder.addStatement("$T.bind(collector, null, $S, $L, true)", entry.binderClassName, entry.name, argument);
+                //}
             }
         }
         for (NestedLifeCycleAwareInfo info : lifeCycleAwareInfo.nestedElements) {
             if (info.retained == null) {
-                builder.addStatement("$T.bind(collector, $L)", info.getBinderClassName(), info.getBindMethodParameter());
+                builder.addStatement("$T.bind(collector, $L.$L, null, null, true)", info.getBinderClassName(), lifeCycleAwareVariableName,
+                        info.getFieldName());
             }
         }
 
@@ -256,12 +284,6 @@ public class BinderGenerator {
             manageEventsMethods(anonimBuilder, lifeCycleAwareInfo, viewGenericType);
 
             builder.addStatement("collector.addLifeCycleAware($L)", anonimBuilder.build());
-        }
-
-        for (Element element : lifeCycleAwareInfo.lifeCycleAwareElements) {
-            if (implementsLifeCycleAware(ClassName.get(element.asType()))) {
-                builder = builder.addStatement("collector.addLifeCycleAware(view.$L)", element);
-            }
         }
 
         return builder.build();

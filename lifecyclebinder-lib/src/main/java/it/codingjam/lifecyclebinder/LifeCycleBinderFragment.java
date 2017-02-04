@@ -241,4 +241,14 @@ public class LifeCycleBinderFragment<T> extends Fragment implements LifeCycleAwa
     public void addLifeCycleAware(LifeCycleAware<?> lifeCycleAware) {
         listeners.add((LifeCycleAware<? super T>) lifeCycleAware);
     }
+
+    @Override public <R> R getOrCreate(R lifeCycleAware, String key, Callable<R> factory) {
+        R ret;
+        if (lifeCycleAware != null) {
+            ret = lifeCycleAware;
+        } else {
+            ret = addRetainedFactory(key, factory, false);
+        }
+        return ret;
+    }
 }

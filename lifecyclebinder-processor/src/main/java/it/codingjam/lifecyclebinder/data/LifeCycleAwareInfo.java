@@ -16,6 +16,7 @@
 
 package it.codingjam.lifecyclebinder.data;
 
+import com.squareup.javapoet.TypeName;
 import java.util.ArrayList;
 import java.util.List;
 import javax.lang.model.element.Element;
@@ -36,6 +37,8 @@ public class LifeCycleAwareInfo {
 
     public final List<RetainedObjectInfo> retainedObjects = new ArrayList<>();
 
+    public final List<TypeName> superClasses = new ArrayList<>();
+
     public LifeCycleAwareInfo(TypeElement element) {
         this.element = element;
     }
@@ -48,10 +51,6 @@ public class LifeCycleAwareInfo {
                 ", nestedElements=" + nestedElements +
                 ", retainedObjects=" + retainedObjects +
                 '}';
-    }
-
-    public Element[] getLifeCycleAwareElementsArray() {
-        return lifeCycleAwareElements.toArray(new Element[lifeCycleAwareElements.size()]);
     }
 
     public boolean isNested(String name) {

@@ -29,7 +29,7 @@ import it.codingjam.lifecyclebinder.LifeCycleAware;
 import it.codingjam.lifecyclebinder.RetainedObjectProvider;
 import java.util.concurrent.Callable;
 
-class MyObjectWithParcelableAndInnerObject implements LifeCycleAware<Object> {
+class MyObjectWithInnerObject implements LifeCycleAware<Object> {
 
     @BindLifeCycle
     MyObject myObject;
@@ -108,7 +108,7 @@ class MyObjectWithParcelableAndInnerObject implements LifeCycleAware<Object> {
     }
 }
 
-public class ActivityMyObjectWithParcelableAndInnerObject extends FragmentActivity implements MyView {
+public class ActivityMyObjectWithInnerObject extends FragmentActivity implements MyView {
     @BindLifeCycle
-    MyObjectWithParcelableAndInnerObject myObject;
+    MyObjectWithInnerObject myObject;
 }

@@ -16,12 +16,19 @@
 
 package com.test.nestedfactory;
 
+import com.test.MyObject$LifeCycleBinder;
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
+import java.util.concurrent.Callable;
 
 public class MyObjectWithParcelableAndInnerObject$LifeCycleBinder {
-    public static void bind(LifeCycleAwareCollector collector, final MyObjectWithParcelableAndInnerObject view) {
-        view.myObject2 = collector.addRetainedFactory("myObject2Provider", view.myObject2Provider, false);
-        collector.addLifeCycleAware(view.myObject2);
-        collector.addLifeCycleAware(view.myObject);
+    public static MyObjectWithParcelableAndInnerObject bind(LifeCycleAwareCollector collector, MyObjectWithParcelableAndInnerObject lifeCycleAware,
+            String key, Callable<MyObjectWithParcelableAndInnerObject> factory, boolean addInList) {
+        MyObjectWithParcelableAndInnerObject ret = collector.getOrCreate(lifeCycleAware, key, factory);
+        ret.myObject2 = MyObject$LifeCycleBinder.bind(collector, null, "myObject2Provider", ret.myObject2Provider, true);
+        MyObject$LifeCycleBinder.bind(collector, ret.myObject, null, null, true);
+        if (addInList) {
+            collector.addLifeCycleAware(ret);
+        }
+        return ret;
     }
 }

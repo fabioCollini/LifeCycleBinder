@@ -20,6 +20,6 @@ package it.codingjam.lifecyclebinder;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.TYPE})
 public @interface BindLifeCycle {
 }

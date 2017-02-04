@@ -18,10 +18,9 @@ package com.test.nested;
 
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 
-public class MyObjectWithParcelableAndInnerObject$LifeCycleBinder {
-    public static void bind(LifeCycleAwareCollector collector, final MyObjectWithParcelableAndInnerObject view) {
-        view.myObject2 = collector.addRetainedFactory("myObject2Provider", view.myObject2Provider, false);
-        collector.addLifeCycleAware(view.myObject2);
-        collector.addLifeCycleAware(view.myObject);
+public class ActivityMyObjectWithInnerObject$LifeCycleBinder {
+
+    public static void bind(LifeCycleAwareCollector collector, final ActivityMyObjectWithInnerObject view) {
+        MyObjectWithInnerObject$LifeCycleBinder.bind(collector, view.myObject, null, null, true);
     }
 }

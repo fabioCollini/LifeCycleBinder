@@ -22,4 +22,6 @@ public interface LifeCycleAwareCollector {
     <R> R addRetainedFactory(String key, Callable<R> factory, boolean addInLifeCycleAwareList);
 
     void addLifeCycleAware(LifeCycleAware<?> lifeCycleAware);
+
+    <R> R getOrCreate(R lifeCycleAware, String key, Callable<R> factory);
 }
