@@ -85,7 +85,7 @@ public class EventMethodElement {
                 }
             }
         }
-        body.append("view.$L(").append(listToString(args)).append(")");
+        body.append("lifeCycleAware.$L(").append(listToString(args)).append(")");
         if (addEventType) {
             methodBuilder.addStatement(body.toString(), element.getSimpleName(), EVENT_CLASS_NAME);
         } else {
