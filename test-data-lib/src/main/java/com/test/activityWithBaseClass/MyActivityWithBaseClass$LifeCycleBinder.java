@@ -23,6 +23,6 @@ public class MyActivityWithBaseClass$LifeCycleBinder {
 
     public static void bind(LifeCycleAwareCollector collector, final MyActivityWithBaseClass view) {
         BaseClass$LifeCycleBinder.bind(collector, view);
-        MyObject$LifeCycleBinder.bind(collector, view.myObject, null, null, true);
+        MyObject$LifeCycleBinder.bind(collector, collector.getOrCreate(view.myObject, null, null), true);
     }
 }

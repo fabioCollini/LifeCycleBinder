@@ -21,6 +21,6 @@ import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 public class ActivityMyObjectWithInnerObject$LifeCycleBinder {
 
     public static void bind(LifeCycleAwareCollector collector, final ActivityMyObjectWithInnerObject view) {
-        MyObjectWithInnerObject$LifeCycleBinder.bind(collector, view.myObject, null, null, true);
+        MyObjectWithInnerObject$LifeCycleBinder.bind(collector, collector.getOrCreate(view.myObject, null, null), true);
     }
 }

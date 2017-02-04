@@ -19,16 +19,14 @@ package com.test.objectWithNestedGenericBaseClass;
 import com.test.MyObject$LifeCycleBinder;
 import com.test.MyView;
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
-import java.util.concurrent.Callable;
 
 public class MyGenericBaseClass$LifeCycleBinder {
-    public static <T extends MyView> MyGenericBaseClass<T> bind(LifeCycleAwareCollector collector, MyGenericBaseClass<T> lifeCycleAware, String key,
-            Callable<MyGenericBaseClass<T>> factory, boolean addInList) {
-        MyGenericBaseClass<T> ret = collector.getOrCreate(lifeCycleAware, key, factory);
-        MyObject$LifeCycleBinder.bind(collector, ret.myBaseObject, null, null, true);
+    public static <T extends MyView> MyGenericBaseClass<T> bind(LifeCycleAwareCollector collector, MyGenericBaseClass<T> lifeCycleAware,
+            boolean addInList) {
+        MyObject$LifeCycleBinder.bind(collector, collector.getOrCreate(lifeCycleAware.myBaseObject, null, null), true);
         if (addInList) {
-            collector.addLifeCycleAware(ret);
+            collector.addLifeCycleAware(lifeCycleAware);
         }
-        return ret;
+        return lifeCycleAware;
     }
 }

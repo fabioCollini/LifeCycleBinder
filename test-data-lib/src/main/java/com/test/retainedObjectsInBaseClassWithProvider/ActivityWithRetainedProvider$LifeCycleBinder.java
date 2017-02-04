@@ -23,11 +23,11 @@ import java.util.concurrent.Callable;
 
 public class ActivityWithRetainedProvider$LifeCycleBinder {
     public static void bind(LifeCycleAwareCollector collector, final ActivityWithRetainedProvider view) {
-        view.myObjectInBaseActivity = MyObject$LifeCycleBinder.bind(collector, null, "myObject", new Callable<MyObject>() {
+        view.myObjectInBaseActivity = MyObject$LifeCycleBinder.bind(collector, collector.getOrCreate(null, "myObject", new Callable<MyObject>() {
             @Override
             public MyObject call() throws Exception {
                 return view.myObject.get();
             }
-        }, true);
+        }), true);
     }
 }

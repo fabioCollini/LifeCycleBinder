@@ -18,17 +18,14 @@ package com.test.nested;
 
 import com.test.MyObject$LifeCycleBinder;
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
-import java.util.concurrent.Callable;
 
 public class MyObjectWithInnerObject$LifeCycleBinder {
-    public static MyObjectWithInnerObject bind(LifeCycleAwareCollector collector, MyObjectWithInnerObject lifeCycleAware, String key,
-            Callable<MyObjectWithInnerObject> factory, boolean addInList) {
-        MyObjectWithInnerObject ret = collector.getOrCreate(lifeCycleAware, key, factory);
-        ret.myObject2 = MyObject$LifeCycleBinder.bind(collector, null, "myObject2Provider", ret.myObject2Provider, true);
-        MyObject$LifeCycleBinder.bind(collector, ret.myObject, null, null, true);
+    public static MyObjectWithInnerObject bind(LifeCycleAwareCollector collector, MyObjectWithInnerObject lifeCycleAware, boolean addInList) {
+        lifeCycleAware.myObject2 = MyObject$LifeCycleBinder.bind(collector, collector.getOrCreate(null, "myObject2Provider", lifeCycleAware.myObject2Provider), true);
+        MyObject$LifeCycleBinder.bind(collector, collector.getOrCreate(lifeCycleAware.myObject, null, null), true);
         if (addInList) {
-            collector.addLifeCycleAware(ret);
+            collector.addLifeCycleAware(lifeCycleAware);
         }
-        return ret;
+        return lifeCycleAware;
     }
 }

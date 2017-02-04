@@ -21,7 +21,7 @@ import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 
 public class ActivityWithRetained2$LifeCycleBinder {
     public static void bind(LifeCycleAwareCollector collector, final ActivityWithRetained2 view) {
-        MyObject$LifeCycleBinder.bind(collector, null, "myObject", view.myObject, true);
-        MyObject$LifeCycleBinder.bind(collector, null, "myObject2", view.myObject2, true);
+        MyObject$LifeCycleBinder.bind(collector, collector.getOrCreate(null, "myObject", view.myObject), true);
+        MyObject$LifeCycleBinder.bind(collector, collector.getOrCreate(null, "myObject2", view.myObject2), true);
     }
 }
