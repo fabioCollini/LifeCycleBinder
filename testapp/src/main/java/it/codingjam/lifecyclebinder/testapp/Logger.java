@@ -27,9 +27,10 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.codingjam.lifecyclebinder.BindLifeCycle;
 import it.codingjam.lifecyclebinder.LifeCycleAware;
 
-
+@BindLifeCycle
 public class Logger implements LifeCycleAware<Object> {
 
     private String name;
