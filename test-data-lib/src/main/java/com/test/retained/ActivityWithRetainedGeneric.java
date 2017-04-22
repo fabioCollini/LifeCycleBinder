@@ -14,14 +14,23 @@
  *  limitations under the License.
  */
 
-package com.test.activityWithBaseClass;
+package com.test.retained;
 
-import com.test.MyObject$LifeCycleBinder;
+import android.support.v4.app.FragmentActivity;
 
-import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
+import com.test.MyObjectGeneric;
+import com.test.MyView;
 
-public class BaseClass$LifeCycleBinder {
-    public static void bind(LifeCycleAwareCollector collector, BaseClass view) {
-        MyObject$LifeCycleBinder.bind(collector, view.myBaseObject, true);
-    }
+import java.util.concurrent.Callable;
+
+import it.codingjam.lifecyclebinder.RetainedObjectProvider;
+
+public class ActivityWithRetainedGeneric extends FragmentActivity implements MyView {
+    @RetainedObjectProvider
+    Callable<MyObjectGeneric<String>> myObjectProvider = new Callable<MyObjectGeneric<String>>() {
+        @Override
+        public MyObjectGeneric<String> call() throws Exception {
+            return new MyObjectGeneric<>();
+        }
+    };
 }

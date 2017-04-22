@@ -17,10 +17,13 @@
 package it.codingjam.lifecyclebinder.test;
 
 import com.google.testing.compile.JavaSourceSubjectFactory;
-import it.codingjam.lifecyclebinder.LifeCycleBinderProcessor;
-import javax.tools.JavaFileObject;
+
 import org.junit.Test;
 import org.truth0.Truth;
+
+import javax.tools.JavaFileObject;
+
+import it.codingjam.lifecyclebinder.LifeCycleBinderProcessor;
 
 import static it.codingjam.lifecyclebinder.test.FileLoader.check;
 
@@ -37,8 +40,16 @@ public class ProcessorTest {
         check("com.test.retained.ActivityWithRetained");
     }
 
+    @Test public void testRetainedWithGeneric() throws Exception {
+        check("com.test.retained.ActivityWithRetainedGeneric");
+    }
+
     @Test public void testRetainedWithField() throws Exception {
         check("com.test.retained.ActivityWithRetainedAndField");
+    }
+
+    @Test public void testRetainedGenericWithField() throws Exception {
+        check("com.test.retained.ActivityWithRetainedGenericAndField");
     }
 
     @Test public void testRetained2() throws Exception {

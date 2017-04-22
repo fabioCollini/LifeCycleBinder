@@ -14,14 +14,14 @@
  *  limitations under the License.
  */
 
-package com.test.activityWithBaseClass;
+package com.test.retained;
 
-import com.test.MyObject$LifeCycleBinder;
+import com.test.MyObjectGeneric$LifeCycleBinder;
 
 import it.codingjam.lifecyclebinder.LifeCycleAwareCollector;
 
-public class BaseClass$LifeCycleBinder {
-    public static void bind(LifeCycleAwareCollector collector, BaseClass view) {
-        MyObject$LifeCycleBinder.bind(collector, view.myBaseObject, true);
+public class ActivityWithRetainedGenericAndField$LifeCycleBinder {
+    public static void bind(LifeCycleAwareCollector collector, final ActivityWithRetainedGenericAndField view) {
+        view.myObjectGeneric = MyObjectGeneric$LifeCycleBinder.bind(collector, collector.getOrCreate(null, "myObjectProvider", view.myObjectProvider), true);
     }
 }

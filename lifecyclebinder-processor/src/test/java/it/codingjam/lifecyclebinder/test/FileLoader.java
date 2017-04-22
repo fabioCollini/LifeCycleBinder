@@ -22,6 +22,7 @@ import com.google.testing.compile.JavaSourceSubjectFactory;
 import org.truth0.Truth;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -33,7 +34,8 @@ public class FileLoader {
     public static JavaFileObject loadClass(String source) {
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new FileReader("../test-data-lib/src/main/java/" + source.replace('.', '/') + ".java"));
+            File file = new File("test-data-lib/src/main/java/" + source.replace('.', '/') + ".java");
+            reader = new BufferedReader(new FileReader(file));
             StringBuilder b = new StringBuilder();
             String s;
             while ((s = reader.readLine()) != null) {

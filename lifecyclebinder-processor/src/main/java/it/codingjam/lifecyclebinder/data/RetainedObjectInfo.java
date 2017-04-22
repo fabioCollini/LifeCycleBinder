@@ -17,10 +17,13 @@
 package it.codingjam.lifecyclebinder.data;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
+
+import javax.lang.model.element.VariableElement;
+
 import it.codingjam.lifecyclebinder.RetainedObjectProvider;
 import it.codingjam.lifecyclebinder.utils.TypeUtils;
-import javax.lang.model.element.VariableElement;
 
 public class RetainedObjectInfo {
     public final String name;
@@ -37,7 +40,13 @@ public class RetainedObjectInfo {
         this.name = field.getSimpleName().toString();
         this.field = field;
         this.typeName = TypeUtils.getTypeArguments(field.asType()).get(0);
-        this.binderClassName = ClassName.bestGuess(typeName.toString() + "$LifeCycleBinder");
+        TypeName rawType;
+        if (typeName instanceof ParameterizedTypeName) {
+            rawType = ((ParameterizedTypeName) typeName).rawType;
+        } else {
+            rawType = typeName;
+        }
+        this.binderClassName = ClassName.bestGuess(rawType.toString() + "$LifeCycleBinder");
         this.fieldToPopulate = field.getAnnotation(RetainedObjectProvider.class).value();
     }
 }
